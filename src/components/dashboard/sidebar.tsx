@@ -80,7 +80,7 @@ export function Sidebar() {
     </aside>
 
     {/* Mobile bottom navigation */}
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 py-2 safe-area-pb">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 pb-safe">
       {navItems.map(({ href, icon: Icon, label }) => {
         const active = path === href || (href !== "/dashboard" && path.startsWith(href));
         return (
@@ -88,23 +88,23 @@ export function Sidebar() {
             key={href}
             href={href}
             className={cn(
-              "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all duration-150",
+              "flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-150",
               active ? "text-terra-400" : "text-white/40"
             )}
           >
-            <Icon size={20} strokeWidth={active ? 2.5 : 2} />
-            <span className="text-[10px] font-medium">{label}</span>
+            <Icon size={22} strokeWidth={active ? 2.5 : 2} />
+            <span className="text-[11px] font-semibold">{label}</span>
           </Link>
         );
       })}
       <Link
         href="/dashboard/events/new"
-        className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-white/40 transition-all duration-150"
+        className="flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-150"
       >
-        <div className="w-8 h-8 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
-          <Plus size={16} className="text-white" />
+        <div className="w-10 h-10 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
+          <Plus size={18} className="text-white" />
         </div>
-        <span className="text-[10px] font-medium text-white/40">Nieuw</span>
+        <span className="text-[11px] font-semibold text-white/40">Nieuw</span>
       </Link>
     </nav>
     </>

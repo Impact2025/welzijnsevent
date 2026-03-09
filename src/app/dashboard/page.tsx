@@ -23,14 +23,14 @@ export default async function DashboardPage() {
   const liveEvent = enrichedEvents.find(e => e.status === "live");
 
   return (
-    <div className="p-7 max-w-3xl mx-auto animate-fade-in">
+    <div className="px-4 py-5 sm:p-7 max-w-3xl mx-auto animate-fade-in">
 
       {/* Page header */}
-      <div className="mb-8">
+      <div className="mb-5 sm:mb-8">
         <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">
           Dashboard
         </p>
-        <h1 className="text-3xl font-extrabold text-ink tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
           Welkom terug
         </h1>
         <p className="text-sm text-ink-muted mt-1 font-medium">
@@ -40,24 +40,24 @@ export default async function DashboardPage() {
 
       {/* Live banner */}
       {liveEvent && (
-        <div className="mb-7 rounded-2xl overflow-hidden">
-          <div className="bg-gradient-to-r from-terra-600 via-terra-500 to-terra-400 p-5 text-white">
-            <div className="flex items-center justify-between">
-              <div>
+        <div className="mb-5 sm:mb-7 rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-terra-600 via-terra-500 to-terra-400 p-4 sm:p-5 text-white">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full">
                     <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Live Nu</span>
                   </div>
                 </div>
-                <p className="font-bold text-lg leading-snug">{liveEvent.title}</p>
+                <p className="font-bold text-base sm:text-lg leading-snug truncate">{liveEvent.title}</p>
                 {liveEvent.location && (
-                  <p className="text-white/70 text-xs mt-0.5 font-medium">{liveEvent.location}</p>
+                  <p className="text-white/70 text-xs mt-0.5 font-medium truncate">{liveEvent.location}</p>
                 )}
               </div>
               <Link
                 href={`/dashboard/events/${liveEvent.id}/live`}
-                className="flex items-center gap-1.5 bg-white text-terra-600 font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-terra-50 transition-colors shadow-lg shrink-0"
+                className="flex items-center gap-1.5 bg-white text-terra-600 font-bold text-sm px-4 py-3 rounded-xl hover:bg-terra-50 transition-colors shadow-lg shrink-0"
               >
                 <Zap size={13} className="fill-terra-500" />
                 Open
@@ -68,7 +68,7 @@ export default async function DashboardPage() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4 mb-7">
+      <div className="grid grid-cols-3 gap-3 mb-5 sm:mb-7">
         <KpiCard
           label="Registraties"
           value={totalAttendees.toLocaleString("nl")}

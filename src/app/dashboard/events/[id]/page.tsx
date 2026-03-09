@@ -23,8 +23,8 @@ export default async function EventDetailPage({ params }: { params: { id: string
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
       {/* Header */}
-      <div className="relative bg-terra-500 pt-10 pb-6 px-4 text-white">
-        <Link href="/dashboard/events" className="flex items-center gap-1 text-white/80 text-sm mb-4 hover:text-white">
+      <div className="relative bg-terra-500 pt-safe-top pb-6 px-4 text-white">
+        <Link href="/dashboard/events" className="inline-flex items-center gap-1.5 text-white/80 text-sm mb-4 hover:text-white py-2 -ml-1">
           <ArrowLeft size={16} />
           Terug
         </Link>
@@ -50,7 +50,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
               </div>
             )}
           </div>
-          <button className="text-white/70 hover:text-white">
+          <button className="text-white/70 hover:text-white p-2 -mr-2 rounded-xl hover:bg-white/10 transition-colors">
             <MoreHorizontal size={20} />
           </button>
         </div>
@@ -127,7 +127,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
           </button>
         </div>
 
-        <div className="pb-24 space-y-2">
+        <div className="pb-8 space-y-2">
           {eventSessions.length === 0 ? (
             <div className="py-10 text-center text-ink-muted">
               <Calendar size={32} className="mx-auto mb-2 opacity-30" />
@@ -148,23 +148,6 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
       </div>
 
-      {/* Bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav max-w-md mx-auto">
-        {[
-          { label: "Home",        icon: "🏠", href: "/dashboard" },
-          { label: "Events",      icon: "📅", href: "/dashboard/events", active: true },
-          { label: "Contact",     icon: "💬", href: "#" },
-          { label: "Instellingen",icon: "⚙️", href: "/dashboard/instellingen" },
-        ].map(item => (
-          <Link key={item.label} href={item.href}
-            className={`flex flex-col items-center gap-0.5 text-xs font-medium px-3 py-1 rounded-lg
-              ${item.active ? "text-terra-500" : "text-ink-muted"}`}
-          >
-            <span className="text-base">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

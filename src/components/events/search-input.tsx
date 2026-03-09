@@ -34,7 +34,7 @@ export function SearchInput({
   }
 
   return (
-    <div className={`flex items-center gap-2 rounded-xl px-3 py-2.5 ${className}`}>
+    <div className={`flex items-center gap-2 rounded-xl px-3 py-3 focus-within:ring-2 focus-within:ring-terra-300 focus-within:ring-offset-0 transition-shadow ${className}`}>
       <Search className="w-4 h-4 text-ink-muted shrink-0" />
       <input
         type="text"

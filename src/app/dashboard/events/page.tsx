@@ -59,19 +59,19 @@ export default async function EventsPage({
   const statusParams = statusFilter ? `status=${statusFilter}` : "";
 
   return (
-    <div className="p-6 max-w-3xl mx-auto animate-fade-in">
+    <div className="px-4 py-5 sm:p-6 max-w-3xl mx-auto animate-fade-in">
       {/* Page header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start sm:items-center justify-between mb-5 sm:mb-6 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ink">Evenementen</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-ink">Evenementen</h1>
           <p className="text-ink-muted text-sm">{allEvents.length} evenementen totaal</p>
         </div>
         <Link
           href="/dashboard/events/new"
-          className="flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors shadow-sm"
+          className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors shadow-sm shrink-0"
         >
           <Plus size={16} />
-          Nieuw evenement
+          <span className="hidden sm:inline">Nieuw </span>evenement
         </Link>
       </div>
 

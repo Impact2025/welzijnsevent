@@ -20,7 +20,7 @@ export function EventCard({ event }: EventCardProps) {
   return (
     <Link
       href={`/dashboard/events/${event.id}`}
-      className="flex items-center gap-4 px-5 py-4 hover:bg-cream/70 transition-all duration-150 group border-b border-sand/40 last:border-0"
+      className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-4 hover:bg-cream/70 transition-all duration-150 group border-b border-sand/40 last:border-0"
     >
       {/* Status dot */}
       <div className="relative shrink-0 mt-0.5">
@@ -43,7 +43,7 @@ export function EventCard({ event }: EventCardProps) {
             {getStatusLabel(event.status ?? "draft").toUpperCase()}
           </span>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-ink-muted font-medium">
+        <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-3 text-[11px] text-ink-muted font-medium">
           <span className="flex items-center gap-1">
             <Calendar size={10} className="opacity-70" />
             {formatDate(event.startsAt)}, {formatTime(event.startsAt)}

@@ -16,24 +16,24 @@ export function KpiCard({ label, value, trend, trendLabel, icon, className }: Kp
 
   return (
     <div className={cn(
-      "card-base p-5 relative overflow-hidden group",
+      "card-base p-3 sm:p-5 relative overflow-hidden group",
       className
     )}>
       {/* Top accent stripe */}
       <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-terra-400/60 via-terra-500 to-terra-400/60" />
 
-      <div className="flex items-start justify-between mb-4">
-        <p className="text-[10px] font-bold text-ink-muted uppercase tracking-widest leading-none">
+      <div className="flex items-start justify-between mb-2 sm:mb-4">
+        <p className="text-[9px] sm:text-[10px] font-bold text-ink-muted uppercase tracking-wide sm:tracking-widest leading-none">
           {label}
         </p>
         {icon && (
-          <div className="w-7 h-7 rounded-lg bg-terra-50 flex items-center justify-center text-terra-500 group-hover:bg-terra-100 transition-colors">
+          <div className="hidden sm:flex w-7 h-7 rounded-lg bg-terra-50 items-center justify-center text-terra-500 group-hover:bg-terra-100 transition-colors">
             {icon}
           </div>
         )}
       </div>
 
-      <p className="text-[2rem] font-extrabold text-ink tracking-tight leading-none mb-2">
+      <p className="text-2xl sm:text-[2rem] font-extrabold text-ink tracking-tight leading-none mb-1.5 sm:mb-2">
         {value}
       </p>
 
