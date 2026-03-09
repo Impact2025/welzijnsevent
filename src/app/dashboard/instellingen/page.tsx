@@ -1,31 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, Palette, CreditCard, Bell, Check } from "lucide-react";
-
-const PLANS = [
-  {
-    id: "basis",
-    name: "Basis",
-    price: "Gratis",
-    features: ["5 evenementen/jaar", "100 deelnemers", "Basis rapportage"],
-    current: false,
-  },
-  {
-    id: "welzijn",
-    name: "Welzijn Pro",
-    price: "€49/mnd",
-    features: ["Onbeperkte evenementen", "1.000 deelnemers", "Netwerk matching", "Live Q&A & Polls"],
-    current: true,
-  },
-  {
-    id: "congres",
-    name: "Congres",
-    price: "€149/mnd",
-    features: ["Onbeperkte deelnemers", "White-label", "API toegang", "Prioriteit support"],
-    current: false,
-  },
-];
+import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2 } from "lucide-react";
+import { PLAN_FEATURES, PLAN_LIMITS, PLAN_PRICES_CENTS } from "@/lib/plans";
+import { formatDate } from "@/lib/utils";
 
 const PRESET_COLORS = ["#C8522A", "#2D5A3D", "#1C4ED8", "#7C3AED", "#B45309"];
 
@@ -35,29 +13,44 @@ const DEFAULT_NOTIFICATIONS = [
   { key: "weeklyReport",    label: "Wekelijks rapport",  desc: "Samenvatting elke maandag", on: false },
 ];
 
+const UPGRADE_PLANS = ["starter", "groei", "organisatie"] as const;
+
+interface Subscription {
+  id: string;
+  plan: string;
+  status: string | null;
+  expiresAt: string | null;
+  amountPaid: number | null;
+}
+
 export default function InstellingenPage() {
   const [orgId, setOrgId]        = useState<string | null>(null);
   const [name, setName]          = useState("");
   const [logo, setLogo]          = useState("");
   const [primaryColor, setColor] = useState("#C8522A");
   const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
+  const [subscription, setSubscription]   = useState<Subscription | null>(null);
   const [saved, setSaved]        = useState(false);
   const [saving, setSaving]      = useState(false);
   const [loading, setLoading]    = useState(true);
+  const [upgrading, setUpgrading] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/organizations")
-      .then(r => r.json())
-      .then(d => {
-        if (d.organization) {
-          setOrgId(d.organization.id);
-          setName(d.organization.name ?? "");
-          setLogo(d.organization.logo ?? "");
-          setColor(d.organization.primaryColor ?? "#C8522A");
-        }
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch("/api/organizations").then(r => r.json()),
+      fetch("/api/subscriptions").then(r => r.json()),
+    ]).then(([orgData, subData]) => {
+      if (orgData.organization) {
+        setOrgId(orgData.organization.id);
+        setName(orgData.organization.name ?? "");
+        setLogo(orgData.organization.logo ?? "");
+        setColor(orgData.organization.primaryColor ?? "#C8522A");
+      }
+      if (subData.subscription) {
+        setSubscription(subData.subscription);
+      }
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
 
   const toggleNotification = (key: string) => {
@@ -73,17 +66,27 @@ export default function InstellingenPage() {
       await fetch("/api/organizations", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: orgId,
-          name,
-          logo: logo || null,
-          primaryColor,
-        }),
+        body: JSON.stringify({ name, logo: logo || null, primaryColor }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpgrade = async (plan: string) => {
+    setUpgrading(plan);
+    try {
+      const res = await fetch("/api/payments/multisafepay/subscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await res.json();
+      if (data.paymentUrl) window.location.href = data.paymentUrl;
+    } finally {
+      setUpgrading(null);
     }
   };
 
@@ -96,11 +99,16 @@ export default function InstellingenPage() {
     );
   }
 
+  const currentPlan = subscription?.plan ?? "trial";
+  const isActive = subscription?.status === "active";
+  const expiresAt = subscription?.expiresAt ? new Date(subscription.expiresAt) : null;
+  const isExpired = expiresAt ? expiresAt < new Date() : false;
+
   return (
     <div className="p-6 max-w-2xl mx-auto animate-fade-in">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-ink">Instellingen</h1>
-        <p className="text-ink-muted text-sm">Beheer je organisatie en account</p>
+        <p className="text-ink-muted text-sm">Beheer je organisatie en abonnement</p>
       </div>
 
       <div className="space-y-5">
@@ -164,10 +172,7 @@ export default function InstellingenPage() {
                     key={c}
                     onClick={() => setColor(c)}
                     className="w-8 h-8 rounded-full border-2 shadow-sm transition-transform hover:scale-110"
-                    style={{
-                      backgroundColor: c,
-                      borderColor: primaryColor === c ? "#1C1814" : "white",
-                    }}
+                    style={{ backgroundColor: c, borderColor: primaryColor === c ? "#1C1814" : "white" }}
                   />
                 ))}
               </div>
@@ -199,46 +204,94 @@ export default function InstellingenPage() {
           </div>
         </div>
 
-        {/* Plans */}
+        {/* Subscription */}
         <div className="card-base overflow-hidden">
           <div className="flex items-center gap-2 px-5 py-3 border-b border-sand bg-sand/30">
             <CreditCard size={16} className="text-terra-500" />
-            <h2 className="font-bold text-ink text-sm">Betalingsplan</h2>
+            <h2 className="font-bold text-ink text-sm">Abonnement</h2>
           </div>
-          <div className="p-4 space-y-3">
-            {PLANS.map(plan => (
-              <div
-                key={plan.id}
-                className={`rounded-xl p-4 border-2 transition-colors ${
-                  plan.current ? "border-terra-500 bg-terra-50" : "border-sand"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-ink text-sm">{plan.name}</span>
-                    {plan.current && (
-                      <span className="text-[10px] font-bold text-terra-600 bg-terra-100 px-2 py-0.5 rounded-full">
-                        HUIDIG
-                      </span>
-                    )}
-                  </div>
-                  <span className="font-bold text-terra-600 text-sm">{plan.price}</span>
-                </div>
-                <ul className="space-y-1">
-                  {plan.features.map(f => (
-                    <li key={f} className="text-xs text-ink-muted flex items-center gap-1.5">
-                      <Check size={10} className="text-green-500 shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                {!plan.current && (
-                  <button className="mt-3 w-full bg-terra-500 text-white text-xs font-bold py-2 rounded-lg hover:bg-terra-600 transition-colors">
-                    Upgraden
-                  </button>
-                )}
+
+          {/* Current plan status */}
+          {subscription && (
+            <div className={`mx-4 mt-4 rounded-xl p-4 border-2 ${
+              isActive && !isExpired ? "border-terra-500 bg-terra-50" : "border-amber-300 bg-amber-50"
+            }`}>
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold text-ink text-sm">
+                  {PLAN_LIMITS[currentPlan as keyof typeof PLAN_LIMITS]?.label ?? currentPlan}
+                </span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  isActive && !isExpired
+                    ? "text-terra-600 bg-terra-100"
+                    : "text-amber-700 bg-amber-100"
+                }`}>
+                  {isActive && !isExpired ? "ACTIEF" : isExpired ? "VERLOPEN" : "IN AFWACHTING"}
+                </span>
               </div>
-            ))}
+              {expiresAt && (
+                <p className="text-xs text-ink-muted">
+                  {isExpired ? "Verlopen op" : "Geldig t/m"} {formatDate(expiresAt)}
+                </p>
+              )}
+              {subscription.amountPaid && (
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Betaald: €{(subscription.amountPaid / 100).toLocaleString("nl-NL")}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Upgrade options */}
+          <div className="p-4 space-y-3">
+            {UPGRADE_PLANS.filter(p => p !== currentPlan || !isActive || isExpired).map(plan => {
+              const features = PLAN_FEATURES[plan] ?? [];
+              const price = PLAN_PRICES_CENTS[plan];
+              const isCurrent = plan === currentPlan && isActive && !isExpired;
+
+              return (
+                <div
+                  key={plan}
+                  className={`rounded-xl p-4 border-2 ${isCurrent ? "border-terra-500 bg-terra-50" : "border-sand"}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-ink text-sm">
+                        {PLAN_LIMITS[plan]?.label}
+                      </span>
+                      {isCurrent && (
+                        <span className="text-[10px] font-bold text-terra-600 bg-terra-100 px-2 py-0.5 rounded-full">
+                          HUIDIG
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-bold text-terra-600 text-sm">
+                      €{(price / 100).toLocaleString("nl-NL")}/jaar
+                    </span>
+                  </div>
+                  <ul className="space-y-1 mb-3">
+                    {features.map(f => (
+                      <li key={f} className="text-xs text-ink-muted flex items-center gap-1.5">
+                        <Check size={10} className="text-green-500 shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {!isCurrent && (
+                    <button
+                      onClick={() => handleUpgrade(plan)}
+                      disabled={upgrading === plan}
+                      className="w-full flex items-center justify-center gap-1.5 bg-terra-500 text-white text-xs font-bold py-2 rounded-lg hover:bg-terra-600 transition-colors disabled:opacity-60"
+                    >
+                      {upgrading === plan ? (
+                        <><Loader2 size={12} className="animate-spin" /> Doorsturen...</>
+                      ) : (
+                        <><ExternalLink size={12} /> Upgraden via MultiSafePay</>
+                      )}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -254,13 +307,6 @@ export default function InstellingenPage() {
         >
           {saving ? "Opslaan..." : saved ? "✓ Opgeslagen!" : "Wijzigingen opslaan"}
         </button>
-
-        {!orgId && (
-          <p className="text-xs text-ink-muted text-center -mt-3">
-            Geen organisatie gevonden in de database. Voer eerst{" "}
-            <code className="font-mono bg-sand px-1 rounded">npx tsx src/db/seed.ts</code> uit.
-          </p>
-        )}
       </div>
     </div>
   );

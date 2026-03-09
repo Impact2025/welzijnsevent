@@ -155,6 +155,8 @@ export default function NewEventPage() {
       const data = await res.json();
       if (data.event?.id) {
         router.push(`/dashboard/events/${data.event.id}`);
+      } else if (data.limitReached) {
+        setError(data.error + " → Ga naar Instellingen om te upgraden.");
       } else {
         setError("Aanmaken mislukt. Probeer opnieuw.");
       }

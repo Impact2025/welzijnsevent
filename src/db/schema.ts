@@ -12,6 +12,7 @@ export const organizations = pgTable("organizations", {
   logo:         text("logo"),
   primaryColor: text("primary_color").default("#C8522A"),
   clerkOrgId:   text("clerk_org_id").unique(),
+  clerkUserId:  text("clerk_user_id").unique(),
   createdAt:    timestamp("created_at").defaultNow(),
 });
 
@@ -165,8 +166,26 @@ export const orders = pgTable("orders", {
   updatedAt:     timestamp("updated_at").defaultNow(),
 });
 
+// ── SUBSCRIPTIONS ──────────────────────────────────────────
+export const subscriptions = pgTable("subscriptions", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id).notNull(),
+  plan:           text("plan").notNull(),
+  // trial | starter | groei | organisatie
+  status:         text("status").default("active"),
+  // active | expired | cancelled | pending_payment
+  startsAt:       timestamp("starts_at").defaultNow(),
+  expiresAt:      timestamp("expires_at"),
+  paymentId:      text("payment_id"),
+  amountPaid:     integer("amount_paid"),
+  // in centen, null voor trial
+  createdAt:      timestamp("created_at").defaultNow(),
+  updatedAt:      timestamp("updated_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type Organization       = typeof organizations.$inferSelect;
+export type Subscription       = typeof subscriptions.$inferSelect;
 export type Event              = typeof events.$inferSelect;
 export type Session            = typeof sessions.$inferSelect;
 export type Attendee           = typeof attendees.$inferSelect;

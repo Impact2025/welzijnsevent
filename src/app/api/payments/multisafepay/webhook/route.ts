@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db, orders, attendees, ticketTypes } from "@/db";
+import { db, orders, attendees, ticketTypes, subscriptions } from "@/db";
 import { eq } from "drizzle-orm";
 
 const MSP_API_BASE =
@@ -11,8 +11,8 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
 
   // MultiSafePay sends: { transactionid, timestamp }
-  const orderId: string | undefined = body?.transactionid;
-  if (!orderId) {
+  const rawId: string | undefined = body?.transactionid;
+  if (!rawId) {
     return NextResponse.json({ error: "Missing transactionid" }, { status: 400 });
   }
 
@@ -20,10 +20,34 @@ export async function POST(req: Request) {
   if (!apiKey) return NextResponse.json({ error: "Not configured" }, { status: 500 });
 
   // Verify status with MultiSafePay
-  const mspRes = await fetch(`${MSP_API_BASE}/orders/${orderId}?api_key=${apiKey}`);
+  const mspRes = await fetch(`${MSP_API_BASE}/orders/${rawId}?api_key=${apiKey}`);
   const mspData = await mspRes.json();
   const mspStatus: string = mspData.data?.status ?? "unknown";
 
+  // Handle subscription payment (order_id starts with "sub_")
+  if (rawId.startsWith("sub_")) {
+    const subId = rawId.replace("sub_", "");
+    const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.id, subId));
+    if (!sub) return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
+
+    if (mspStatus === "completed") {
+      const expiresAt = new Date();
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+      await db
+        .update(subscriptions)
+        .set({ status: "active", expiresAt, updatedAt: new Date() })
+        .where(eq(subscriptions.id, subId));
+    } else if (mspStatus === "cancelled" || mspStatus === "void" || mspStatus === "declined") {
+      await db
+        .update(subscriptions)
+        .set({ status: "cancelled", updatedAt: new Date() })
+        .where(eq(subscriptions.id, subId));
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
+  const orderId = rawId;
   const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
 

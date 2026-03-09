@@ -3,18 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { Show, UserButton } from "@clerk/nextjs";
 import { Zap, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/functies", label: "Functies" },
-  { href: "/prijzen", label: "Prijzen" },
+  { href: "/prijzen",  label: "Prijzen"  },
   { href: "/over-ons", label: "Over ons" },
 ];
 
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const path = usePathname();
+  const { isSignedIn } = useAuth();
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-[#12100E]/95 backdrop-blur-md border-b border-white/8">
@@ -47,18 +50,31 @@ export function MarketingNav() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
-          >
-            Inloggen
-          </Link>
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-terra-500/25"
-          >
-            Gratis starten
-          </Link>
+          <Show when="signed-out">
+            <Link
+              href="/sign-in"
+              className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+            >
+              Inloggen
+            </Link>
+            <Link
+              href="/sign-up"
+              className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-terra-500/25"
+            >
+              Gratis starten
+            </Link>
+          </Show>
+          <Show when="signed-in">
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+            >
+              Dashboard
+            </Link>
+            <UserButton
+              appearance={{ elements: { avatarBox: "w-8 h-8" } }}
+            />
+          </Show>
         </div>
 
         {/* Mobile hamburger */}
@@ -90,20 +106,32 @@ export function MarketingNav() {
             </Link>
           ))}
           <div className="pt-2 border-t border-white/8 space-y-2 mt-2">
-            <Link
-              href="/dashboard"
-              onClick={() => setOpen(false)}
-              className="block px-3 py-3 text-sm font-medium text-white/50 text-center rounded-xl hover:bg-white/5 transition-colors"
-            >
-              Inloggen
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setOpen(false)}
-              className="block bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-3 rounded-xl text-center transition-colors"
-            >
-              Gratis starten
-            </Link>
+            {isSignedIn ? (
+              <Link
+                href="/dashboard"
+                onClick={() => setOpen(false)}
+                className="block bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-3 rounded-xl text-center transition-colors"
+              >
+                Naar dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setOpen(false)}
+                  className="block px-3 py-3 text-sm font-medium text-white/50 text-center rounded-xl hover:bg-white/5 transition-colors"
+                >
+                  Inloggen
+                </Link>
+                <Link
+                  href="/sign-up"
+                  onClick={() => setOpen(false)}
+                  className="block bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-3 rounded-xl text-center transition-colors"
+                >
+                  Gratis starten
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

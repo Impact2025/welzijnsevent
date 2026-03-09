@@ -1,10 +1,17 @@
 import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { db, organizations } from "@/db";
 import { eq } from "drizzle-orm";
+import { getCurrentOrg } from "@/lib/auth";
 
 export async function GET() {
   try {
-    const [org] = await db.select().from(organizations);
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const org = await getCurrentOrg();
     return NextResponse.json({ organization: org ?? null });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -13,15 +20,23 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   try {
-    const body = await req.json();
-    const { id, ...data } = body;
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
+    const org = await getCurrentOrg();
+    if (!org) {
+      return NextResponse.json({ error: "Organisatie niet gevonden" }, { status: 404 });
+    }
+
+    const body = await req.json();
+    const { name, logo, primaryColor } = body;
 
     const [updated] = await db
       .update(organizations)
-      .set(data)
-      .where(eq(organizations.id, id))
+      .set({ name, logo: logo ?? null, primaryColor })
+      .where(eq(organizations.id, org.id))
       .returning();
 
     return NextResponse.json({ organization: updated });

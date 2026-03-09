@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import {
-  LayoutDashboard, Calendar, Settings, Bell, Plus, Zap,
+  LayoutDashboard, Calendar, Settings, Plus, Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getInitials, avatarColor } from "@/lib/utils";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 const navItems = [
   { href: "/dashboard",              icon: LayoutDashboard, label: "Overzicht"    },
@@ -13,8 +15,18 @@ const navItems = [
   { href: "/dashboard/instellingen", icon: Settings,        label: "Instellingen" },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  orgName: string;
+  orgLogo: string | null;
+  plan: string | null;
+  subscriptionActive: boolean;
+}
+
+export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarProps) {
   const path = usePathname();
+  const initials = getInitials(orgName);
+  const color = avatarColor(orgName);
+  const planLabel = plan ? PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.label ?? plan : null;
 
   return (
     <>
@@ -64,17 +76,38 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Divider */}
+      {/* User / Org footer */}
       <div className="border-t border-white/8 pt-4 mt-2">
         <div className="flex items-center gap-2.5 px-2">
-          <div className="w-7 h-7 rounded-full bg-terra-500 flex items-center justify-center shrink-0">
-            <span className="text-white text-[11px] font-bold">H</span>
-          </div>
+          {orgLogo ? (
+            <img src={orgLogo} alt={orgName} className="w-7 h-7 rounded-full object-cover shrink-0" />
+          ) : (
+            <div
+              className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+              style={{ backgroundColor: color }}
+            >
+              <span className="text-white text-[11px] font-bold">{initials}</span>
+            </div>
+          )}
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white/80 truncate">Humanitas Utrecht</p>
-            <p className="text-[11px] text-white/35 truncate">Organisator</p>
+            <p className="text-xs font-semibold text-white/80 truncate">{orgName}</p>
+            {planLabel && (
+              <p className={cn(
+                "text-[10px] truncate font-medium",
+                subscriptionActive ? "text-terra-400" : "text-amber-400"
+              )}>
+                {planLabel}{!subscriptionActive && " — verlopen"}
+              </p>
+            )}
           </div>
-          <Bell size={13} className="text-white/25 shrink-0 hover:text-white/60 cursor-pointer transition-colors" />
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "w-6 h-6",
+                userButtonTrigger: "shrink-0",
+              },
+            }}
+          />
         </div>
       </div>
     </aside>
