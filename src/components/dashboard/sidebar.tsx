@@ -17,7 +17,8 @@ export function Sidebar() {
   const path = usePathname();
 
   return (
-    <aside className="w-[220px] min-h-screen bg-[#12100E] flex flex-col py-5 px-3 shrink-0">
+    <>
+    <aside className="hidden md:flex w-[220px] min-h-screen bg-[#12100E] flex-col py-5 px-3 shrink-0">
       {/* Logo */}
       <div className="px-2 mb-7">
         <div className="flex items-center gap-2.5">
@@ -77,5 +78,35 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+
+    {/* Mobile bottom navigation */}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 py-2 safe-area-pb">
+      {navItems.map(({ href, icon: Icon, label }) => {
+        const active = path === href || (href !== "/dashboard" && path.startsWith(href));
+        return (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-all duration-150",
+              active ? "text-terra-400" : "text-white/40"
+            )}
+          >
+            <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+            <span className="text-[10px] font-medium">{label}</span>
+          </Link>
+        );
+      })}
+      <Link
+        href="/dashboard/events/new"
+        className="flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl text-white/40 transition-all duration-150"
+      >
+        <div className="w-8 h-8 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
+          <Plus size={16} className="text-white" />
+        </div>
+        <span className="text-[10px] font-medium text-white/40">Nieuw</span>
+      </Link>
+    </nav>
+    </>
   );
 }
