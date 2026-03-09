@@ -187,7 +187,7 @@ export default async function AttendeesPage({
       </Link>
 
       {/* Bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around py-2">
+      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
         {[
           { label: "Dashboard",    icon: "📊", href: "/dashboard" },
           { label: "Events",       icon: "📅", href: "/dashboard/events" },

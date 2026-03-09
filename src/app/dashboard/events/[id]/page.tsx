@@ -149,7 +149,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
       </div>
 
       {/* Bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-sand flex justify-around py-2 max-w-md mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav max-w-md mx-auto">
         {[
           { label: "Home",        icon: "🏠", href: "/dashboard" },
           { label: "Events",      icon: "📅", href: "/dashboard/events", active: true },

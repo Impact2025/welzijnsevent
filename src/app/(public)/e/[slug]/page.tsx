@@ -266,7 +266,7 @@ export default async function PublicEventPage({
       </div>
 
       {/* Floating register CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-30 p-4 bg-gradient-to-t from-white via-white/95 to-transparent">
+      <div className="fixed bottom-0 left-0 right-0 z-30 pt-4 px-4 pb-safe bg-gradient-to-t from-white via-white/95 to-transparent">
         <div className="max-w-2xl mx-auto">
           <Link
             href={`/e/${params.slug}/register${langParam}`}

@@ -1,0 +1,27 @@
+{
+  "name": "Bijeen — Welzijnsevenementen",
+  "short_name": "Bijeen",
+  "description": "Organiseer en beheer verbindende evenementen voor de welzijnssector",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAF6F0",
+  "theme_color": "#C8522A",
+  "lang": "nl",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["productivity", "business"]
+}

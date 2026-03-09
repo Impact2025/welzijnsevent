@@ -64,6 +64,52 @@
   }
 }
 
+/* ── MOBIEL ────────────────────────────────────────────────── */
+
+/* iOS safe-area utility — gebruik op fixed bottom navs */
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+.pb-safe-nav {
+  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+
+/* Verhoog font-size van inputs op mobiel om iOS auto-zoom te voorkomen.
+   iOS zoomt in als font-size < 16px is. */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Minimale tap-target grootte (WCAG 2.5.5) */
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+/* Uitzondering voor kleine inline links/labels */
+nav a, .tab-link, .badge-ingecheckt, .badge-aangemeld,
+.badge-afwezig, .badge-live, .badge-actief, .badge-concept {
+  min-height: unset;
+  min-width: unset;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── PRINT ──────────────────────────────────────────────────── */
+
 @media print {
   /* Verberg navigatie en knoppen */
   nav, aside, .fixed, button, a[href] { display: none !important; }

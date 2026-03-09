@@ -275,7 +275,7 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
       </div>
 
       {/* Bottom nav */}
-      <div className="bg-white border-t border-sand flex justify-around py-2">
+      <div className="bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
         {[
           { label: "Dashboard", icon: "📊", href: "/dashboard" },
           { label: "Events",    icon: "📅", href: "/dashboard/events", active: true },
