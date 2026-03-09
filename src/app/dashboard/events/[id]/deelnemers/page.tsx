@@ -6,7 +6,10 @@ import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
 import { SlidersHorizontal, UserPlus } from "lucide-react";
 import { SearchInput } from "@/components/events/search-input";
 import { FilterTabs } from "@/components/events/filter-tabs";
+import { Pagination } from "@/components/ui/pagination";
 import type { Attendee } from "@/db/schema";
+
+const PAGE_SIZE = 25;
 
 const STATUS_TABS = [
   { label: "Alle",       value: "" },
@@ -53,7 +56,7 @@ export default async function AttendeesPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { q?: string; status?: string };
+  searchParams: { q?: string; status?: string; page?: string };
 }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
   if (!event) notFound();
@@ -65,6 +68,7 @@ export default async function AttendeesPage({
 
   const q = searchParams.q ?? "";
   const statusFilter = searchParams.status ?? "";
+  const page = Math.max(1, parseInt(searchParams.page ?? "1"));
 
   let list = allAttendees;
   if (q) {
@@ -90,7 +94,14 @@ export default async function AttendeesPage({
       : total,
   }));
 
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const baseParams = new URLSearchParams();
+  if (q) baseParams.set("q", q);
+  if (statusFilter) baseParams.set("status", statusFilter);
   const statusParams = statusFilter ? `status=${statusFilter}` : "";
+  const paginationBase = `/dashboard/events/${params.id}/deelnemers${baseParams.toString() ? `?${baseParams.toString()}` : ""}`;
 
   return (
     <div className="max-w-md mx-auto bg-white min-h-screen">
@@ -160,7 +171,10 @@ export default async function AttendeesPage({
             </p>
           </div>
         ) : (
-          list.map(a => <AttendeeItem key={a.id} attendee={a} eventId={params.id} />)
+          <>
+            {paginated.map(a => <AttendeeItem key={a.id} attendee={a} eventId={params.id} />)}
+            <Pagination page={page} totalPages={totalPages} baseHref={paginationBase} />
+          </>
         )}
       </div>
 

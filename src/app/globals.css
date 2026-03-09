@@ -63,3 +63,24 @@
            transition-all duration-150 cursor-pointer;
   }
 }
+
+@media print {
+  /* Verberg navigatie en knoppen */
+  nav, aside, .fixed, button, a[href] { display: none !important; }
+
+  /* Zorg dat kleuren correct worden afgedrukt */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+  /* Witte achtergrond, zwarte tekst */
+  body { background: white !important; color: #1C1814 !important; }
+
+  /* Verwijder schaduwen en randen voor print */
+  .card-base, [class*="shadow"] { box-shadow: none !important; border: 1px solid #e5e7eb !important; }
+
+  /* Zorg dat de inhoud op één pagina past */
+  .max-w-md { max-width: 100% !important; margin: 0 !important; }
+  .p-4, .p-5 { padding: 12px !important; }
+
+  /* Verberg de bottom nav en FAB */
+  .pb-24 { padding-bottom: 0 !important; }
+}

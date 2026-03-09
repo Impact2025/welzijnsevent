@@ -3,7 +3,8 @@ import { eq, count, and, avg } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { DonutChart, SessionBars } from "@/components/analytics/impact-chart";
 import { formatDate } from "@/lib/utils";
-import { FileDown, ArrowLeft, Network, Star } from "lucide-react";
+import { ArrowLeft, Network, Star } from "lucide-react";
+import { PrintButton } from "@/components/analytics/print-button";
 import Link from "next/link";
 
 export default async function AnalyticsPage({ params }: { params: { id: string } }) {
@@ -95,11 +96,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
           <Link href={`/dashboard/events/${params.id}`} className="text-white/70 hover:text-white">
             <ArrowLeft size={20} />
           </Link>
-          <button className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-colors"
-            title="Gebruik Ctrl+P om te printen als PDF">
-            <FileDown size={13} />
-            PDF
-          </button>
+          <PrintButton />
         </div>
         <h1 className="text-lg font-bold">Overzicht Impact</h1>
         <p className="text-white/70 text-xs">{event.title} · {formatDate(event.startsAt)}</p>
