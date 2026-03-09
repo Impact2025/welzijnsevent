@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import {
+  Zap, Navigation, Heart, Bot, Target,
+  Leaf, Link2, BarChart3, Lock,
+  Mail, MessageSquare, Phone, Globe,
+} from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -9,22 +13,22 @@ export const metadata: Metadata = {
 
 const products = [
   {
-    icon: "🗺️",
+    icon: Navigation,
     name: "IctusGo",
     desc: "GPS-gebaseerde teambuilding app die buitenactiviteiten combineert met maatschappelijke impact. Gebruikt door gemeenten en welzijnsorganisaties.",
   },
   {
-    icon: "❤️",
+    icon: Heart,
     name: "VrijwilligersAssistent.nl",
     desc: "AI-gedreven platform dat vrijwilligers matcht met organisaties op basis van passie en beschikbaarheid.",
   },
   {
-    icon: "🤖",
+    icon: Bot,
     name: "WelzijnsAssistent.AI",
     desc: "Intelligente intake-tool voor welzijnsorganisaties die administratie vermindert en contactmomenten vergroot.",
   },
   {
-    icon: "🎯",
+    icon: Target,
     name: "DatingAssistent.nl",
     desc: "Datingsplatform voor mensen met een bijzonder verhaal, ondersteund door AI coaching.",
   },
@@ -32,22 +36,22 @@ const products = [
 
 const values = [
   {
-    icon: "🌱",
+    icon: Leaf,
     title: "Sector eerst",
     desc: "We bouwen voor welzijn — niet voor profit. Onze prijzen zijn eerlijk en onze features zijn relevant voor jouw werk.",
   },
   {
-    icon: "🔗",
+    icon: Link2,
     title: "Verbinding boven technologie",
     desc: "De technologie dient de mens. Niet andersom. Elk feature begint met de vraag: helpt dit mensen dichter bij elkaar brengen?",
   },
   {
-    icon: "📊",
+    icon: BarChart3,
     title: "Impact meetbaar maken",
     desc: "Goed werk verdient zichtbaarheid. We geven jou de data om aan te tonen wat jij al wist: jouw evenementen maken verschil.",
   },
   {
-    icon: "🔒",
+    icon: Lock,
     title: "Privacy en vertrouwen",
     desc: "Deelnemersdata is heilig. Nederlandse servers, AVG-compliant, verwerkersovereenkomst standaard inbegrepen.",
   },
@@ -55,28 +59,28 @@ const values = [
 
 const contact = [
   {
-    icon: "📧",
+    icon: Mail,
     title: "E-mail",
     desc: "hallo@bijeen.nl",
-    sub: "We reageren binnen 1 werkdag",
+    sub: "Reactie binnen 1 werkdag",
     href: "mailto:hallo@bijeen.nl",
   },
   {
-    icon: "💬",
+    icon: MessageSquare,
     title: "Demo aanvragen",
     desc: "Gratis 30-minuten demo",
     sub: "Plan via bijeen.nl/demo",
     href: "#demo",
   },
   {
-    icon: "📞",
+    icon: Phone,
     title: "Bel ons",
     desc: "Liever bellen?",
     sub: "Stuur een mail, we plannen een belafspraak",
     href: "mailto:hallo@bijeen.nl",
   },
   {
-    icon: "🌐",
+    icon: Globe,
     title: "WeAreImpact",
     desc: "Meer over ons",
     sub: "weareimpact.nl",
@@ -99,7 +103,7 @@ export default function OverOnsPage() {
             Gebouwd door mensen
             <br /> die de sector kennen.
           </h1>
-          <p className="text-white/50 text-lg leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
             Bijeen is geen generiek softwareproduct dat toevallig ook werkt voor welzijn. Het is
             gebouwd vánuit de sector, vóór de sector.
           </p>
@@ -136,7 +140,7 @@ export default function OverOnsPage() {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-3">
               De holding achter Bijeen
             </h2>
-            <p className="text-ink-muted max-w-2xl text-lg leading-relaxed">
+            <p className="text-ink-muted text-lg leading-relaxed max-w-2xl">
               Bijeen is een concept van WeAreImpact.nl — een Nederlands social tech bedrijf dat
               digitale producten ontwikkelt voor de welzijns- en zorgsector. Onze missie: de waarde
               van menselijke verbinding meetbaar en zichtbaar maken.
@@ -144,9 +148,11 @@ export default function OverOnsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {products.map(({ icon, name, desc }) => (
-              <div key={name} className="bg-cream rounded-2xl border border-sand/60 p-5 sm:p-6">
-                <div className="text-2xl mb-3">{icon}</div>
+            {products.map(({ icon: Icon, name, desc }) => (
+              <div key={name} className="group bg-cream rounded-2xl border border-sand/60 p-5 sm:p-6 hover:border-terra-200 hover:shadow-md transition-all duration-200">
+                <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
+                  <Icon size={18} strokeWidth={2} />
+                </div>
                 <h3 className="font-bold text-ink mb-2">{name}</h3>
                 <p className="text-sm text-ink-muted leading-relaxed">{desc}</p>
               </div>
@@ -168,13 +174,12 @@ export default function OverOnsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {values.map(({ icon, title, desc }) => (
-              <div
-                key={title}
-                className="bg-white rounded-2xl border border-sand/60 p-6 sm:p-8 shadow-sm"
-              >
-                <div className="text-3xl mb-4">{icon}</div>
-                <h3 className="font-bold text-ink mb-2 text-lg">{title}</h3>
+            {values.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="group bg-white rounded-2xl border border-sand/60 p-6 sm:p-8 shadow-sm hover:border-terra-200 hover:shadow-md transition-all duration-200">
+                <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
+                  <Icon size={18} strokeWidth={2} />
+                </div>
+                <h3 className="font-bold text-ink mb-2 text-base">{title}</h3>
                 <p className="text-sm text-ink-muted leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -193,25 +198,24 @@ export default function OverOnsPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
               Praat met ons
             </h2>
-            <p className="text-white/40 max-w-md mx-auto">
-              We zijn geen anoniem softwarebedrijf. We kennen jouw uitdagingen en we zijn
-              bereikbaar.
+            <p className="text-white/60 max-w-md mx-auto text-base">
+              We zijn geen anoniem softwarebedrijf. We kennen jouw uitdagingen en we zijn bereikbaar.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            {contact.map(({ icon, title, desc, sub, href }) => (
+            {contact.map(({ icon: Icon, title, desc, sub, href }) => (
               <a
                 key={title}
                 href={href}
-                className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 hover:bg-white/8 transition-colors group"
+                className="group bg-white/6 border border-white/12 rounded-2xl p-5 sm:p-6 hover:bg-white/10 transition-colors"
               >
-                <div className="text-2xl mb-3">{icon}</div>
+                <div className="w-10 h-10 rounded-xl bg-white/8 group-hover:bg-white/12 flex items-center justify-center text-terra-400 mb-4 transition-colors">
+                  <Icon size={18} strokeWidth={2} />
+                </div>
                 <p className="font-bold text-white text-sm mb-1">{title}</p>
-                <p className="text-white/60 text-sm group-hover:text-white/80 transition-colors">
-                  {desc}
-                </p>
-                <p className="text-white/30 text-xs mt-1">{sub}</p>
+                <p className="text-white/70 text-sm">{desc}</p>
+                <p className="text-white/40 text-xs mt-1">{sub}</p>
               </a>
             ))}
           </div>

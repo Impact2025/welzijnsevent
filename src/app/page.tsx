@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  ArrowRight, Zap, Users, BarChart3, QrCode,
+  ArrowRight, Zap, BarChart3, QrCode,
   MessageSquare, Star, Network, FileText, Smartphone,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/nav";
@@ -89,45 +89,42 @@ export default function HomePage() {
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-white/6 border border-white/10 rounded-full px-3.5 py-1.5 mb-8">
             <div className="w-1.5 h-1.5 bg-terra-400 rounded-full animate-pulse" />
-            <span className="text-white/60 text-xs font-semibold tracking-wide">
+            <span className="text-white/70 text-xs font-semibold tracking-wide">
               Vertrouwd door 120+ welzijnsorganisaties in Nederland
             </span>
           </div>
 
-          {/* Headline */}
           <h1 className="text-[2.75rem] sm:text-6xl lg:text-[5rem] font-extrabold text-white tracking-tight leading-[1.04] mb-6">
             Evenementen die écht
             <br />
             <span className="text-terra-400">verbinding maken</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-white/50 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg sm:text-xl text-white/70 font-medium max-w-2xl mx-auto mb-10 leading-relaxed">
             Het eerste eventplatform gebouwd voor de welzijnssector. Van vrijwilligersdag tot
             buurtfestival — organiseer met impact, meet wat je bereikt.
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
             <Link
               href="/dashboard"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all duration-150 shadow-xl shadow-terra-500/30 hover:shadow-terra-500/40 hover:-translate-y-0.5"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all duration-150 shadow-xl shadow-terra-500/30 hover:-translate-y-0.5"
             >
               <Zap size={16} className="fill-white" />
               Start gratis proefperiode
             </Link>
             <Link
               href="/functies"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/7 hover:bg-white/12 text-white font-semibold text-base px-7 py-3.5 rounded-xl border border-white/12 transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 text-white font-semibold text-base px-7 py-3.5 rounded-xl border border-white/15 transition-colors"
             >
               Bekijk een demo
               <ArrowRight size={16} />
             </Link>
           </div>
 
-          <p className="text-white/25 text-sm">
+          <p className="text-white/40 text-sm">
             Geen creditcard nodig · Eerste event gratis · Klaar in 10 minuten
           </p>
         </div>
@@ -240,14 +237,14 @@ export default function HomePage() {
             {testimonials.map(({ quote, name, org, initial }) => (
               <div
                 key={org}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col"
+                className="bg-white/6 border border-white/12 rounded-2xl p-6 sm:p-8 flex flex-col"
               >
                 <div className="flex gap-0.5 mb-5">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={14} className="text-terra-400 fill-terra-400" />
                   ))}
                 </div>
-                <p className="text-white/65 text-[15px] leading-relaxed mb-6 flex-1 italic">
+                <p className="text-white/80 text-[15px] leading-relaxed mb-6 flex-1">
                   &ldquo;{quote}&rdquo;
                 </p>
                 <div className="flex items-center gap-3">
@@ -256,7 +253,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-white text-sm font-semibold">{name}</p>
-                    <p className="text-white/40 text-xs">{org}</p>
+                    <p className="text-white/50 text-xs">{org}</p>
                   </div>
                 </div>
               </div>
@@ -287,7 +284,7 @@ export default function HomePage() {
                 key={name}
                 className={`relative rounded-2xl p-6 sm:p-7 flex flex-col ${
                   highlight
-                    ? "bg-[#12100E] text-white shadow-2xl ring-1 ring-terra-500/30"
+                    ? "bg-[#12100E] shadow-2xl ring-1 ring-terra-500/30"
                     : "bg-white border border-sand/60 shadow-sm"
                 }`}
               >
@@ -299,42 +296,21 @@ export default function HomePage() {
                   </div>
                 )}
                 <div className="mb-5">
-                  <p
-                    className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${
-                      highlight ? "text-terra-400" : "text-terra-500"
-                    }`}
-                  >
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${highlight ? "text-terra-400" : "text-terra-500"}`}>
                     {name}
                   </p>
                   <div className="flex items-baseline gap-1 mb-1.5">
-                    <span
-                      className={`text-5xl font-extrabold tracking-tight ${
-                        highlight ? "text-white" : "text-ink"
-                      }`}
-                    >
+                    <span className={`text-5xl font-extrabold tracking-tight ${highlight ? "text-white" : "text-ink"}`}>
                       €{price}
                     </span>
                   </div>
-                  <p className={`text-xs ${highlight ? "text-white/40" : "text-ink-muted"}`}>
-                    {desc}
-                  </p>
+                  <p className={`text-xs ${highlight ? "text-white/55" : "text-ink-muted"}`}>{desc}</p>
                 </div>
 
                 <ul className="space-y-2.5 mb-7 flex-1">
                   {planFeatures.map((f) => (
-                    <li
-                      key={f}
-                      className={`flex items-start gap-2.5 text-sm ${
-                        highlight ? "text-white/70" : "text-ink-muted"
-                      }`}
-                    >
-                      <span
-                        className={`mt-0.5 font-bold text-xs shrink-0 ${
-                          highlight ? "text-terra-400" : "text-terra-500"
-                        }`}
-                      >
-                        ✓
-                      </span>
+                    <li key={f} className={`flex items-start gap-2.5 text-sm ${highlight ? "text-white/80" : "text-ink-muted"}`}>
+                      <span className={`mt-0.5 font-bold text-xs shrink-0 ${highlight ? "text-terra-400" : "text-terra-500"}`}>✓</span>
                       {f}
                     </li>
                   ))}
@@ -356,10 +332,7 @@ export default function HomePage() {
 
           <p className="text-center text-ink-muted text-sm">
             Regelmatig events?{" "}
-            <Link
-              href="/prijzen"
-              className="text-terra-500 hover:text-terra-600 font-semibold transition-colors"
-            >
+            <Link href="/prijzen" className="text-terra-500 hover:text-terra-600 font-semibold transition-colors">
               Bekijk jaarabonnementen en bespaar tot 45% →
             </Link>
           </p>
@@ -379,7 +352,7 @@ export default function HomePage() {
             Jouw eerste event is
             <br className="hidden sm:block" /> gratis. Echt.
           </h2>
-          <p className="text-white/45 text-lg mb-10 max-w-xl mx-auto">
+          <p className="text-white/65 text-lg mb-10 max-w-xl mx-auto">
             Start vandaag. Geen creditcard nodig. Jouw eerste event in 10 minuten live.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -392,12 +365,12 @@ export default function HomePage() {
             </Link>
             <Link
               href="/prijzen"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/7 hover:bg-white/12 text-white font-semibold text-base px-7 py-3.5 rounded-xl border border-white/12 transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/8 hover:bg-white/12 text-white font-semibold text-base px-7 py-3.5 rounded-xl border border-white/15 transition-colors"
             >
               Bekijk prijzen
             </Link>
           </div>
-          <p className="text-white/20 text-sm mt-8">
+          <p className="text-white/35 text-sm mt-8">
             Een concept van WeAreImpact.nl · Gebouwd voor de welzijnssector
           </p>
         </div>

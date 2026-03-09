@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, BookOpen, MessageCircle, Shield, Wrench } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -59,25 +59,25 @@ const subscriptions = [
 
 const extras = [
   {
-    icon: "🚀",
+    icon: BookOpen,
     title: "Onboarding begeleiding",
     desc: "Wij helpen je bij de inrichting van je eerste event.",
     price: "Eenmalig €350",
   },
   {
-    icon: "💬",
+    icon: MessageCircle,
     title: "WhatsApp integratie",
     desc: "Automatische herinneringen via WhatsApp.",
     price: "€15 / maand",
   },
   {
-    icon: "🛡️",
+    icon: Shield,
     title: "Premium support",
     desc: "Directe lijn met je vaste contactpersoon.",
     price: "€99 / maand",
   },
   {
-    icon: "⚙️",
+    icon: Wrench,
     title: "Maatwerk & API",
     desc: "Koppeling met je eigen CRM of ledenregistratie.",
     price: "€95 / uur",
@@ -122,7 +122,7 @@ export default function PrijzenPage() {
             Transparant. Eerlijk.
             <br /> Zonder verrassingen.
           </h1>
-          <p className="text-white/50 text-lg leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
             Betaal per evenement als je incidenteel organiseert, of kies een jaarabonnement als
             events structureel onderdeel zijn van je werk.
           </p>
@@ -139,7 +139,7 @@ export default function PrijzenPage() {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2">
               Eenmalig per evenement
             </h2>
-            <p className="text-ink-muted">
+            <p className="text-ink-muted text-base">
               Geen abonnement, geen verplichting. Je betaalt alleen voor wat je organiseert.
             </p>
           </div>
@@ -163,41 +163,21 @@ export default function PrijzenPage() {
                 )}
 
                 <div className="mb-6">
-                  <p
-                    className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${
-                      highlight ? "text-terra-400" : "text-terra-500"
-                    }`}
-                  >
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${highlight ? "text-terra-400" : "text-terra-500"}`}>
                     {name}
                   </p>
                   <div className="flex items-baseline gap-1 mb-1.5">
-                    <span
-                      className={`text-5xl font-extrabold tracking-tight ${
-                        highlight ? "text-white" : "text-ink"
-                      }`}
-                    >
+                    <span className={`text-5xl font-extrabold tracking-tight ${highlight ? "text-white" : "text-ink"}`}>
                       €{price}
                     </span>
                   </div>
-                  <p className={`text-sm ${highlight ? "text-white/40" : "text-ink-muted"}`}>
-                    {desc}
-                  </p>
+                  <p className={`text-sm ${highlight ? "text-white/55" : "text-ink-muted"}`}>{desc}</p>
                 </div>
 
                 <ul className="space-y-3 mb-8 flex-1">
                   {features.map((f) => (
-                    <li
-                      key={f}
-                      className={`flex items-start gap-2.5 text-sm ${
-                        highlight ? "text-white/70" : "text-ink-muted"
-                      }`}
-                    >
-                      <Check
-                        size={15}
-                        className={`mt-0.5 shrink-0 ${
-                          highlight ? "text-terra-400" : "text-terra-500"
-                        }`}
-                      />
+                    <li key={f} className={`flex items-start gap-2.5 text-sm ${highlight ? "text-white/80" : "text-ink-muted"}`}>
+                      <Check size={15} className={`mt-0.5 shrink-0 ${highlight ? "text-terra-400" : "text-terra-500"}`} />
                       {f}
                     </li>
                   ))}
@@ -229,7 +209,7 @@ export default function PrijzenPage() {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-2">
               Meerdere events per jaar? Bespaar tot 45%.
             </h2>
-            <p className="text-ink-muted max-w-xl">
+            <p className="text-ink-muted text-base max-w-xl">
               Voor organisaties die regelmatig evenementen organiseren is een abonnement
               voordeliger en geeft het rust.
             </p>
@@ -288,11 +268,13 @@ export default function PrijzenPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {extras.map(({ icon, title, desc, price }) => (
+            {extras.map(({ icon: Icon, title, desc, price }) => (
               <div key={title} className="bg-white rounded-2xl border border-sand/60 p-5 sm:p-6 shadow-sm">
-                <div className="text-2xl mb-3">{icon}</div>
+                <div className="w-10 h-10 rounded-xl bg-terra-50 flex items-center justify-center text-terra-500 mb-4">
+                  <Icon size={18} strokeWidth={2} />
+                </div>
                 <p className="font-bold text-ink text-sm mb-1.5">{title}</p>
-                <p className="text-xs text-ink-muted leading-relaxed mb-3">{desc}</p>
+                <p className="text-sm text-ink-muted leading-relaxed mb-3">{desc}</p>
                 <p className="text-xs font-bold text-terra-500">{price}</p>
               </div>
             ))}
@@ -330,7 +312,7 @@ export default function PrijzenPage() {
           <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
             Begin gratis. Altijd.
           </h2>
-          <p className="text-white/45 text-lg mb-8">
+          <p className="text-white/65 text-lg mb-8">
             Eerste event gratis tot 50 deelnemers. Geen creditcard.
           </p>
           <Link

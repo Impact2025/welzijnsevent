@@ -128,7 +128,7 @@ export default function FunctiesPage() {
             Alles wat je nodig hebt.
             <br /> Niets wat je niet nodig hebt.
           </h1>
-          <p className="text-white/50 text-lg leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/70 text-lg leading-relaxed max-w-xl mx-auto">
             Bijeen is geen feature-fabriek. We bouwen wat welzijnsorganisaties écht gebruiken. Hier
             is wat er in zit.
           </p>
@@ -191,7 +191,7 @@ export default function FunctiesPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-5">
               De technologie die mensen verbindt
             </h2>
-            <p className="text-white/50 text-lg leading-relaxed mb-10">
+            <p className="text-white/70 text-lg leading-relaxed mb-10">
               Vóór het evenement analyseert het systeem de profielen van alle deelnemers — rol,
               organisatie, interessegebied, regio — en stelt matchvoorstellen op.
             </p>
