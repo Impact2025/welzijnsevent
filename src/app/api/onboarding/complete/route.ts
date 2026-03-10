@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, organizations, subscriptions, authUsers } from "@/db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { PLAN_PRICES_CENTS } from "@/lib/plans";
 import { sendWelcomeTrialEmail } from "@/lib/email";
 
@@ -25,24 +25,48 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Naam en plan zijn verplicht" }, { status: 400 });
   }
 
-  // Prevent duplicate organisations
+  // Check for existing organisation
   const [existing] = await db
     .select()
     .from(organizations)
     .where(eq(organizations.userId, userId));
 
+  let org = existing;
+
   if (existing) {
-    return NextResponse.json({ error: "Organisatie bestaat al" }, { status: 409 });
+    // If org exists, check if it has an active/trial subscription
+    const [existingSub] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.organizationId, existing.id))
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1);
+
+    if (existingSub && existingSub.status === "active") {
+      // Already fully onboarded — redirect to dashboard
+      return NextResponse.json({ redirect: "/dashboard" });
+    }
+
+    // Pending/failed payment: clean up old subscriptions and retry
+    await db.delete(subscriptions).where(eq(subscriptions.organizationId, existing.id));
+    // Update org name/logo in case they changed it
+    const [updated] = await db
+      .update(organizations)
+      .set({ name: name.trim(), logo: logo ?? null })
+      .where(eq(organizations.id, existing.id))
+      .returning();
+    org = updated;
+  } else {
+    const slug =
+      name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") +
+      "-" + Date.now().toString(36);
+
+    const [created] = await db
+      .insert(organizations)
+      .values({ name: name.trim(), logo: logo ?? null, slug, userId })
+      .returning();
+    org = created;
   }
-
-  const slug =
-    name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") +
-    "-" + Date.now().toString(36);
-
-  const [org] = await db
-    .insert(organizations)
-    .values({ name: name.trim(), logo: logo ?? null, slug, userId })
-    .returning();
 
   if (plan === "trial") {
     const expiresAt = new Date();
