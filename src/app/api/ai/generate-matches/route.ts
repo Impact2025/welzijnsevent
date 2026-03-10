@@ -45,15 +45,24 @@ export async function POST(req: Request) {
       .from(attendees)
       .where(eq(attendees.eventId, eventId));
 
-    if (allAttendees.length < 2) {
+    // Filter op GDPR opt-in — alleen deelnemers die toestemming gaven
+    const optedIn = allAttendees.filter(a => a.networkingOptIn === true);
+
+    // Fallback: als niemand opt-in heeft gedaan, alle deelnemers gebruiken (backwards compat)
+    const matchPool = optedIn.length >= 2 ? optedIn : allAttendees;
+    const optInNote = optedIn.length >= 2
+      ? `(${optedIn.length} van ${allAttendees.length} deelnemers hebben toestemming gegeven voor netwerkkoppeling)`
+      : `(GDPR opt-in nog niet actief — alle ${allAttendees.length} deelnemers worden gebruikt)`;
+
+    if (matchPool.length < 2) {
       return NextResponse.json(
-        { error: "Minimaal 2 deelnemers nodig voor AI-matching" },
+        { error: "Minimaal 2 deelnemers met netwerktoestemming nodig voor AI-matching" },
         { status: 400 }
       );
     }
 
     // Prioriteer deelnemers met ingevuld profiel (meer data = betere matches)
-    const sorted = allAttendees
+    const sorted = matchPool
       .map((a) => ({
         ...a,
         completeness:
@@ -198,6 +207,7 @@ Regels:
     return NextResponse.json({
       generated: toInsert.length,
       attendeesAnalyzed: sorted.length,
+      optInNote,
       model,
     });
   } catch (err) {

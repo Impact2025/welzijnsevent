@@ -328,6 +328,137 @@ export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
   });
 }
 
+// ─── Deelnemer: herinnering (24u vóór evenement) ─────────────────────────────
+
+interface EventReminderEmailProps {
+  to: string;
+  name: string;
+  eventTitle: string;
+  eventDate: string;
+  eventLocation: string | null;
+  qrCode: string;
+  appUrl: string;
+}
+
+export async function sendEventReminderEmail(props: EventReminderEmailProps) {
+  if (!resend) return;
+  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl } = props;
+  const ticketUrl = `${appUrl}/ticket/${qrCode}`;
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Herinnering: morgen is het zover — ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">⏰</div>
+        <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Morgen is het zover!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:600;margin:0 0 8px;">Hoi ${name},</p>
+        <p style="color:#6B6560;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          Dit is een vriendelijke herinnering: morgen vindt <strong>${eventTitle}</strong> plaats. We kijken ernaar uit je te verwelkomen!
+        </p>
+        <div style="background:#FAF6F0;border-radius:14px;padding:20px;margin:0 0 24px;">
+          <table cellpadding="0" cellspacing="0" width="100%">
+            <tr><td style="padding:6px 0;border-bottom:1px solid #EDE8E1;">
+              <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Datum</span>
+              <span style="color:#1C1814;font-size:14px;font-weight:600;">📅 ${eventDate}</span>
+            </td></tr>
+            ${eventLocation ? `<tr><td style="padding:6px 0;">
+              <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Locatie</span>
+              <span style="color:#1C1814;font-size:14px;font-weight:600;">📍 ${eventLocation}</span>
+            </td></tr>` : ""}
+          </table>
+        </div>
+        <div style="text-align:center;">
+          <a href="${ticketUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
+            Bekijk mijn QR-ticket →
+          </a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;margin:0;"><strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector</p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Deelnemer: bedankmail met survey-link (na evenement) ─────────────────────
+
+interface ThankYouEmailProps {
+  to: string;
+  name: string;
+  eventTitle: string;
+  eventSlug: string;
+  attendeeId: string;
+  appUrl: string;
+}
+
+export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
+  if (!resend) return;
+  const { to, name, eventTitle, eventSlug, attendeeId, appUrl } = props;
+  const surveyUrl = `${appUrl}/e/${eventSlug}/survey?a=${attendeeId}`;
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Bedankt voor je komst — deel je feedback over ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🌟</div>
+        <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Bedankt voor je komst!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:600;margin:0 0 8px;">Hoi ${name},</p>
+        <p style="color:#6B6560;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          Bedankt dat je aanwezig was bij <strong>${eventTitle}</strong>! We hopen dat je een mooie en inspirerende dag hebt gehad.
+        </p>
+        <div style="background:linear-gradient(135deg,#FFF4EF 0%,#FFEEE6 100%);border:1px solid #F5D4C4;border-radius:14px;padding:20px;margin:0 0 24px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">📝</div>
+          <p style="color:#1C1814;font-size:14px;font-weight:700;margin:0 0 6px;">Deel je feedback</p>
+          <p style="color:#6B6560;font-size:12px;line-height:1.6;margin:0 0 16px;">
+            Het duurt slechts 2 minuten. Jouw input helpt ons het evenement volgend jaar nog beter te maken.
+          </p>
+          <a href="${surveyUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
+            Vul de enquête in →
+          </a>
+        </div>
+        <p style="color:#9E9890;font-size:12px;line-height:1.6;text-align:center;margin:0;">
+          Je feedback is anoniem en wordt alleen intern gebruikt.
+        </p>
+      </div>
+    </div>
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;margin:0;"><strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector</p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 // ─── Deelnemer: aanmeldingsbevestiging ────────────────────────────────────────
 
 interface ConfirmationEmailProps {

@@ -46,6 +46,14 @@ type EventData = {
   isFull: boolean;
 };
 
+type CustomField = {
+  id: string;
+  label: string;
+  type: string;
+  options: string[];
+  required: boolean;
+};
+
 export default function RegisterPage() {
   const params = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
@@ -56,6 +64,7 @@ export default function RegisterPage() {
   const langParam = lang === "en" ? "?lang=en" : "";
 
   const [event, setEvent] = useState<EventData | null>(null);
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +76,8 @@ export default function RegisterPage() {
     role: "",
     ticketTypeId: "",
     interests: [] as string[],
+    networkingOptIn: false,
+    customResponses: {} as Record<string, string | string[]>,
   });
 
   useEffect(() => {
@@ -77,7 +88,10 @@ export default function RegisterPage() {
         if (data.ticketTypes?.length === 1) {
           setForm(f => ({ ...f, ticketTypeId: data.ticketTypes[0].id }));
         }
+        // Haal custom velden op
+        return fetch(`/api/custom-fields?eventId=${data.id}`).then(r => r.json());
       })
+      .then(fields => setCustomFields(Array.isArray(fields) ? fields : []))
       .catch(() => setError("Event niet gevonden"))
       .finally(() => setLoading(false));
   }, [params.slug]);
@@ -147,6 +161,8 @@ export default function RegisterPage() {
             organization: form.organization,
             role: form.role,
             interests: form.interests,
+            networkingOptIn: form.networkingOptIn,
+            customResponses: form.customResponses,
             waitlistToken: waitlistToken ?? undefined,
           }),
         });
@@ -325,6 +341,107 @@ export default function RegisterPage() {
               );
             })}
           </div>
+        </div>
+
+        {/* Custom form fields */}
+        {customFields.map(field => (
+          <div key={field.id}>
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              {field.label} {field.required && <span className="text-red-500">*</span>}
+            </label>
+            {field.type === "text" && (
+              <input
+                type="text"
+                required={field.required}
+                value={(form.customResponses[field.id] as string) ?? ""}
+                onChange={e => setForm(f => ({ ...f, customResponses: { ...f.customResponses, [field.id]: e.target.value } }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
+              />
+            )}
+            {field.type === "textarea" && (
+              <textarea
+                required={field.required}
+                rows={3}
+                value={(form.customResponses[field.id] as string) ?? ""}
+                onChange={e => setForm(f => ({ ...f, customResponses: { ...f.customResponses, [field.id]: e.target.value } }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-offset-1"
+              />
+            )}
+            {field.type === "yesno" && (
+              <div className="grid grid-cols-2 gap-2">
+                {["Ja", "Nee"].map(opt => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, customResponses: { ...f.customResponses, [field.id]: opt } }))}
+                    className="py-2.5 rounded-xl border text-sm font-semibold transition-all"
+                    style={form.customResponses[field.id] === opt
+                      ? { backgroundColor: primaryColor, borderColor: primaryColor, color: "#fff" }
+                      : { backgroundColor: "#fff", borderColor: "#e5e7eb", color: "#374151" }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
+            {field.type === "select" && (
+              <select
+                required={field.required}
+                value={(form.customResponses[field.id] as string) ?? ""}
+                onChange={e => setForm(f => ({ ...f, customResponses: { ...f.customResponses, [field.id]: e.target.value } }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-offset-1"
+              >
+                <option value="">Kies een optie</option>
+                {(field.options ?? []).map(opt => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            )}
+            {field.type === "checkbox" && (
+              <div className="flex flex-wrap gap-2">
+                {(field.options ?? []).map(opt => {
+                  const vals = (form.customResponses[field.id] as string[] | undefined) ?? [];
+                  const active = vals.includes(opt);
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => {
+                        const newVals = active ? vals.filter(v => v !== opt) : [...vals, opt];
+                        setForm(f => ({ ...f, customResponses: { ...f.customResponses, [field.id]: newVals } }));
+                      }}
+                      className="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                      style={active
+                        ? { backgroundColor: primaryColor, borderColor: primaryColor, color: "#fff" }
+                        : { backgroundColor: "#fff", borderColor: "#e5e7eb", color: "#374151" }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* GDPR Netwerk opt-in */}
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.networkingOptIn}
+              onChange={e => setForm(f => ({ ...f, networkingOptIn: e.target.checked }))}
+              className="mt-0.5 w-4 h-4 rounded shrink-0"
+              style={{ accentColor: primaryColor }}
+            />
+            <div>
+              <p className="text-sm font-semibold text-gray-800">AI-netwerkkoppeling (optioneel)</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                Ik geef toestemming om mijn profielgegevens (naam, organisatie, rol en interesses) te gebruiken
+                voor AI-gestuurde netwerkmatches met andere deelnemers. Je kunt dit op elk moment intrekken.
+              </p>
+            </div>
+          </label>
         </div>
 
         {/* Submit */}

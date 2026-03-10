@@ -7,6 +7,8 @@ import { formatDate, formatTime } from "@/lib/utils";
 import { ArrowLeft, MapPin, Calendar, MoreHorizontal, Filter, Globe, ExternalLink } from "lucide-react";
 import { ShareEventButton } from "@/components/dashboard/share-event-button";
 import { AddSessionForm } from "@/components/events/add-session-form";
+import { EmailActionsPanel } from "@/components/events/email-actions-panel";
+import { CustomFieldsManager } from "@/components/events/custom-fields-manager";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
@@ -146,6 +148,22 @@ export default async function EventDetailPage({ params }: { params: { id: string
             eventStartsAt={event.startsAt.toISOString()}
           />
         </div>
+      </div>
+
+      {/* E-mail acties */}
+      <div className="px-4 pb-4">
+        <EmailActionsPanel
+          eventId={event.id}
+          reminderSentAt={event.reminderSentAt ?? null}
+          thankYouSentAt={event.thankYouSentAt ?? null}
+          surveyEnabled={event.surveyEnabled ?? false}
+          eventSlug={event.slug ?? ""}
+        />
+      </div>
+
+      {/* Custom inschrijfvragen */}
+      <div className="px-4 pb-8">
+        <CustomFieldsManager eventId={event.id} />
       </div>
 
     </div>

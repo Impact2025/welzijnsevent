@@ -51,6 +51,7 @@ export default function WebsiteTab() {
     isPublic: false,
     tagline: "",
     websiteColor: "#C8522A",
+    surveyEnabled: false,
   });
   const [newTicket, setNewTicket] = useState({
     name: "",
@@ -75,6 +76,7 @@ export default function WebsiteTab() {
       isPublic: ev.isPublic ?? false,
       tagline: ev.tagline ?? "",
       websiteColor: ev.websiteColor ?? "#C8522A",
+      surveyEnabled: (ev as { surveyEnabled?: boolean }).surveyEnabled ?? false,
     });
     setLoading(false);
   }, [params.id]);
@@ -263,6 +265,23 @@ export default function WebsiteTab() {
             >
               <span
                 className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.isPublic ? "translate-x-5" : "translate-x-0"}`}
+              />
+            </button>
+          </div>
+
+          {/* Survey toggle */}
+          <div className="flex items-center justify-between bg-sand/40 rounded-xl px-4 py-3">
+            <div>
+              <p className="text-sm font-semibold text-ink">Tevredenheidsonderzoek</p>
+              <p className="text-xs text-ink-muted">Na het event: enquête via /e/{form.slug}/survey</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setForm(f => ({ ...f, surveyEnabled: !f.surveyEnabled }))}
+              className={`relative w-11 h-6 rounded-full transition-colors ${form.surveyEnabled ? "bg-terra-500" : "bg-gray-300"}`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.surveyEnabled ? "translate-x-5" : "translate-x-0"}`}
               />
             </button>
           </div>

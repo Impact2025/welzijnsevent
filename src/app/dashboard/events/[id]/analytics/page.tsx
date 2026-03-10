@@ -1,10 +1,10 @@
-import { db, events, attendees, sessions, feedback, networkMatches, sessionRegistrations } from "@/db";
+import { db, events, attendees, sessions, feedback, networkMatches, sessionRegistrations, surveyResponses } from "@/db";
 import { eq, count, and, avg } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { DonutChart, SessionBars } from "@/components/analytics/impact-chart";
 import { SubsidieExportButton } from "@/components/analytics/subsidie-export-button";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Network, Star, Users, TrendingUp } from "lucide-react";
+import { ArrowLeft, Network, Star, Users, TrendingUp, MessageCircle, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 
 export default async function AnalyticsPage({ params }: { params: { id: string } }) {
@@ -96,6 +96,26 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
   );
   topSessionsData.sort((a, b) => b.regCount - a.regCount);
   const topSessions = topSessionsData.slice(0, 3);
+
+  // Tevredenheidsonderzoek (survey responses)
+  const surveyResults = await db
+    .select()
+    .from(surveyResponses)
+    .where(eq(surveyResponses.eventId, params.id));
+
+  const surveyTotal = surveyResults.length;
+  const surveyAvgRating = surveyTotal > 0
+    ? (surveyResults.filter(r => r.overallRating !== null).reduce((s, r) => s + (r.overallRating ?? 0), 0) /
+       Math.max(1, surveyResults.filter(r => r.overallRating !== null).length))
+    : null;
+  const surveyWouldRecommend = surveyResults.filter(r => r.wouldRecommend === true).length;
+  const surveyWouldRecommendPct = surveyTotal > 0
+    ? Math.round((surveyWouldRecommend / surveyResults.filter(r => r.wouldRecommend !== null).length) * 100)
+    : null;
+  const npsScores = surveyResults.filter(r => r.npsScore !== null).map(r => r.npsScore!);
+  const npsScore = npsScores.length > 0
+    ? Math.round(((npsScores.filter(s => s >= 9).length - npsScores.filter(s => s <= 6).length) / npsScores.length) * 100)
+    : null;
 
   const attendanceRate =
     totalAttendees > 0 ? Math.round((checkedIn / totalAttendees) * 100) : 0;
@@ -259,6 +279,59 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Survey resultaten */}
+        {surveyTotal > 0 && (
+          <div className="card-base overflow-hidden">
+            <div className="px-4 py-3 border-b border-sand flex items-center gap-1.5">
+              <MessageCircle size={13} className="text-terra-500" />
+              <p className="text-xs font-bold text-ink-muted uppercase tracking-wider">
+                Tevredenheidsonderzoek
+              </p>
+              <span className="ml-auto text-xs text-ink-muted">{surveyTotal} reacties</span>
+            </div>
+            <div className="grid grid-cols-3 divide-x divide-sand">
+              <div className="px-4 py-4 text-center">
+                <p className="text-2xl font-bold text-ink">
+                  {surveyAvgRating !== null ? surveyAvgRating.toFixed(1) : "—"}
+                </p>
+                <p className="text-[10px] text-ink-muted mt-0.5 uppercase tracking-wider">Gem. score</p>
+                {surveyAvgRating !== null && (
+                  <div className="flex justify-center gap-0.5 mt-1">
+                    {[1,2,3,4,5].map(i => (
+                      <Star
+                        key={i}
+                        size={10}
+                        className={i <= Math.round(surveyAvgRating!) ? "text-amber-400 fill-amber-400" : "text-gray-200"}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="px-4 py-4 text-center">
+                <p className="text-2xl font-bold text-ink">
+                  {npsScore !== null ? (npsScore > 0 ? `+${npsScore}` : npsScore) : "—"}
+                </p>
+                <p className="text-[10px] text-ink-muted mt-0.5 uppercase tracking-wider">NPS score</p>
+              </div>
+              <div className="px-4 py-4 text-center">
+                <p className="text-2xl font-bold text-ink">
+                  {surveyWouldRecommendPct !== null ? `${surveyWouldRecommendPct}%` : "—"}
+                </p>
+                <p className="text-[10px] text-ink-muted mt-0.5 uppercase tracking-wider">Aanbevolen</p>
+                {surveyWouldRecommendPct !== null && (
+                  <ThumbsUp size={12} className="text-green-500 mx-auto mt-1" />
+                )}
+              </div>
+            </div>
+            {/* Recent highlights */}
+            {surveyResults.filter(r => r.highlights).slice(0, 3).map(r => (
+              <div key={r.id} className="px-4 py-2.5 border-t border-sand">
+                <p className="text-xs text-ink-muted leading-relaxed italic">"{r.highlights}"</p>
+              </div>
+            ))}
           </div>
         )}
 

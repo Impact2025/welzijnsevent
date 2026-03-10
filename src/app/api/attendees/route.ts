@@ -41,18 +41,22 @@ export async function POST(req: Request) {
 
     const data = parsed.data;
     const waitlistToken = body.waitlistToken as string | undefined;
+    const networkingOptIn = body.networkingOptIn === true;
+    const customResponses = body.customResponses ?? {};
 
     const [attendee] = await db
       .insert(attendees)
       .values({
-        eventId:      data.eventId,
-        name:         data.name,
-        email:        data.email,
-        organization: data.organization,
-        role:         data.role,
-        interests:    data.interests,
-        status:       "aangemeld",
-        qrCode:       randomUUID(),
+        eventId:         data.eventId,
+        name:            data.name,
+        email:           data.email,
+        organization:    data.organization,
+        role:            data.role,
+        interests:       data.interests,
+        status:          "aangemeld",
+        qrCode:          randomUUID(),
+        networkingOptIn,
+        customResponses,
       })
       .returning();
 

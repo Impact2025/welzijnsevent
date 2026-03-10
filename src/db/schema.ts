@@ -49,6 +49,7 @@ export const organizations = pgTable("organizations", {
   slug:         text("slug").unique(),
   logo:         text("logo"),
   primaryColor: text("primary_color").default("#C8522A"),
+  customDomain: text("custom_domain"),
   userId:       text("user_id").references(() => authUsers.id, { onDelete: "cascade" }).unique(),
   createdAt:    timestamp("created_at").defaultNow(),
 });
@@ -73,9 +74,23 @@ export const events = pgTable("events", {
   isPublic:       boolean("is_public").default(false),
   tagline:        text("tagline"),
   websiteColor:   text("website_color"),
+  // Survey / tevredenheidsonderzoek
+  surveyEnabled:  boolean("survey_enabled").default(false),
+  surveyQuestions: jsonb("survey_questions").default([]).$type<SurveyQuestion[]>(),
+  // Email tracking
+  reminderSentAt:  timestamp("reminder_sent_at"),
+  thankYouSentAt:  timestamp("thank_you_sent_at"),
   createdAt:      timestamp("created_at").defaultNow(),
   updatedAt:      timestamp("updated_at").defaultNow(),
 });
+
+// Forward declaration for survey question type (used in events)
+export type SurveyQuestion = {
+  id: string;
+  label: string;
+  type: "rating" | "text" | "yesno" | "nps";
+  required?: boolean;
+};
 
 // ── SESSIONS ───────────────────────────────────────────────
 export const sessions = pgTable("sessions", {
@@ -104,12 +119,16 @@ export const attendees = pgTable("attendees", {
   role:         text("role"),
   interests:    jsonb("interests").default([]),
   // voor AI matching
-  status:       text("status").default("aangemeld"),
+  status:          text("status").default("aangemeld"),
   // aangemeld | ingecheckt | afwezig
-  checkedInAt:  timestamp("checked_in_at"),
-  qrCode:       text("qr_code").unique(),
-  emailOptOut:  boolean("email_opt_out").default(false),
-  registeredAt: timestamp("registered_at").defaultNow(),
+  checkedInAt:     timestamp("checked_in_at"),
+  qrCode:          text("qr_code").unique(),
+  emailOptOut:     boolean("email_opt_out").default(false),
+  networkingOptIn: boolean("networking_opt_in").default(false),
+  // GDPR opt-in for AI matching
+  customResponses: jsonb("custom_responses").default({}).$type<Record<string, string | string[]>>(),
+  // Answers to custom form fields
+  registeredAt:    timestamp("registered_at").defaultNow(),
 });
 
 // ── SESSION REGISTRATIONS ──────────────────────────────────
@@ -226,6 +245,51 @@ export const waitlist = pgTable("waitlist", {
   createdAt:    timestamp("created_at").defaultNow(),
 });
 
+// ── SOCIAL WALL POSTS ──────────────────────────────────────
+export const socialWallPosts = pgTable("social_wall_posts", {
+  id:          uuid("id").defaultRandom().primaryKey(),
+  eventId:     uuid("event_id").references(() => events.id).notNull(),
+  authorName:  text("author_name").notNull(),
+  authorEmail: text("author_email"),
+  content:     text("content").notNull(),
+  imageUrl:    text("image_url"),
+  reactions:   jsonb("reactions").default({}).$type<Record<string, number>>(),
+  // emoji → count, e.g. {"❤️": 5, "👏": 3}
+  status:      text("status").default("visible"),
+  // visible | hidden
+  createdAt:   timestamp("created_at").defaultNow(),
+});
+
+// ── SURVEY RESPONSES ───────────────────────────────────────
+export const surveyResponses = pgTable("survey_responses", {
+  id:              uuid("id").defaultRandom().primaryKey(),
+  eventId:         uuid("event_id").references(() => events.id).notNull(),
+  attendeeId:      uuid("attendee_id").references(() => attendees.id),
+  overallRating:   integer("overall_rating"),
+  // 1-5
+  npsScore:        integer("nps_score"),
+  // 0-10
+  highlights:      text("highlights"),
+  improvements:    text("improvements"),
+  wouldRecommend:  boolean("would_recommend"),
+  customAnswers:   jsonb("custom_answers").default({}).$type<Record<string, string>>(),
+  createdAt:       timestamp("created_at").defaultNow(),
+});
+
+// ── CUSTOM FORM FIELDS ─────────────────────────────────────
+export const customFormFields = pgTable("custom_form_fields", {
+  id:        uuid("id").defaultRandom().primaryKey(),
+  eventId:   uuid("event_id").references(() => events.id).notNull(),
+  label:     text("label").notNull(),
+  type:      text("type").notNull().default("text"),
+  // text | textarea | select | checkbox | yesno
+  options:   jsonb("options").default([]).$type<string[]>(),
+  // for select/checkbox types
+  required:  boolean("required").default(false),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // ── SUBSCRIPTIONS ──────────────────────────────────────────
 export const subscriptions = pgTable("subscriptions", {
   id:             uuid("id").defaultRandom().primaryKey(),
@@ -257,3 +321,6 @@ export type Feedback           = typeof feedback.$inferSelect;
 export type TicketType         = typeof ticketTypes.$inferSelect;
 export type Order              = typeof orders.$inferSelect;
 export type WaitlistEntry      = typeof waitlist.$inferSelect;
+export type SocialWallPost     = typeof socialWallPosts.$inferSelect;
+export type SurveyResponse     = typeof surveyResponses.$inferSelect;
+export type CustomFormField    = typeof customFormFields.$inferSelect;

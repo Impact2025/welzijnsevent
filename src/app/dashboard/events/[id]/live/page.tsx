@@ -1,19 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Settings, Play, Square } from "lucide-react";
+import { ArrowLeft, Settings, Play, Square, EyeOff, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { QAMessageCard } from "@/components/live/qa-message";
 import { PollWidget } from "@/components/live/poll-widget";
 import { getPusherClient, getEventChannel, PUSHER_EVENTS } from "@/lib/pusher";
-import type { QAMessage, Poll, Session } from "@/db";
+import type { QAMessage, Poll, Session, SocialWallPost } from "@/db";
 
 export default function LiveControlPage({ params }: { params: { id: string } }) {
   const [sessions, setSessions]   = useState<Session[]>([]);
   const [messages, setMessages]   = useState<QAMessage[]>([]);
   const [poll, setPoll]           = useState<Poll | null>(null);
-  const [activeTab, setActiveTab] = useState<"programma" | "publiek" | "sprekers">("programma");
+  const [wallPosts, setWallPosts] = useState<SocialWallPost[]>([]);
+  const [activeTab, setActiveTab] = useState<"programma" | "publiek" | "wall" | "sprekers">("programma");
   const [newCount, setNewCount]   = useState(0);
+  const [newWallCount, setNewWallCount] = useState(0);
   const [toast, setToast]         = useState<string | null>(null);
 
   // Fetch initial data
@@ -32,6 +34,15 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
     fetch(`/api/polls?eventId=${params.id}`)
       .then(r => r.json())
       .then(d => setPoll(d.poll ?? null));
+
+    fetch(`/api/social-wall?eventId=${params.id}`)
+      .then(r => r.json())
+      .then(d => {
+        // Load all posts including hidden for moderation
+        fetch(`/api/social-wall?eventId=${params.id}&all=true`)
+          .then(r2 => r2.json())
+          .then(d2 => setWallPosts(Array.isArray(d2) ? d2 : []));
+      });
   }, [params.id]);
 
   // Pusher realtime
@@ -43,6 +54,16 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
     liveCh.bind(PUSHER_EVENTS.QA_NEW, (msg: QAMessage) => {
       setMessages(prev => [msg, ...prev]);
       setNewCount(n => n + 1);
+    });
+    liveCh.bind("wall:new", (post: SocialWallPost) => {
+      setWallPosts(prev => [post, ...prev]);
+      setNewWallCount(n => n + 1);
+    });
+    liveCh.bind("wall:moderated", ({ postId, status }: { postId: string; status: string }) => {
+      setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, status } : p));
+    });
+    liveCh.bind("wall:deleted", ({ postId }: { postId: string }) => {
+      setWallPosts(prev => prev.filter(p => p.id !== postId));
     });
     liveCh.bind(PUSHER_EVENTS.QA_UPDATED, (updated: QAMessage) => {
       setMessages(prev => prev.map(m => m.id === updated.id ? updated : m));
@@ -97,6 +118,20 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
     });
   };
 
+  const handleWallModerate = async (postId: string, status: "visible" | "hidden") => {
+    await fetch(`/api/social-wall/${postId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    setWallPosts(prev => prev.map(p => p.id === postId ? { ...p, status } : p));
+  };
+
+  const handleWallDelete = async (postId: string) => {
+    await fetch(`/api/social-wall/${postId}`, { method: "DELETE" });
+    setWallPosts(prev => prev.filter(p => p.id !== postId));
+  };
+
   const liveSession = sessions.find(s => s.isLive);
   const visibleMessages = messages.filter(m => m.status !== "verwijderd");
   const speakers = sessions.flatMap(s =>
@@ -135,12 +170,15 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
 
       {/* Tabs */}
       <div className="bg-[#1C1814] border-b border-white/10 px-4">
-        <div className="flex gap-5">
-          {(["programma", "publiek", "sprekers"] as const).map(tab => (
+        <div className="flex gap-5 overflow-x-auto scrollbar-hide">
+          {(["programma", "publiek", "wall", "sprekers"] as const).map(tab => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-3 text-sm font-semibold capitalize border-b-2 transition-colors relative ${
+              onClick={() => {
+                setActiveTab(tab);
+                if (tab === "wall") setNewWallCount(0);
+              }}
+              className={`py-3 text-sm font-semibold capitalize border-b-2 transition-colors relative shrink-0 ${
                 activeTab === tab
                   ? "text-terra-400 border-terra-400"
                   : "text-white/40 border-transparent hover:text-white/70"
@@ -150,6 +188,11 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
               {tab === "publiek" && newCount > 0 && (
                 <span className="absolute -top-0.5 -right-3 bg-terra-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {newCount}
+                </span>
+              )}
+              {tab === "wall" && newWallCount > 0 && (
+                <span className="absolute -top-0.5 -right-3 bg-blue-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                  {newWallCount}
                 </span>
               )}
             </button>
@@ -248,6 +291,58 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
                   });
                 }}
               />
+            )}
+          </>
+        )}
+
+        {/* WALL TAB */}
+        {activeTab === "wall" && (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-ink">Sociale Wall</h3>
+              <span className="text-xs text-ink-muted">{wallPosts.length} berichten</span>
+            </div>
+            {wallPosts.length === 0 ? (
+              <p className="text-xs text-ink-muted text-center py-8">Nog geen berichten op de wall</p>
+            ) : (
+              <div className="space-y-2">
+                {wallPosts.map(post => (
+                  <div
+                    key={post.id}
+                    className={`rounded-2xl p-4 border ${
+                      post.status === "hidden" ? "bg-red-50 border-red-100 opacity-60" : "bg-sand/30 border-sand"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-ink">{post.authorName}</p>
+                        <p className="text-xs text-ink-muted mt-1 line-clamp-2 leading-relaxed">{post.content}</p>
+                        {post.status === "hidden" && (
+                          <span className="text-[10px] text-red-500 font-bold uppercase tracking-wider">Verborgen</span>
+                        )}
+                      </div>
+                      <div className="flex gap-1 shrink-0">
+                        <button
+                          onClick={() => handleWallModerate(post.id, post.status === "visible" ? "hidden" : "visible")}
+                          className={`p-2 rounded-xl transition-colors ${
+                            post.status === "visible"
+                              ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
+                              : "bg-green-100 text-green-600 hover:bg-green-200"
+                          }`}
+                        >
+                          {post.status === "visible" ? <EyeOff size={13} /> : <Eye size={13} />}
+                        </button>
+                        <button
+                          onClick={() => handleWallDelete(post.id)}
+                          className="p-2 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </>
         )}

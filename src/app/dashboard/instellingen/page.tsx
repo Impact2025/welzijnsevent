@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2 } from "lucide-react";
+import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Plus, Trash2 } from "lucide-react";
 import { PLAN_FEATURES, PLAN_LIMITS, PLAN_PRICES_CENTS } from "@/lib/plans";
 import { formatDate } from "@/lib/utils";
 
@@ -24,16 +24,17 @@ interface Subscription {
 }
 
 export default function InstellingenPage() {
-  const [orgId, setOrgId]        = useState<string | null>(null);
-  const [name, setName]          = useState("");
-  const [logo, setLogo]          = useState("");
-  const [primaryColor, setColor] = useState("#C8522A");
+  const [orgId, setOrgId]           = useState<string | null>(null);
+  const [name, setName]             = useState("");
+  const [logo, setLogo]             = useState("");
+  const [primaryColor, setColor]    = useState("#C8522A");
+  const [customDomain, setDomain]   = useState("");
   const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
   const [subscription, setSubscription]   = useState<Subscription | null>(null);
-  const [saved, setSaved]        = useState(false);
-  const [saving, setSaving]      = useState(false);
-  const [loading, setLoading]    = useState(true);
-  const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [saved, setSaved]           = useState(false);
+  const [saving, setSaving]         = useState(false);
+  const [loading, setLoading]       = useState(true);
+  const [upgrading, setUpgrading]   = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
@@ -45,6 +46,7 @@ export default function InstellingenPage() {
         setName(orgData.organization.name ?? "");
         setLogo(orgData.organization.logo ?? "");
         setColor(orgData.organization.primaryColor ?? "#C8522A");
+        setDomain(orgData.organization.customDomain ?? "");
       }
       if (subData.subscription) {
         setSubscription(subData.subscription);
@@ -66,7 +68,12 @@ export default function InstellingenPage() {
       await fetch("/api/organizations", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, logo: logo || null, primaryColor }),
+        body: JSON.stringify({
+          name,
+          logo: logo || null,
+          primaryColor,
+          customDomain: customDomain.trim() || null,
+        }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
@@ -141,6 +148,37 @@ export default function InstellingenPage() {
                 placeholder="https://..."
                 className="w-full bg-sand rounded-xl px-4 py-3 text-sm text-ink outline-none placeholder-ink-muted/50 focus:ring-2 focus:ring-terra-500/30 transition"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* White-label domein */}
+        <div className="card-base overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-sand bg-sand/30">
+            <Globe size={16} className="text-terra-500" />
+            <h2 className="font-bold text-ink text-sm">White-label domein</h2>
+          </div>
+          <div className="p-5 space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
+                Eigen domein
+              </label>
+              <input
+                type="text"
+                value={customDomain}
+                onChange={e => setDomain(e.target.value.toLowerCase().trim())}
+                placeholder="evenementen.mijnorganisatie.nl"
+                className="w-full bg-sand rounded-xl px-4 py-3 text-sm text-ink outline-none placeholder-ink-muted/50 focus:ring-2 focus:ring-terra-500/30 transition"
+              />
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+              <p className="text-xs font-semibold text-blue-800 mb-1">DNS instelling vereist</p>
+              <p className="text-xs text-blue-700 leading-relaxed">
+                Voeg een CNAME-record toe bij je DNS-provider:
+              </p>
+              <code className="block text-xs bg-blue-100 text-blue-900 rounded-lg px-3 py-2 mt-2 font-mono">
+                CNAME → cname.vercel-dns.com
+              </code>
             </div>
           </div>
         </div>

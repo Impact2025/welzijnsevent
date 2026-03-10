@@ -38,10 +38,11 @@ export async function PATCH(req: Request) {
     }
 
     const { name, logo, primaryColor } = parsed.data;
+    const customDomain = (body.customDomain as string | null) ?? null;
 
     const [updated] = await db
       .update(organizations)
-      .set({ name, logo: logo ?? null, primaryColor })
+      .set({ name, logo: logo ?? null, primaryColor, customDomain })
       .where(eq(organizations.id, org.id))
       .returning();
 

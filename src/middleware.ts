@@ -13,10 +13,39 @@ const PUBLIC_PREFIXES = [
   "/over-ons",
   "/api/pusher",
   "/api/payments/multisafepay/webhook",
+  "/api/social-wall",
+  "/api/survey",
+  "/api/custom-fields",
+  "/api/public",
+];
+
+// Interne bijeen.app domeinen — geen custom domain routing
+const INTERNAL_HOSTS = [
+  "localhost",
+  "bijeen.app",
+  "www.bijeen.app",
+  "welzijnsevent.nl",
 ];
 
 export default auth((req: NextRequest & { auth: unknown }) => {
   const { pathname } = req.nextUrl;
+  const host = req.headers.get("host") ?? "";
+  const baseHost = host.split(":")[0]; // strip port
+
+  // ── White-label custom domain routing ─────────────────────
+  // Als het verzoek binnenkomt op een onbekend domein → map naar /e/[org-slug]
+  const isInternalHost = INTERNAL_HOSTS.some(h => baseHost === h || baseHost.endsWith(`.${h}`));
+
+  if (!isInternalHost && pathname === "/") {
+    // Redirect custom domain root naar /api/domain-lookup zodat de public event page geladen wordt
+    const url = req.nextUrl.clone();
+    url.pathname = "/api/domain-lookup";
+    url.searchParams.set("host", baseHost);
+    url.searchParams.set("redirect", "true");
+    return NextResponse.rewrite(url);
+  }
+
+  // ── Auth protection ────────────────────────────────────────
   const isPublic =
     pathname === "/" ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));

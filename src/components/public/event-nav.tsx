@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Radio, Users } from "lucide-react";
+import { Calendar, Radio, Users, MessageSquare } from "lucide-react";
 
 const tabs = [
-  { label: "Programma", href: (slug: string) => `/e/${slug}`,           icon: Calendar, exact: true },
-  { label: "Live",      href: (slug: string) => `/e/${slug}/live`,      icon: Radio    },
-  { label: "Community", href: (slug: string) => `/e/${slug}/community`, icon: Users    },
+  { label: "Programma", href: (slug: string) => `/e/${slug}`,           icon: Calendar,      exact: true },
+  { label: "Live",      href: (slug: string) => `/e/${slug}/live`,      icon: Radio          },
+  { label: "Wall",      href: (slug: string) => `/e/${slug}/wall`,      icon: MessageSquare  },
+  { label: "Community", href: (slug: string) => `/e/${slug}/community`, icon: Users          },
 ];
 
 export function EventNav({
