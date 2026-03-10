@@ -35,8 +35,8 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
       {/* Logo */}
       <div className="px-2 mb-7">
         <Link href="/dashboard">
-          <div className="bg-white/95 rounded-xl px-3 py-2 inline-flex">
-            <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
+          <div className="bg-white/95 rounded-xl px-3 py-2.5 inline-flex items-center">
+            <Image src="/Bijeen-logo.png" alt="Bijeen" width={90} height={28} className="h-6 w-auto" priority />
           </div>
         </Link>
       </div>
@@ -101,10 +101,12 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
             )}
           </div>
           <UserButton
+            afterSignOutUrl="/sign-in"
             appearance={{
               elements: {
                 avatarBox: "w-6 h-6",
                 userButtonTrigger: "shrink-0",
+                userButtonPopoverCard: "z-[9999]",
               },
             }}
           />

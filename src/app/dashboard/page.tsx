@@ -4,11 +4,21 @@ import { KpiCard } from "@/components/dashboard/kpi-card";
 import { EventCard } from "@/components/events/event-card";
 import { Users, Calendar, Star, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
+import { getCurrentOrg } from "@/lib/auth";
 
 export default async function DashboardPage() {
-  const allEvents = await db.select().from(events).orderBy(desc(events.startsAt)).limit(5);
-  const [{ count: totalAttendees }] = await db.select({ count: count() }).from(attendees);
-  const [{ count: totalSessions }]  = await db.select({ count: count() }).from(sessions);
+  const org = await getCurrentOrg();
+  if (!org) return null;
+
+  const allEvents = await db.select().from(events)
+    .where(eq(events.organizationId, org.id))
+    .orderBy(desc(events.startsAt)).limit(5);
+  const [{ count: totalAttendees }] = await db.select({ count: count() }).from(attendees)
+    .innerJoin(events, eq(attendees.eventId, events.id))
+    .where(eq(events.organizationId, org.id));
+  const [{ count: totalSessions }] = await db.select({ count: count() }).from(sessions)
+    .innerJoin(events, eq(sessions.eventId, events.id))
+    .where(eq(events.organizationId, org.id));
 
   const enrichedEvents = await Promise.all(
     allEvents.map(async (event) => {
@@ -34,7 +44,7 @@ export default async function DashboardPage() {
           Welkom terug
         </h1>
         <p className="text-sm text-ink-muted mt-1 font-medium">
-          Humanitas Utrecht · Overzicht van je evenementen
+          {org.name} · Overzicht van je evenementen
         </p>
       </div>
 
