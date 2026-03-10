@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Plus, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Upload, X } from "lucide-react";
 import { PLAN_FEATURES, PLAN_LIMITS, PLAN_PRICES_CENTS } from "@/lib/plans";
 import { formatDate } from "@/lib/utils";
 
@@ -27,6 +27,8 @@ export default function InstellingenPage() {
   const [orgId, setOrgId]           = useState<string | null>(null);
   const [name, setName]             = useState("");
   const [logo, setLogo]             = useState("");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError]   = useState<string | null>(null);
   const [primaryColor, setColor]    = useState("#C8522A");
   const [customDomain, setDomain]   = useState("");
   const [notifications, setNotifications] = useState(DEFAULT_NOTIFICATIONS);
@@ -35,6 +37,7 @@ export default function InstellingenPage() {
   const [saving, setSaving]         = useState(false);
   const [loading, setLoading]       = useState(true);
   const [upgrading, setUpgrading]   = useState<string | null>(null);
+  const fileInputRef                = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     Promise.all([
@@ -54,6 +57,25 @@ export default function InstellingenPage() {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLogoUploading(true);
+    setLogoError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setLogo(data.url);
+    } catch (err: unknown) {
+      setLogoError(err instanceof Error ? err.message : "Upload mislukt");
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const toggleNotification = (key: string) => {
     setNotifications(prev =>
@@ -139,15 +161,48 @@ export default function InstellingenPage() {
             </div>
             <div>
               <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
-                Logo (URL)
+                Logo
               </label>
               <input
-                type="text"
-                value={logo}
-                onChange={e => setLogo(e.target.value)}
-                placeholder="https://..."
-                className="w-full bg-sand rounded-xl px-4 py-3 text-sm text-ink outline-none placeholder-ink-muted/50 focus:ring-2 focus:ring-terra-500/30 transition"
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                className="hidden"
+                onChange={handleLogoUpload}
               />
+              {logo ? (
+                <div className="flex items-center gap-3">
+                  <img src={logo} alt="Logo" className="h-12 w-12 rounded-xl object-contain bg-sand border border-sand" />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-xs text-terra-500 font-semibold hover:underline"
+                  >
+                    Vervangen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setLogo("")}
+                    className="text-xs text-ink-muted hover:text-red-500 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={logoUploading}
+                  className="w-full flex items-center justify-center gap-2 bg-sand border border-dashed border-sand-dark hover:border-terra-300 rounded-xl px-4 py-4 text-sm text-ink-muted hover:text-ink transition-colors disabled:opacity-60"
+                >
+                  {logoUploading ? (
+                    <><Loader2 size={15} className="animate-spin" /> Uploaden...</>
+                  ) : (
+                    <><Upload size={15} /> Klik om een logo te uploaden <span className="text-xs opacity-60">PNG, JPG, SVG · max 2 MB</span></>
+                  )}
+                </button>
+              )}
+              {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
             </div>
           </div>
         </div>
