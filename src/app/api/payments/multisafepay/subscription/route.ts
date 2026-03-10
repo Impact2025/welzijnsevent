@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, subscriptions } from "@/db";
+
+export const maxDuration = 30; // seconden (Vercel Pro: tot 300s, Hobby: genegeerd)
 import { eq, and } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
 import { PLAN_PRICES_CENTS } from "@/lib/plans";
@@ -68,13 +70,17 @@ export async function POST(req: Request) {
     console.log("[msp/subscription] Base:", MSP_API_BASE);
     console.log("[msp/subscription] Payload:", JSON.stringify(mspPayload));
 
-    // 12 seconden timeout — voorkomt Vercel 502 door hanging fetch
+    // 8 seconden timeout — onder Vercel's 10s execution limit
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 12_000);
+    const timeout = setTimeout(() => controller.abort(), 8_000);
+
+    // URL-encode de API key zodat speciale tekens (+, /, =) correct worden doorgegeven
+    const mspUrl = new URL(`${MSP_API_BASE}/orders`);
+    mspUrl.searchParams.set("api_key", apiKey);
 
     let mspRes: Response;
     try {
-      mspRes = await fetch(`${MSP_API_BASE}/orders?api_key=${apiKey}`, {
+      mspRes = await fetch(mspUrl.toString(), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(mspPayload),
