@@ -20,13 +20,11 @@ export function MarketingNav() {
   const { isSignedIn } = useAuth();
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-[#12100E]/95 backdrop-blur-md border-b border-white/8">
+    <header className="fixed top-0 inset-x-0 z-50 bg-cream/95 backdrop-blur-md border-b border-ink/8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0">
-          <div className="bg-white/95 rounded-xl px-3 py-1.5 inline-flex hover:bg-white transition-colors">
-            <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
-          </div>
+          <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}
@@ -38,8 +36,8 @@ export function MarketingNav() {
               className={cn(
                 "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150",
                 path.startsWith(href)
-                  ? "text-white bg-white/10"
-                  : "text-white/55 hover:text-white hover:bg-white/5"
+                  ? "text-ink bg-ink/8"
+                  : "text-ink/55 hover:text-ink hover:bg-ink/5"
               )}
             >
               {label}
@@ -52,7 +50,7 @@ export function MarketingNav() {
           <SignedOut>
             <Link
               href="/sign-in"
-              className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+              className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
             >
               Inloggen
             </Link>
@@ -66,20 +64,18 @@ export function MarketingNav() {
           <SignedIn>
             <Link
               href="/dashboard"
-              className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
+              className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
             >
               Dashboard
             </Link>
-            <UserButton
-              appearance={{ elements: { avatarBox: "w-8 h-8" } }}
-            />
+            <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
           </SignedIn>
         </div>
 
         {/* Mobile hamburger */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-white/70 hover:text-white p-2 -mr-2 rounded-xl hover:bg-white/5 transition-colors"
+          className="md:hidden text-ink/60 hover:text-ink p-2 -mr-2 rounded-xl hover:bg-ink/5 transition-colors"
           aria-label={open ? "Sluit menu" : "Open menu"}
         >
           {open ? <X size={20} /> : <Menu size={20} />}
@@ -88,7 +84,7 @@ export function MarketingNav() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-white/8 bg-[#12100E] px-4 pb-4 pt-2 space-y-0.5 animate-fade-in">
+        <div className="md:hidden border-t border-ink/8 bg-cream px-4 pb-4 pt-2 space-y-0.5 animate-fade-in">
           {links.map(({ href, label }) => (
             <Link
               key={href}
@@ -97,14 +93,14 @@ export function MarketingNav() {
               className={cn(
                 "block px-3 py-3 rounded-xl text-sm font-medium transition-colors",
                 path.startsWith(href)
-                  ? "text-white bg-white/10"
-                  : "text-white/60 hover:text-white hover:bg-white/5"
+                  ? "text-ink bg-ink/8"
+                  : "text-ink/60 hover:text-ink hover:bg-ink/5"
               )}
             >
               {label}
             </Link>
           ))}
-          <div className="pt-2 border-t border-white/8 space-y-2 mt-2">
+          <div className="pt-2 border-t border-ink/8 space-y-2 mt-2">
             {isSignedIn ? (
               <Link
                 href="/dashboard"
@@ -118,7 +114,7 @@ export function MarketingNav() {
                 <Link
                   href="/sign-in"
                   onClick={() => setOpen(false)}
-                  className="block px-3 py-3 text-sm font-medium text-white/50 text-center rounded-xl hover:bg-white/5 transition-colors"
+                  className="block px-3 py-3 text-sm font-medium text-ink/50 text-center rounded-xl hover:bg-ink/5 transition-colors"
                 >
                   Inloggen
                 </Link>
