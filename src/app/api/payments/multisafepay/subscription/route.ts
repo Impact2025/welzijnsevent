@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, subscriptions } from "@/db";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
 import { PLAN_PRICES_CENTS } from "@/lib/plans";
 
@@ -30,17 +30,23 @@ export async function POST(req: Request) {
     if (!amountCents) return NextResponse.json({ error: "Ongeldig plan" }, { status: 400 });
 
     const apiKey = process.env.MULTISAFEPAY_API_KEY;
-    if (!apiKey) return NextResponse.json({ error: "Betaalprovider niet geconfigureerd" }, { status: 500 });
+    if (!apiKey) return NextResponse.json({ error: "Betaalprovider niet geconfigureerd (geen API key)" }, { status: 500 });
 
-    const [sub] = await db
-      .insert(subscriptions)
-      .values({
-        organizationId: org.id,
-        plan,
-        status: "pending_payment",
-        amountPaid: amountCents,
-      })
-      .returning();
+    // Hergebruik bestaande pending subscription voor dit plan, maak anders een nieuwe aan
+    const existing = await db
+      .select()
+      .from(subscriptions)
+      .where(and(eq(subscriptions.organizationId, org.id), eq(subscriptions.status, "pending_payment"), eq(subscriptions.plan, plan)))
+      .limit(1);
+
+    let sub = existing[0];
+    if (!sub) {
+      const [inserted] = await db
+        .insert(subscriptions)
+        .values({ organizationId: org.id, plan, status: "pending_payment", amountPaid: amountCents })
+        .returning();
+      sub = inserted;
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${req.headers.get("host")}`;
 
@@ -49,7 +55,7 @@ export async function POST(req: Request) {
       order_id: `sub_${sub.id}`,
       currency: "EUR",
       amount: amountCents,
-      description: `Bijeen abonnement verlenging — ${plan}`,
+      description: `Bijeen abonnement — ${plan}`,
       payment_options: {
         notification_url: `${baseUrl}/api/payments/multisafepay/webhook`,
         redirect_url: `${baseUrl}/onboarding/succes`,
@@ -58,22 +64,39 @@ export async function POST(req: Request) {
       customer: { locale: "nl_NL" },
     };
 
-    const mspRes = await fetch(`${MSP_API_BASE}/orders?api_key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(mspPayload),
-    });
+    console.log("[msp/subscription] ENV:", process.env.MULTISAFEPAY_ENV ?? "niet gezet → test API");
+    console.log("[msp/subscription] Base:", MSP_API_BASE);
+    console.log("[msp/subscription] Payload:", JSON.stringify(mspPayload));
 
-    const mspData = await mspRes.json();
-    if (!mspRes.ok || !mspData.data?.payment_url) {
-      console.error("[msp/subscription] MSP fout (HTTP", mspRes.status, "):", JSON.stringify(mspData));
-      console.error("[msp/subscription] ENV:", process.env.MULTISAFEPAY_ENV ?? "niet gezet (→ test API)");
-      console.error("[msp/subscription] API_BASE:", MSP_API_BASE);
+    // 12 seconden timeout — voorkomt Vercel 502 door hanging fetch
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 12_000);
+
+    let mspRes: Response;
+    try {
+      mspRes = await fetch(`${MSP_API_BASE}/orders?api_key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(mspPayload),
+        signal: controller.signal,
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      const msg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+      console.error("[msp/subscription] Fetch mislukt:", msg);
+      return NextResponse.json({ error: `MSP API onbereikbaar: ${msg}` }, { status: 502 });
+    }
+    clearTimeout(timeout);
+
+    const mspData = await mspRes.json().catch(() => null);
+    console.log("[msp/subscription] MSP status:", mspRes.status, "response:", JSON.stringify(mspData));
+
+    if (!mspRes.ok || !mspData?.data?.payment_url) {
       return NextResponse.json({
         error: "Betaallink aanmaken mislukt",
         details: {
-          error_code:  mspData.error_code  ?? mspData.error  ?? mspRes.status,
-          error_info:  mspData.error_info  ?? mspData.message ?? null,
+          error_code: mspData?.error_code ?? mspRes.status,
+          error_info: mspData?.error_info ?? mspData?.message ?? null,
           msp_response: mspData,
         },
       }, { status: 502 });
