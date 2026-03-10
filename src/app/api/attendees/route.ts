@@ -1,18 +1,33 @@
 import { NextResponse } from "next/server";
-import { db, attendees, events, waitlist } from "@/db";
-import { eq, and } from "drizzle-orm";
+import { auth } from "@/auth";
+import { db, attendees, events, waitlist, organizations } from "@/db";
+import { eq, and, count } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendRegistrationConfirmation } from "@/lib/email";
 import { formatDateTime } from "@/lib/utils";
 import { AttendeeSchema, validationError } from "@/lib/validation";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 export async function GET(req: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
     const { searchParams } = new URL(req.url);
     const eventId = searchParams.get("eventId");
 
     if (!eventId) return NextResponse.json({ error: "eventId required" }, { status: 400 });
+
+    // Verify the requesting org owns this event
+    const org = await getCurrentOrg();
+    if (!org) return NextResponse.json({ error: "Organisatie niet gevonden" }, { status: 404 });
+
+    const [event] = await db.select().from(events).where(
+      and(eq(events.id, eventId), eq(events.organizationId, org.id))
+    );
+    if (!event) return NextResponse.json({ error: "Evenement niet gevonden" }, { status: 404 });
 
     const list = await db
       .select()
@@ -44,6 +59,45 @@ export async function POST(req: Request) {
     const networkingOptIn = body.networkingOptIn === true;
     const customResponses = body.customResponses ?? {};
 
+    // Fetch event + org for plan limit check
+    const [event] = await db.select().from(events).where(eq(events.id, data.eventId));
+    if (!event) return NextResponse.json({ error: "Evenement niet gevonden" }, { status: 404 });
+
+    // Plan limit: max attendees per event
+    const [eventOrg] = await db.select().from(organizations).where(
+      eq(organizations.id, event.organizationId!)
+    );
+    if (eventOrg) {
+      const subscription = await getCurrentSubscription(eventOrg.id);
+      const active = isSubscriptionActive(subscription);
+      const plan = (active && subscription?.plan) ? subscription.plan : "trial";
+      const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.trial;
+
+      const [{ total }] = await db
+        .select({ total: count() })
+        .from(attendees)
+        .where(eq(attendees.eventId, data.eventId));
+
+      if (total >= limits.attendeesPerEvent) {
+        return NextResponse.json(
+          { error: `Maximum aantal deelnemers (${limits.attendeesPerEvent}) bereikt voor dit abonnement.` },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Duplicate email check
+    const [existing] = await db
+      .select({ id: attendees.id })
+      .from(attendees)
+      .where(and(eq(attendees.eventId, data.eventId), eq(attendees.email, data.email)));
+    if (existing) {
+      return NextResponse.json(
+        { error: "Dit e-mailadres is al aangemeld voor dit evenement." },
+        { status: 409 }
+      );
+    }
+
     const [attendee] = await db
       .insert(attendees)
       .values({
@@ -71,22 +125,15 @@ export async function POST(req: Request) {
     // Stuur bevestigingsmail (non-blocking — laat registratie niet mislukken als mail faalt)
     if (attendee.email) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-      db.select()
-        .from(events)
-        .where(eq(events.id, data.eventId))
-        .then(([event]) => {
-          if (!event) return;
-          sendRegistrationConfirmation({
-            to: attendee.email,
-            name: attendee.name,
-            eventTitle: event.title,
-            eventDate: formatDateTime(event.startsAt),
-            eventLocation: event.location,
-            qrCode: attendee.qrCode!,
-            appUrl,
-          }).catch((err) => console.error("[email] Bevestigingsmail mislukt:", err));
-        })
-        .catch((err) => console.error("[email] Event ophalen mislukt:", err));
+      sendRegistrationConfirmation({
+        to: attendee.email,
+        name: attendee.name,
+        eventTitle: event.title,
+        eventDate: formatDateTime(event.startsAt),
+        eventLocation: event.location,
+        qrCode: attendee.qrCode!,
+        appUrl,
+      }).catch((err) => console.error("[email] Bevestigingsmail mislukt:", err));
     }
 
     return NextResponse.json({ attendee }, { status: 201 });

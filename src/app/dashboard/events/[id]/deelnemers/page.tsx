@@ -8,6 +8,7 @@ import { SearchInput } from "@/components/events/search-input";
 import { FilterTabs } from "@/components/events/filter-tabs";
 import { Pagination } from "@/components/ui/pagination";
 import { WaitlistTab } from "@/components/attendees/waitlist-tab";
+import { ExportButton } from "@/components/attendees/export-button";
 import type { Attendee, WaitlistEntry } from "@/db/schema";
 
 const PAGE_SIZE = 25;
@@ -178,7 +179,10 @@ export default async function AttendeesPage({
             <p className="text-xs font-bold text-ink">
               {q || statusFilter ? `${list.length} gevonden` : `Lijst (${total} deelnemers)`}
             </p>
-            <SlidersHorizontal size={14} className="text-ink-muted" />
+            <div className="flex items-center gap-2">
+              <ExportButton eventId={params.id} />
+              <SlidersHorizontal size={14} className="text-ink-muted" />
+            </div>
           </div>
 
           {/* List */}

@@ -1,8 +1,8 @@
-import { db, events, attendees, sessions } from "@/db";
-import { desc, count, eq } from "drizzle-orm";
+import { db, events, attendees, sessions, surveyResponses, feedback, subscriptions } from "@/db";
+import { desc, count, eq, avg } from "drizzle-orm";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { EventCard } from "@/components/events/event-card";
-import { Users, Calendar, Star, ArrowRight, Zap } from "lucide-react";
+import { Users, Calendar, Star, ArrowRight, Zap, AlertTriangle, Clock } from "lucide-react";
 import Link from "next/link";
 import { getCurrentOrg } from "@/lib/auth";
 
@@ -32,6 +32,41 @@ export default async function DashboardPage() {
 
   const liveEvent = enrichedEvents.find(e => e.status === "live");
 
+  // Real average score from survey responses + feedback
+  const [[fbAvg], [srAvg]] = await Promise.all([
+    db.select({ avg: avg(feedback.rating) })
+      .from(feedback)
+      .innerJoin(events, eq(feedback.eventId, events.id))
+      .where(eq(events.organizationId, org.id)),
+    db.select({ avg: avg(surveyResponses.overallRating) })
+      .from(surveyResponses)
+      .innerJoin(events, eq(surveyResponses.eventId, events.id))
+      .where(eq(events.organizationId, org.id)),
+  ]);
+  const srVal = srAvg.avg ? parseFloat(srAvg.avg) : null;
+  const fbVal = fbAvg.avg ? parseFloat(fbAvg.avg) : null;
+  let avgScore: number | null = null;
+  if (srVal !== null && fbVal !== null) {
+    avgScore = Math.round(((srVal + fbVal) / 2) * 10) / 10;
+  } else {
+    avgScore = srVal ?? fbVal;
+  }
+
+  // Subscription / trial info for banner
+  const [sub] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.organizationId, org.id))
+    .orderBy(desc(subscriptions.createdAt))
+    .limit(1);
+  const isTrial = !sub || sub.plan === "trial";
+  const isExpired = sub?.expiresAt ? new Date(sub.expiresAt) < new Date() : false;
+  const daysLeft = sub?.expiresAt
+    ? Math.max(0, Math.ceil((new Date(sub.expiresAt).getTime() - Date.now()) / 86400000))
+    : null;
+  const showTrialBanner = isTrial && !isExpired;
+  const showExpiredBanner = isExpired;
+
   return (
     <div className="px-4 py-5 sm:p-7 max-w-3xl mx-auto animate-fade-in">
 
@@ -47,6 +82,36 @@ export default async function DashboardPage() {
           {org.name} · Overzicht van je evenementen
         </p>
       </div>
+
+      {/* Trial / expiry banner */}
+      {showExpiredBanner && (
+        <div className="mb-5 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+          <AlertTriangle size={16} className="text-red-500 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-red-700">Abonnement verlopen</p>
+            <p className="text-xs text-red-600 mt-0.5">Je abonnement is verlopen. Nieuwe aanmeldingen zijn gepauzeerd.</p>
+          </div>
+          <Link href="/dashboard/abonnement" className="shrink-0 bg-red-500 text-white text-xs font-bold px-3 py-2 rounded-xl hover:bg-red-600 transition-colors">
+            Verlengen
+          </Link>
+        </div>
+      )}
+      {showTrialBanner && (
+        <div className="mb-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
+          <Clock size={16} className="text-amber-500 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-amber-700">Proefperiode actief</p>
+            <p className="text-xs text-amber-600 mt-0.5">
+              {daysLeft !== null
+                ? `Nog ${daysLeft} dag${daysLeft !== 1 ? "en" : ""} gratis · max 1 event, 50 deelnemers`
+                : "Gratis proefperiode · max 1 event, 50 deelnemers"}
+            </p>
+          </div>
+          <Link href="/dashboard/abonnement" className="shrink-0 bg-amber-500 text-white text-xs font-bold px-3 py-2 rounded-xl hover:bg-amber-600 transition-colors">
+            Upgraden
+          </Link>
+        </div>
+      )}
 
       {/* Live banner */}
       {liveEvent && (
@@ -82,20 +147,20 @@ export default async function DashboardPage() {
         <KpiCard
           label="Registraties"
           value={totalAttendees.toLocaleString("nl")}
-          trend={12}
+          trend={undefined}
           icon={<Users size={14} strokeWidth={2.5} />}
         />
         <KpiCard
           label="Gem. Score"
-          value="4.8"
-          trend={0.2}
+          value={avgScore !== null ? avgScore.toFixed(1) : "—"}
+          trend={undefined}
           trendLabel="★"
           icon={<Star size={14} strokeWidth={2.5} />}
         />
         <KpiCard
           label="Sessies"
           value={totalSessions.toLocaleString("nl")}
-          trend={-5}
+          trend={undefined}
           icon={<Calendar size={14} strokeWidth={2.5} />}
         />
       </div>

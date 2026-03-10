@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import { db, attendees, networkMatches, events } from "@/db";
+import { auth } from "@/auth";
+import { db, attendees, networkMatches, events, organizations } from "@/db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 const INTEREST_LABELS: Record<string, string> = {
   interest_networking: "netwerken",
@@ -22,6 +25,12 @@ interface AIMatch {
 
 export async function POST(req: Request) {
   try {
+    // Auth required
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { eventId } = await req.json();
     if (!eventId) {
       return NextResponse.json({ error: "eventId is verplicht" }, { status: 400 });
@@ -38,6 +47,23 @@ export async function POST(req: Request) {
     const [event] = await db.select().from(events).where(eq(events.id, eventId));
     if (!event) {
       return NextResponse.json({ error: "Evenement niet gevonden" }, { status: 404 });
+    }
+
+    // Plan check: AI matching not available on trial
+    const [eventOrg] = await db.select().from(organizations).where(
+      eq(organizations.id, event.organizationId!)
+    );
+    if (eventOrg) {
+      const subscription = await getCurrentSubscription(eventOrg.id);
+      const active = isSubscriptionActive(subscription);
+      const plan = (active && subscription?.plan) ? subscription.plan : "trial";
+      const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.trial;
+      if (!limits.aiMatching) {
+        return NextResponse.json(
+          { error: "AI-koppeling is niet beschikbaar in de proefperiode. Upgrade naar Starter of hoger." },
+          { status: 403 }
+        );
+      }
     }
 
     const allAttendees = await db
