@@ -29,7 +29,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: blob.url });
   } catch (err) {
-    console.error("[upload]", err);
-    return NextResponse.json({ error: "Upload mislukt" }, { status: 500 });
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[upload]", msg);
+    return NextResponse.json({ error: "Upload mislukt", detail: msg }, { status: 500 });
   }
 }
