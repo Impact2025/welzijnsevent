@@ -22,7 +22,7 @@ export async function sendRegistrationConfirmation(props: ConfirmationEmailProps
   const ticketUrl = `${appUrl}/ticket/${qrCode}`;
 
   await resend.emails.send({
-    from: "Bijeen <noreply@bijeen.nl>",
+    from: "Bijeen <noreply@bijeen.app>",
     to,
     subject: `Je aanmelding is bevestigd: ${eventTitle}`,
     html: buildConfirmationHtml({ name, eventTitle, eventDate, eventLocation, ticketUrl }),
