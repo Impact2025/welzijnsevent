@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { db, events, attendees } from "@/db";
-import { eq, count, desc } from "drizzle-orm";
+import { eq, count, desc, inArray } from "drizzle-orm";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 import { PLAN_LIMITS } from "@/lib/plans";
+import { EventSchema, validationError } from "@/lib/validation";
 
 export async function GET() {
   try {
@@ -19,19 +20,25 @@ export async function GET() {
       .where(eq(events.organizationId, org.id))
       .orderBy(desc(events.startsAt));
 
-    const enriched = await Promise.all(
-      allEvents.map(async (event) => {
-        const [result] = await db
-          .select({ count: count() })
+    // Batch count — 1 query i.p.v. N queries (N+1 fix)
+    const eventIds = allEvents.map((e) => e.id);
+    const counts = eventIds.length > 0
+      ? await db
+          .select({ eventId: attendees.eventId, total: count() })
           .from(attendees)
-          .where(eq(attendees.eventId, event.id));
-        return { ...event, attendeeCount: result.count };
-      })
-    );
+          .where(inArray(attendees.eventId, eventIds))
+          .groupBy(attendees.eventId)
+      : [];
+    const countMap = new Map(counts.map((c) => [c.eventId, c.total]));
+
+    const enriched = allEvents.map((event) => ({
+      ...event,
+      attendeeCount: countMap.get(event.id) ?? 0,
+    }));
 
     return NextResponse.json({ events: enriched });
   } catch (err) {
-    console.error(err);
+    console.error("[events GET]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -64,27 +71,33 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const slug = body.slug
-      ? body.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
-      : body.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Date.now().toString(36);
+    const parsed = EventSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 422 });
+    }
+
+    const data = parsed.data;
+    const slug = data.slug
+      ? data.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+      : data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Date.now().toString(36);
 
     const [event] = await db.insert(events).values({
       organizationId: org.id,
-      title:          body.title,
-      description:    body.description,
-      location:       body.location,
-      startsAt:       new Date(body.startsAt),
-      endsAt:         new Date(body.endsAt),
-      maxAttendees:   body.maxAttendees,
+      title:          data.title,
+      description:    data.description,
+      location:       data.location,
+      startsAt:       new Date(data.startsAt),
+      endsAt:         new Date(data.endsAt),
+      maxAttendees:   data.maxAttendees,
       status:         "draft",
       slug,
-      isPublic:       body.isPublic ?? false,
-      tagline:        body.tagline ?? null,
+      isPublic:       data.isPublic ?? false,
+      tagline:        data.tagline ?? null,
     }).returning();
 
     return NextResponse.json({ event }, { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.error("[events POST]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

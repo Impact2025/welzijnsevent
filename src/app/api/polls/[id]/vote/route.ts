@@ -2,16 +2,25 @@ import { NextResponse } from "next/server";
 import { db, polls }    from "@/db";
 import { eq }           from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { VoteSchema, validationError } from "@/lib/validation";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(
   req: Request,
   { params }: { params: { id: string } }
 ) {
+  // Rate limit: max 5 stemmen per IP per poll per minuut (voorkomt stem-spam)
+  const ip = getClientIp(req);
+  const rl = rateLimit(`vote:${params.id}:${ip}`, 5, 60 * 1000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
+
   try {
-    const { optionId } = await req.json();
-    if (!optionId) {
-      return NextResponse.json({ error: "optionId required" }, { status: 400 });
+    const body = await req.json();
+    const parsed = VoteSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 422 });
     }
+    const { optionId } = parsed.data;
 
     const [poll] = await db.select().from(polls).where(eq(polls.id, params.id));
     if (!poll) {
@@ -40,7 +49,8 @@ export async function POST(
     }
 
     return NextResponse.json({ poll: updated });
-  } catch {
+  } catch (err) {
+    console.error("[vote POST]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

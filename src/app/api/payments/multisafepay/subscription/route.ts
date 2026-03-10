@@ -17,7 +17,14 @@ export async function POST(req: Request) {
   const org = await getCurrentOrg();
   if (!org) return NextResponse.json({ error: "Organisatie niet gevonden" }, { status: 404 });
 
-  const { plan } = await req.json();
+  const { SubscriptionSchema, validationError } = await import("@/lib/validation");
+  const rawBody = await req.json().catch(() => null);
+  const parsed = SubscriptionSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(validationError(parsed.error), { status: 422 });
+  }
+
+  const { plan } = parsed.data;
   const amountCents = PLAN_PRICES_CENTS[plan];
   if (!amountCents) return NextResponse.json({ error: "Ongeldig plan" }, { status: 400 });
 

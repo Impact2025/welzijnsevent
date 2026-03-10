@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { nlNL } from "@clerk/localizations";
 import "./globals.css";
 
 
@@ -37,7 +38,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="nl" suppressHydrationWarning>
       <body className={`${jakarta.variable} min-h-screen bg-cream font-sans`}>
-        <ClerkProvider>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        <ClerkProvider localization={nlNL as any}>
           {children}
         </ClerkProvider>
       </body>

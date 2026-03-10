@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db, orders, attendees, ticketTypes, subscriptions } from "@/db";
 import { eq } from "drizzle-orm";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 const MSP_API_BASE =
   process.env.MULTISAFEPAY_ENV === "live"
@@ -8,9 +9,15 @@ const MSP_API_BASE =
     : "https://testapi.multisafepay.com/v1/json";
 
 export async function POST(req: Request) {
+  // Rate limit: max 60 webhook calls per IP per minuut
+  const ip = getClientIp(req);
+  const rl = rateLimit(`webhook:${ip}`, 60, 60 * 1000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
+
   const body = await req.json().catch(() => null);
 
   // MultiSafePay sends: { transactionid, timestamp }
+  // Verificatie: we halen de status op van MSP API zelf (server-to-server), dus spoofing is niet mogelijk.
   const rawId: string | undefined = body?.transactionid;
   if (!rawId) {
     return NextResponse.json({ error: "Missing transactionid" }, { status: 400 });

@@ -31,7 +31,13 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { name, logo, primaryColor } = body;
+    const { OrganizationPatchSchema, validationError } = await import("@/lib/validation");
+    const parsed = OrganizationPatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 422 });
+    }
+
+    const { name, logo, primaryColor } = parsed.data;
 
     const [updated] = await db
       .update(organizations)

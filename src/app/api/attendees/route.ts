@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendRegistrationConfirmation } from "@/lib/email";
 import { formatDateTime } from "@/lib/utils";
+import { AttendeeSchema, validationError } from "@/lib/validation";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function GET(req: Request) {
   try {
@@ -19,35 +21,46 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ attendees: list });
   } catch (err) {
-    console.error(err);
+    console.error("[attendees GET]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  // Rate limit: max 10 registraties per IP per 10 minuten
+  const ip = getClientIp(req);
+  const rl = rateLimit(`attendees:${ip}`, 10, 10 * 60 * 1000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
+
   try {
     const body = await req.json();
+    const parsed = AttendeeSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 422 });
+    }
+
+    const data = parsed.data;
+
     const [attendee] = await db
       .insert(attendees)
       .values({
-        eventId: body.eventId,
-        name: body.name,
-        email: body.email,
-        organization: body.organization,
-        role: body.role,
-        interests: body.interests ?? [],
-        status: "aangemeld",
-        qrCode: randomUUID(),
+        eventId:      data.eventId,
+        name:         data.name,
+        email:        data.email,
+        organization: data.organization,
+        role:         data.role,
+        interests:    data.interests,
+        status:       "aangemeld",
+        qrCode:       randomUUID(),
       })
       .returning();
 
     // Stuur bevestigingsmail (non-blocking — laat registratie niet mislukken als mail faalt)
     if (attendee.email) {
       const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-      // Fetch event voor datum en locatie
       db.select()
         .from(events)
-        .where(eq(events.id, body.eventId))
+        .where(eq(events.id, data.eventId))
         .then(([event]) => {
           if (!event) return;
           sendRegistrationConfirmation({
@@ -58,14 +71,14 @@ export async function POST(req: Request) {
             eventLocation: event.location,
             qrCode: attendee.qrCode!,
             appUrl,
-          }).catch((err) => console.error("Bevestigingsmail mislukt:", err));
+          }).catch((err) => console.error("[email] Bevestigingsmail mislukt:", err));
         })
-        .catch((err) => console.error("Event ophalen voor mail mislukt:", err));
+        .catch((err) => console.error("[email] Event ophalen mislukt:", err));
     }
 
     return NextResponse.json({ attendee }, { status: 201 });
   } catch (err) {
-    console.error(err);
+    console.error("[attendees POST]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

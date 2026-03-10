@@ -8,12 +8,21 @@ const MSP_API_BASE =
     : "https://testapi.multisafepay.com/v1/json";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { eventId, ticketTypeId, name, email, organization, role, interests, slug } = body;
+  const { PaymentSchema, validationError } = await import("@/lib/validation");
+  const { rateLimit, getClientIp, rateLimitResponse } = await import("@/lib/rate-limit");
 
-  if (!eventId || !name || !email) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  // Rate limit: max 5 betalingen per IP per 5 minuten
+  const ip = getClientIp(req);
+  const rl = rateLimit(`payment:${ip}`, 5, 5 * 60 * 1000);
+  if (!rl.allowed) return rateLimitResponse(rl.resetAt);
+
+  const rawBody = await req.json().catch(() => null);
+  const parsed = PaymentSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return NextResponse.json(validationError(parsed.error), { status: 422 });
   }
+
+  const { eventId, ticketTypeId, name, email, organization, role, interests, slug } = parsed.data;
 
   const [event] = await db.select().from(events).where(eq(events.id, eventId));
   if (!event) {
