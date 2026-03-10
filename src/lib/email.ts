@@ -1,6 +1,334 @@
 import { Resend } from "resend";
+import { PLAN_LIMITS, PLAN_FEATURES } from "@/lib/plans";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// ─── Organisatie: welkomstmail (trial) ───────────────────────────────────────
+
+interface WelcomeTrialEmailProps {
+  to: string;
+  firstName: string;
+  orgName: string;
+  trialEndsAt: Date;
+  dashboardUrl: string;
+}
+
+export async function sendWelcomeTrialEmail(props: WelcomeTrialEmailProps) {
+  if (!resend) return;
+  const { to, firstName, orgName, trialEndsAt, dashboardUrl } = props;
+  const expiryFormatted = trialEndsAt.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Welkom bij Bijeen, ${firstName}! Je proefperiode is gestart`,
+    html: buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardUrl }),
+  });
+}
+
+function buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardUrl }: {
+  firstName: string; orgName: string; expiryFormatted: string; dashboardUrl: string;
+}) {
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welkom bij Bijeen</title>
+</head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🌱</div>
+        <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Welkom bij Bijeen!</h1>
+        <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;font-weight:500;">${orgName}</p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#6B6560;font-size:15px;line-height:1.7;margin:0 0 28px;">
+          Geweldig dat je Bijeen gaat gebruiken voor jouw organisatie. Je proefperiode van 14 dagen is gestart — volledig gratis, geen betaalgegevens nodig.
+        </p>
+
+        <!-- Trial info box -->
+        <div style="background:linear-gradient(135deg,#FFF4EF 0%,#FFEEE6 100%);border:1px solid #F5D4C4;border-radius:14px;padding:20px 24px;margin:0 0 28px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Je proefperiode</p>
+          <p style="color:#C8522A;font-size:22px;font-weight:800;margin:0 0 4px;">Gratis t/m ${expiryFormatted}</p>
+          <p style="color:#6B6560;font-size:13px;margin:0;">Daarna kies je een passend abonnement, of stop je — geen verplichtingen.</p>
+        </div>
+
+        <!-- What you can do -->
+        <p style="color:#1C1814;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px;">Wat je kunt doen tijdens de proefperiode</p>
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 28px;">
+          ${["Je eerste evenement aanmaken en publiceren", "Tot 50 deelnemers uitnodigen en beheren", "Live polls en Q&amp;A sessies draaien", "Het platform volledig verkennen"].map(f => `
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid #F0EBE4;vertical-align:top;">
+              <span style="color:#2D5A3D;font-size:16px;margin-right:10px;">✓</span>
+              <span style="color:#1C1814;font-size:14px;">${f}</span>
+            </td>
+          </tr>`).join("")}
+        </table>
+
+        <!-- CTA -->
+        <div style="text-align:center;margin:0 0 8px;">
+          <a href="${dashboardUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:15px 36px;border-radius:12px;letter-spacing:-0.2px;">
+            Start je eerste evenement →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;line-height:1.6;margin:0;">
+        Vragen? Stuur een mail naar <a href="mailto:hello@bijeen.app" style="color:#9E9890;">hello@bijeen.app</a><br>
+        <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+}
+
+// ─── Organisatie: betalingsbevestiging (abonnement actief) ───────────────────
+
+interface PaymentConfirmationEmailProps {
+  to: string;
+  firstName: string;
+  orgName: string;
+  plan: string;
+  amountCents: number;
+  expiresAt: Date;
+  dashboardUrl: string;
+}
+
+export async function sendPaymentConfirmationEmail(props: PaymentConfirmationEmailProps) {
+  if (!resend) return;
+  const { to, firstName, orgName, plan, amountCents, expiresAt, dashboardUrl } = props;
+  const planLabel = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.label ?? plan;
+  const features = PLAN_FEATURES[plan] ?? [];
+  const amount = (amountCents / 100).toLocaleString("nl-NL", { style: "currency", currency: "EUR" });
+  const expiryFormatted = expiresAt.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Betaling ontvangen — ${planLabel} abonnement actief`,
+    html: buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features, amount, expiryFormatted, dashboardUrl }),
+  });
+}
+
+function buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features, amount, expiryFormatted, dashboardUrl }: {
+  firstName: string; orgName: string; planLabel: string; features: string[];
+  amount: string; expiryFormatted: string; dashboardUrl: string;
+}) {
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Betaling bevestigd – Bijeen</title>
+</head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+      <!-- Header -->
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎊</div>
+        <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Betaling ontvangen!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:15px;margin:0;font-weight:500;">${orgName} · ${planLabel}</p>
+      </div>
+
+      <!-- Body -->
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#6B6560;font-size:15px;line-height:1.7;margin:0 0 28px;">
+          Bedankt voor je betaling. Je <strong style="color:#1C1814;">${planLabel}</strong>-abonnement is nu actief en je kunt direct aan de slag.
+        </p>
+
+        <!-- Receipt -->
+        <div style="background:#FAF6F0;border-radius:14px;padding:20px 24px;margin:0 0 28px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 14px;">Betalingsoverzicht</p>
+          <table cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+              <td style="padding:7px 0;border-bottom:1px solid #EDE8E1;color:#6B6560;font-size:13px;">Abonnement</td>
+              <td style="padding:7px 0;border-bottom:1px solid #EDE8E1;color:#1C1814;font-size:13px;font-weight:700;text-align:right;">${planLabel}</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 0;border-bottom:1px solid #EDE8E1;color:#6B6560;font-size:13px;">Bedrag</td>
+              <td style="padding:7px 0;border-bottom:1px solid #EDE8E1;color:#1C1814;font-size:13px;font-weight:700;text-align:right;">${amount} / jaar</td>
+            </tr>
+            <tr>
+              <td style="padding:7px 0;color:#6B6560;font-size:13px;">Geldig t/m</td>
+              <td style="padding:7px 0;color:#2D5A3D;font-size:13px;font-weight:700;text-align:right;">${expiryFormatted}</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Features -->
+        <p style="color:#1C1814;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px;">Wat er voor je klaarstaat</p>
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 28px;">
+          ${features.map(f => `
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid #F0EBE4;vertical-align:top;">
+              <span style="color:#C8522A;font-size:16px;margin-right:10px;">✓</span>
+              <span style="color:#1C1814;font-size:14px;">${f}</span>
+            </td>
+          </tr>`).join("")}
+        </table>
+
+        <!-- CTA -->
+        <div style="text-align:center;margin:0 0 8px;">
+          <a href="${dashboardUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:15px 36px;border-radius:12px;letter-spacing:-0.2px;">
+            Ga naar mijn dashboard →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;line-height:1.6;margin:0;">
+        Bewaar deze mail als bewijs van betaling.<br>
+        Vragen? <a href="mailto:hello@bijeen.app" style="color:#9E9890;">hello@bijeen.app</a> · <strong style="color:#9E9890;">Bijeen</strong>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`;
+}
+
+// ─── Deelnemer: wachtlijstbevestiging ────────────────────────────────────────
+
+interface WaitlistConfirmationProps {
+  to: string;
+  name: string;
+  eventTitle: string;
+  position: number;
+}
+
+export async function sendWaitlistConfirmation(props: WaitlistConfirmationProps) {
+  if (!resend) return;
+  const { to, name, eventTitle, position } = props;
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Je staat op de wachtlijst: ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Wachtlijst – ${eventTitle}</title></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+        <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Je staat op de wachtlijst!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:600;margin:0 0 8px;">Hoi ${name},</p>
+        <p style="color:#6B6560;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          Het evenement zit momenteel vol, maar we hebben je op de wachtlijst gezet. We laten je direct weten zodra er een plek vrijkomt.
+        </p>
+        <div style="background:linear-gradient(135deg,#FFF4EF 0%,#FFEEE6 100%);border:1px solid #F5D4C4;border-radius:14px;padding:20px 24px;text-align:center;margin:0 0 24px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Jouw positie op de wachtlijst</p>
+          <p style="color:#C8522A;font-size:48px;font-weight:800;margin:0 0 4px;line-height:1;">${position}</p>
+          <p style="color:#6B6560;font-size:13px;margin:0;">We sturen je een e-mail zodra je aan de beurt bent.</p>
+        </div>
+        <p style="color:#9E9890;font-size:12px;line-height:1.6;margin:0;">
+          Wil je je wachtlijstplek annuleren? Reageer dan op deze e-mail.
+        </p>
+      </div>
+    </div>
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;margin:0;">
+        <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Deelnemer: wachtlijst promotie (plek vrijgekomen) ───────────────────────
+
+interface WaitlistPromotionProps {
+  to: string;
+  name: string;
+  eventTitle: string;
+  registerUrl: string;
+}
+
+export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
+  if (!resend) return;
+  const { to, name, eventTitle, registerUrl } = props;
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    to,
+    subject: `Goed nieuws! Er is een plek vrijgekomen: ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Plek vrijgekomen – ${eventTitle}</title></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">🎉</div>
+        <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Er is een plek vrijgekomen!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:600;margin:0 0 8px;">Hoi ${name},</p>
+        <p style="color:#6B6560;font-size:14px;line-height:1.7;margin:0 0 28px;">
+          Goed nieuws! Er is een plek vrijgekomen bij <strong style="color:#1C1814;">${eventTitle}</strong> en jij bent de volgende op de wachtlijst. Meld je aan via de knop hieronder — je plek is 48 uur gereserveerd.
+        </p>
+        <div style="text-align:center;margin:0 0 24px;">
+          <a href="${registerUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:16px 40px;border-radius:12px;letter-spacing:-0.2px;">
+            Bevestig mijn aanmelding →
+          </a>
+        </div>
+        <div style="background:#FFF4EF;border:1px solid #F5D4C4;border-radius:12px;padding:16px;text-align:center;">
+          <p style="color:#C8522A;font-size:13px;font-weight:700;margin:0 0 4px;">⏰ Je plek vervalt over 48 uur</p>
+          <p style="color:#6B6560;font-size:12px;margin:0;">Meld je op tijd aan, anders gaat de plek naar de volgende persoon op de wachtlijst.</p>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;margin:0;">
+        <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Deelnemer: aanmeldingsbevestiging ────────────────────────────────────────
 
 interface ConfirmationEmailProps {
   to: string;
@@ -22,7 +350,7 @@ export async function sendRegistrationConfirmation(props: ConfirmationEmailProps
   const ticketUrl = `${appUrl}/ticket/${qrCode}`;
 
   await resend.emails.send({
-    from: "Bijeen <noreply@bijeen.app>",
+    from: "Bijeen <hello@bijeen.app>",
     to,
     subject: `Je aanmelding is bevestigd: ${eventTitle}`,
     html: buildConfirmationHtml({ name, eventTitle, eventDate, eventLocation, ticketUrl }),

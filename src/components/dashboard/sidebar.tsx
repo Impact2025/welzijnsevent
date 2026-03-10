@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
-import {
+import { signOut } from "next-auth/react";
+import { LogOut,
   LayoutDashboard, Calendar, Settings, Plus,
 } from "lucide-react";
+
 import Image from "next/image";
 import { cn, getInitials, avatarColor } from "@/lib/utils";
 import { PLAN_LIMITS } from "@/lib/plans";
@@ -100,16 +101,13 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
               </p>
             )}
           </div>
-          <UserButton
-            afterSignOutUrl="/sign-in"
-            appearance={{
-              elements: {
-                avatarBox: "w-6 h-6",
-                userButtonTrigger: "shrink-0",
-                userButtonPopoverCard: "z-[9999]",
-              },
-            }}
-          />
+          <button
+            onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            title="Uitloggen"
+            className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
+          >
+            <LogOut size={15} />
+          </button>
         </div>
       </div>
     </aside>

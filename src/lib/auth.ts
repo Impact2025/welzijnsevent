@@ -1,15 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { db, organizations, subscriptions } from "@/db";
 import { eq, desc } from "drizzle-orm";
 
 export async function getCurrentOrg() {
-  const { userId } = await auth();
-  if (!userId) return null;
+  const session = await auth();
+  if (!session?.user?.id) return null;
 
   const [org] = await db
     .select()
     .from(organizations)
-    .where(eq(organizations.clerkUserId, userId));
+    .where(eq(organizations.userId, session.user.id));
 
   return org ?? null;
 }

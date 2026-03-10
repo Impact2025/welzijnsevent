@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { db, orders, attendees, ticketTypes, subscriptions } from "@/db";
+import { db, orders, attendees, ticketTypes, subscriptions, organizations, authUsers } from "@/db";
 import { eq } from "drizzle-orm";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
+import { sendPaymentConfirmationEmail } from "@/lib/email";
 
 const MSP_API_BASE =
   process.env.MULTISAFEPAY_ENV === "live"
@@ -44,6 +45,24 @@ export async function POST(req: Request) {
         .update(subscriptions)
         .set({ status: "active", expiresAt, updatedAt: new Date() })
         .where(eq(subscriptions.id, subId));
+
+      // Stuur betalingsbevestiging
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, sub.organizationId));
+      if (org?.userId) {
+        const [user] = await db.select().from(authUsers).where(eq(authUsers.id, org.userId));
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+        if (user?.email) {
+          sendPaymentConfirmationEmail({
+            to: user.email,
+            firstName: user.name?.split(" ")[0] ?? org.name.split(" ")[0],
+            orgName: org.name,
+            plan: sub.plan ?? "starter",
+            amountCents: sub.amountPaid ?? 0,
+            expiresAt,
+            dashboardUrl: `${baseUrl}/dashboard`,
+          }).catch(() => {});
+        }
+      }
     } else if (mspStatus === "cancelled" || mspStatus === "void" || mspStatus === "declined") {
       await db
         .update(subscriptions)

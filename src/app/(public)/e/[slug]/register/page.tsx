@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Clock } from "lucide-react";
 import nlDict from "@/i18n/nl.json";
 import enDict from "@/i18n/en.json";
 
@@ -39,6 +39,11 @@ type EventData = {
   slug: string;
   websiteColor: string | null;
   ticketTypes: TicketType[];
+  maxAttendees: number | null;
+  waitlistEnabled: boolean | null;
+  attendeeCount: number;
+  waitlistCount: number;
+  isFull: boolean;
 };
 
 export default function RegisterPage() {
@@ -46,6 +51,7 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const lang = searchParams.get("lang");
+  const waitlistToken = searchParams.get("waitlistToken");
   const t = getDict(lang);
   const langParam = lang === "en" ? "?lang=en" : "";
 
@@ -85,6 +91,9 @@ export default function RegisterPage() {
     }));
   }
 
+  // Event is vol EN wachtlijst is actief EN geen magic link token → wachtlijstmodus
+  const isWaitlistMode = !!event?.isFull && !!event?.waitlistEnabled && !waitlistToken;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!event) return;
@@ -92,11 +101,30 @@ export default function RegisterPage() {
     setError(null);
 
     try {
+      if (isWaitlistMode) {
+        // Aanmelden op wachtlijst
+        const res = await fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eventId: event.id,
+            name: form.name,
+            email: form.email,
+            organization: form.organization,
+            role: form.role,
+            interests: form.interests,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Wachtlijst mislukt");
+        router.push(`/e/${params.slug}/register/waitlist-success?position=${data.position}${langParam ? `&lang=${lang}` : ""}`);
+        return;
+      }
+
       const selectedTicket = event.ticketTypes.find(tt => tt.id === form.ticketTypeId);
       const isPaid = selectedTicket && selectedTicket.price > 0;
 
       if (isPaid) {
-        // Create payment order → redirect to MultiSafePay
         const res = await fetch("/api/payments/multisafepay", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -109,7 +137,6 @@ export default function RegisterPage() {
           return;
         }
       } else {
-        // Free ticket → register directly
         const res = await fetch("/api/attendees", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -120,9 +147,13 @@ export default function RegisterPage() {
             organization: form.organization,
             role: form.role,
             interests: form.interests,
+            waitlistToken: waitlistToken ?? undefined,
           }),
         });
-        if (!res.ok) throw new Error("Registratie mislukt");
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error ?? "Registratie mislukt");
+        }
         router.push(`/e/${params.slug}/register/success${langParam}`);
       }
     } catch (err) {
@@ -157,20 +188,48 @@ export default function RegisterPage() {
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <p className="text-xs text-gray-500">{t.register_form_title}</p>
+          <p className="text-xs text-gray-500">{isWaitlistMode ? "Wachtlijst" : t.register_form_title}</p>
           <p className="text-sm font-semibold text-gray-900 leading-tight">{event.title}</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-lg mx-auto px-4 py-6 space-y-5">
+
+        {/* Wachtlijst-banner */}
+        {isWaitlistMode && (
+          <div className="rounded-2xl border-2 p-4 flex items-start gap-3" style={{ borderColor: primaryColor, backgroundColor: `${primaryColor}10` }}>
+            <Clock size={20} style={{ color: primaryColor }} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-sm" style={{ color: primaryColor }}>Dit evenement is vol</p>
+              <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
+                Meld je aan voor de wachtlijst. Je bent momenteel <strong>#{event.waitlistCount + 1}</strong> in de rij.
+                We sturen je direct een e-mail zodra er een plek vrijkomt.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Magic link banner (plek vrijgekomen) */}
+        {waitlistToken && (
+          <div className="rounded-2xl border-2 border-green-200 bg-green-50 p-4 flex items-start gap-3">
+            <span className="text-xl shrink-0">🎉</span>
+            <div>
+              <p className="font-bold text-sm text-green-800">Er is een plek voor jou!</p>
+              <p className="text-xs text-green-700 mt-0.5 leading-relaxed">
+                Vul je gegevens in en bevestig je aanmelding. Je plek is 48 uur gereserveerd.
+              </p>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
             {error}
           </div>
         )}
 
-        {/* Ticket type */}
-        {event.ticketTypes.length > 1 && (
+        {/* Ticket type — alleen tonen als niet wachtlijst-modus */}
+        {!isWaitlistMode && event.ticketTypes.length > 1 && (
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">{t.ticket_type}</label>
             <select
@@ -273,10 +332,14 @@ export default function RegisterPage() {
           type="submit"
           disabled={submitting}
           className="w-full py-3.5 rounded-2xl text-white font-bold text-sm transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
-          style={{ backgroundColor: primaryColor }}
+          style={{ backgroundColor: isWaitlistMode ? "#6B7280" : primaryColor }}
         >
           {submitting && <Loader2 size={16} className="animate-spin" />}
-          {submitting ? t.submitting : t.submit}
+          {submitting
+            ? "Bezig..."
+            : isWaitlistMode
+            ? "Zet me op de wachtlijst"
+            : t.submit}
         </button>
       </form>
     </div>

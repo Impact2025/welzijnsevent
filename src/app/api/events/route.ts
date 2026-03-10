@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { db, events, attendees } from "@/db";
 import { eq, count, desc, inArray } from "drizzle-orm";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
@@ -8,8 +8,8 @@ import { EventSchema, validationError } from "@/lib/validation";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const org = await getCurrentOrg();
     if (!org) return NextResponse.json({ events: [] });
@@ -45,8 +45,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const org = await getCurrentOrg();
     if (!org) return NextResponse.json({ error: "Organisatie niet gevonden" }, { status: 404 });

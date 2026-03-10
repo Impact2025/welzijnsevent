@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useSession, signOut } from "next-auth/react";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,8 @@ const links = [
 export function MarketingNav() {
   const [open, setOpen] = useState(false);
   const path = usePathname();
-  const { isSignedIn } = useAuth();
+  const { data: session } = useSession();
+  const isSignedIn = !!session?.user;
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-cream/95 backdrop-blur-md border-b border-ink/8">
@@ -47,29 +48,37 @@ export function MarketingNav() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
-          <SignedOut>
-            <Link
-              href="/sign-in"
-              className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
-            >
-              Inloggen
-            </Link>
-            <Link
-              href="/sign-up"
-              className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-terra-500/25"
-            >
-              Gratis starten
-            </Link>
-          </SignedOut>
-          <SignedIn>
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
-            >
-              Dashboard
-            </Link>
-            <UserButton appearance={{ elements: { avatarBox: "w-8 h-8" } }} />
-          </SignedIn>
+          {!isSignedIn ? (
+            <>
+              <Link
+                href="/sign-in"
+                className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
+              >
+                Inloggen
+              </Link>
+              <Link
+                href="/sign-in"
+                className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-terra-500/25"
+              >
+                Gratis starten
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/sign-in" })}
+                className="px-4 py-2 text-sm font-medium text-ink/55 hover:text-ink transition-colors rounded-xl hover:bg-ink/5"
+              >
+                Uitloggen
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -119,7 +128,7 @@ export function MarketingNav() {
                   Inloggen
                 </Link>
                 <Link
-                  href="/sign-up"
+                  href="/sign-in"
                   onClick={() => setOpen(false)}
                   className="block bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-3 rounded-xl text-center transition-colors"
                 >

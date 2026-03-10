@@ -1,8 +1,46 @@
 import {
   pgTable, uuid, text, integer, timestamp,
-  boolean, jsonb, real
+  boolean, jsonb, real, primaryKey
 } from "drizzle-orm/pg-core";
 
+// ── AUTH.JS TABLES ──────────────────────────────────────────
+export const authUsers = pgTable("auth_users", {
+  id:            text("id").notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name:          text("name"),
+  email:         text("email").unique().notNull(),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
+  image:         text("image"),
+});
+
+export const authAccounts = pgTable("auth_accounts", {
+  userId:            text("user_id").notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+  type:              text("type").notNull(),
+  provider:          text("provider").notNull(),
+  providerAccountId: text("provider_account_id").notNull(),
+  refresh_token:     text("refresh_token"),
+  access_token:      text("access_token"),
+  expires_at:        integer("expires_at"),
+  token_type:        text("token_type"),
+  scope:             text("scope"),
+  id_token:          text("id_token"),
+  session_state:     text("session_state"),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.provider, t.providerAccountId] }),
+}));
+
+export const authSessions = pgTable("auth_sessions", {
+  sessionToken: text("session_token").primaryKey(),
+  userId:       text("user_id").notNull().references(() => authUsers.id, { onDelete: "cascade" }),
+  expires:      timestamp("expires", { mode: "date" }).notNull(),
+});
+
+export const verificationTokens = pgTable("verification_tokens", {
+  identifier: text("identifier").notNull(),
+  token:      text("token").notNull(),
+  expires:    timestamp("expires", { mode: "date" }).notNull(),
+}, (t) => ({
+  pk: primaryKey({ columns: [t.identifier, t.token] }),
+}));
 
 // ── ORGANIZATIONS ──────────────────────────────────────────
 export const organizations = pgTable("organizations", {
@@ -11,8 +49,7 @@ export const organizations = pgTable("organizations", {
   slug:         text("slug").unique(),
   logo:         text("logo"),
   primaryColor: text("primary_color").default("#C8522A"),
-  clerkOrgId:   text("clerk_org_id").unique(),
-  clerkUserId:  text("clerk_user_id").unique(),
+  userId:       text("user_id").references(() => authUsers.id, { onDelete: "cascade" }).unique(),
   createdAt:    timestamp("created_at").defaultNow(),
 });
 
@@ -29,7 +66,8 @@ export const events = pgTable("events", {
   endsAt:         timestamp("ends_at").notNull(),
   status:         text("status").default("draft"),
   // draft | published | live | ended
-  maxAttendees:   integer("max_attendees"),
+  maxAttendees:    integer("max_attendees"),
+  waitlistEnabled: boolean("waitlist_enabled").default(true),
   // Public website fields
   slug:           text("slug").unique(),
   isPublic:       boolean("is_public").default(false),
@@ -70,6 +108,7 @@ export const attendees = pgTable("attendees", {
   // aangemeld | ingecheckt | afwezig
   checkedInAt:  timestamp("checked_in_at"),
   qrCode:       text("qr_code").unique(),
+  emailOptOut:  boolean("email_opt_out").default(false),
   registeredAt: timestamp("registered_at").defaultNow(),
 });
 
@@ -166,6 +205,27 @@ export const orders = pgTable("orders", {
   updatedAt:     timestamp("updated_at").defaultNow(),
 });
 
+// ── WAITLIST ────────────────────────────────────────────────
+export const waitlist = pgTable("waitlist", {
+  id:           uuid("id").defaultRandom().primaryKey(),
+  eventId:      uuid("event_id").references(() => events.id).notNull(),
+  name:         text("name").notNull(),
+  email:        text("email").notNull(),
+  organization: text("organization"),
+  role:         text("role"),
+  interests:    jsonb("interests").default([]),
+  position:     integer("position").notNull(),
+  // 1 = volgende in de rij
+  status:       text("status").default("waiting"),
+  // waiting | promoted | expired
+  token:        text("token").unique().notNull(),
+  // magic link token (UUID)
+  notifiedAt:   timestamp("notified_at"),
+  expiresAt:    timestamp("expires_at"),
+  // magic link vervalt na 48u
+  createdAt:    timestamp("created_at").defaultNow(),
+});
+
 // ── SUBSCRIPTIONS ──────────────────────────────────────────
 export const subscriptions = pgTable("subscriptions", {
   id:             uuid("id").defaultRandom().primaryKey(),
@@ -184,6 +244,7 @@ export const subscriptions = pgTable("subscriptions", {
 });
 
 // ── TYPES ──────────────────────────────────────────────────
+export type AuthUser           = typeof authUsers.$inferSelect;
 export type Organization       = typeof organizations.$inferSelect;
 export type Subscription       = typeof subscriptions.$inferSelect;
 export type Event              = typeof events.$inferSelect;
@@ -195,3 +256,4 @@ export type NetworkMatch       = typeof networkMatches.$inferSelect;
 export type Feedback           = typeof feedback.$inferSelect;
 export type TicketType         = typeof ticketTypes.$inferSelect;
 export type Order              = typeof orders.$inferSelect;
+export type WaitlistEntry      = typeof waitlist.$inferSelect;

@@ -1,11 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
 
   const org = await getCurrentOrg();
   if (!org) redirect("/onboarding");

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { db, organizations, subscriptions } from "@/db";
+import { auth } from "@/auth";
+import { db, organizations, subscriptions, authUsers } from "@/db";
 import { eq } from "drizzle-orm";
 import { PLAN_PRICES_CENTS } from "@/lib/plans";
+import { sendWelcomeTrialEmail } from "@/lib/email";
 
 const MSP_API_BASE =
   process.env.MULTISAFEPAY_ENV === "live"
@@ -10,10 +11,12 @@ const MSP_API_BASE =
     : "https://testapi.multisafepay.com/v1/json";
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) {
+  const session = await auth();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const userId = session.user.id;
 
   const body = await req.json();
   const { name, logo, plan } = body;
@@ -26,7 +29,7 @@ export async function POST(req: Request) {
   const [existing] = await db
     .select()
     .from(organizations)
-    .where(eq(organizations.clerkUserId, userId));
+    .where(eq(organizations.userId, userId));
 
   if (existing) {
     return NextResponse.json({ error: "Organisatie bestaat al" }, { status: 409 });
@@ -38,7 +41,7 @@ export async function POST(req: Request) {
 
   const [org] = await db
     .insert(organizations)
-    .values({ name: name.trim(), logo: logo ?? null, slug, clerkUserId: userId })
+    .values({ name: name.trim(), logo: logo ?? null, slug, userId })
     .returning();
 
   if (plan === "trial") {
@@ -51,6 +54,19 @@ export async function POST(req: Request) {
       status: "active",
       expiresAt,
     });
+
+    // Stuur welkomstmail
+    const [user] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+    if (user?.email) {
+      sendWelcomeTrialEmail({
+        to: user.email,
+        firstName: user.name?.split(" ")[0] ?? name.trim().split(" ")[0],
+        orgName: name.trim(),
+        trialEndsAt: expiresAt,
+        dashboardUrl: `${baseUrl}/dashboard`,
+      }).catch(() => {});
+    }
 
     return NextResponse.json({ redirect: "/dashboard" });
   }
@@ -89,9 +105,7 @@ export async function POST(req: Request) {
       redirect_url: `${baseUrl}/onboarding/succes`,
       cancel_url: `${baseUrl}/onboarding`,
     },
-    customer: {
-      locale: "nl_NL",
-    },
+    customer: { locale: "nl_NL" },
   };
 
   const mspRes = await fetch(`${MSP_API_BASE}/orders?api_key=${apiKey}`, {

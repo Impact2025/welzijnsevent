@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db, events, sessions, ticketTypes } from "@/db";
-import { eq, asc } from "drizzle-orm";
+import { db, events, sessions, ticketTypes, attendees, waitlist } from "@/db";
+import { eq, asc, count } from "drizzle-orm";
 
 export async function GET(
   _req: Request,
@@ -27,6 +27,16 @@ export async function GET(
     .where(eq(ticketTypes.eventId, event.id))
     .orderBy(asc(ticketTypes.sortOrder));
 
+  const [{ value: attendeeCount }] = await db
+    .select({ value: count() })
+    .from(attendees)
+    .where(eq(attendees.eventId, event.id));
+
+  const [{ value: waitlistCount }] = await db
+    .select({ value: count() })
+    .from(waitlist)
+    .where(eq(waitlist.eventId, event.id));
+
   return NextResponse.json({
     id: event.id,
     title: event.title,
@@ -41,5 +51,10 @@ export async function GET(
     websiteColor: event.websiteColor,
     sessions: eventSessions,
     ticketTypes: tickets.filter(t => t.isActive),
+    maxAttendees: event.maxAttendees,
+    waitlistEnabled: event.waitlistEnabled,
+    attendeeCount,
+    waitlistCount,
+    isFull: event.maxAttendees ? attendeeCount >= event.maxAttendees : false,
   });
 }

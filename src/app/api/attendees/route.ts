@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { db, attendees, events } from "@/db";
-import { eq } from "drizzle-orm";
+import { db, attendees, events, waitlist } from "@/db";
+import { eq, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { sendRegistrationConfirmation } from "@/lib/email";
 import { formatDateTime } from "@/lib/utils";
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
     }
 
     const data = parsed.data;
+    const waitlistToken = body.waitlistToken as string | undefined;
 
     const [attendee] = await db
       .insert(attendees)
@@ -54,6 +55,14 @@ export async function POST(req: Request) {
         qrCode:       randomUUID(),
       })
       .returning();
+
+    // Markeer wachtlijst-entry als ingevuld (als aangemeld via magic link)
+    if (waitlistToken) {
+      db.update(waitlist)
+        .set({ status: "promoted" })
+        .where(and(eq(waitlist.token, waitlistToken), eq(waitlist.eventId, data.eventId)))
+        .catch(err => console.error("[waitlist] Token markering mislukt:", err));
+    }
 
     // Stuur bevestigingsmail (non-blocking — laat registratie niet mislukken als mail faalt)
     if (attendee.email) {

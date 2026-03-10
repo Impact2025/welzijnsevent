@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { db, subscriptions } from "@/db";
 import { eq } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
@@ -11,8 +11,8 @@ const MSP_API_BASE =
     : "https://testapi.multisafepay.com/v1/json";
 
 export async function POST(req: Request) {
-  const { userId } = await auth();
-  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const org = await getCurrentOrg();
   if (!org) return NextResponse.json({ error: "Organisatie niet gevonden" }, { status: 404 });

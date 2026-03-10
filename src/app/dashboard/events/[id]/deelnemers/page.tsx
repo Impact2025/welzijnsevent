@@ -1,5 +1,5 @@
-import { db, attendees, events } from "@/db";
-import { eq } from "drizzle-orm";
+import { db, attendees, events, waitlist } from "@/db";
+import { eq, count } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
@@ -7,7 +7,8 @@ import { SlidersHorizontal, UserPlus } from "lucide-react";
 import { SearchInput } from "@/components/events/search-input";
 import { FilterTabs } from "@/components/events/filter-tabs";
 import { Pagination } from "@/components/ui/pagination";
-import type { Attendee } from "@/db/schema";
+import { WaitlistTab } from "@/components/attendees/waitlist-tab";
+import type { Attendee, WaitlistEntry } from "@/db/schema";
 
 const PAGE_SIZE = 25;
 
@@ -56,7 +57,7 @@ export default async function AttendeesPage({
   searchParams,
 }: {
   params: { id: string };
-  searchParams: { q?: string; status?: string; page?: string };
+  searchParams: { q?: string; status?: string; page?: string; tab?: string };
 }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
   if (!event) notFound();
@@ -66,6 +67,13 @@ export default async function AttendeesPage({
     .from(attendees)
     .where(eq(attendees.eventId, params.id));
 
+  const waitlistEntries = await db
+    .select()
+    .from(waitlist)
+    .where(eq(waitlist.eventId, params.id))
+    .orderBy(waitlist.position);
+
+  const activeTab = searchParams.tab ?? "deelnemers";
   const q = searchParams.q ?? "";
   const statusFilter = searchParams.status ?? "";
   const page = Math.max(1, parseInt(searchParams.page ?? "1"));
@@ -86,6 +94,7 @@ export default async function AttendeesPage({
 
   const checked = allAttendees.filter(a => a.status === "ingecheckt").length;
   const total   = allAttendees.length;
+  const waitingCount = waitlistEntries.filter(w => w.status === "waiting").length;
 
   const tabsWithCounts = STATUS_TABS.map(t => ({
     ...t,
@@ -116,6 +125,9 @@ export default async function AttendeesPage({
           <span><strong className="text-white">{checked}</strong> ingecheckt</span>
           <span><strong className="text-white">{total - checked}</strong> aangemeld</span>
           <span><strong className="text-white">{total}</strong> totaal</span>
+          {waitingCount > 0 && (
+            <span><strong className="text-white">{waitingCount}</strong> wachtlijst</span>
+          )}
         </div>
       </div>
 
@@ -124,7 +136,8 @@ export default async function AttendeesPage({
         <div className="flex gap-4 overflow-x-auto">
           {[
             { label: "Programma",    href: `/dashboard/events/${params.id}` },
-            { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers`, active: true },
+            { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers`, active: activeTab === "deelnemers" },
+            { label: `Wachtlijst${waitingCount > 0 ? ` (${waitingCount})` : ""}`, href: `/dashboard/events/${params.id}/deelnemers?tab=wachtlijst`, active: activeTab === "wachtlijst" },
             { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
             { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
           ].map(tab => (
@@ -139,52 +152,62 @@ export default async function AttendeesPage({
         </div>
       </div>
 
-      {/* Search */}
-      <div className="px-4 py-3 border-b border-sand">
-        <SearchInput
-          placeholder="Zoek deelnemers..."
-          defaultValue={q}
-          currentParams={statusParams}
-          className="bg-sand"
-        />
-      </div>
-
-      {/* Status filter */}
-      <div className="px-4 py-2 border-b border-sand">
-        <FilterTabs tabs={tabsWithCounts} currentValue={statusFilter} currentQ={q} />
-      </div>
-
-      {/* List header */}
-      <div className="border-b border-sand px-4 py-2.5 flex items-center justify-between">
-        <p className="text-xs font-bold text-ink">
-          {q || statusFilter ? `${list.length} gevonden` : `Lijst (${total} deelnemers)`}
-        </p>
-        <SlidersHorizontal size={14} className="text-ink-muted" />
-      </div>
-
-      {/* List */}
-      <div className="pb-24">
-        {list.length === 0 ? (
-          <div className="py-12 text-center text-ink-muted">
-            <p className="text-sm">
-              {q || statusFilter ? "Geen deelnemers gevonden" : "Nog geen deelnemers"}
-            </p>
+      {activeTab === "wachtlijst" ? (
+        /* Wachtlijst tab */
+        <WaitlistTab entries={waitlistEntries} eventId={params.id} />
+      ) : (
+        /* Deelnemers tab */
+        <>
+          {/* Search */}
+          <div className="px-4 py-3 border-b border-sand">
+            <SearchInput
+              placeholder="Zoek deelnemers..."
+              defaultValue={q}
+              currentParams={statusParams}
+              className="bg-sand"
+            />
           </div>
-        ) : (
-          <>
-            {paginated.map(a => <AttendeeItem key={a.id} attendee={a} eventId={params.id} />)}
-            <Pagination page={page} totalPages={totalPages} baseHref={paginationBase} />
-          </>
-        )}
-      </div>
+
+          {/* Status filter */}
+          <div className="px-4 py-2 border-b border-sand">
+            <FilterTabs tabs={tabsWithCounts} currentValue={statusFilter} currentQ={q} />
+          </div>
+
+          {/* List header */}
+          <div className="border-b border-sand px-4 py-2.5 flex items-center justify-between">
+            <p className="text-xs font-bold text-ink">
+              {q || statusFilter ? `${list.length} gevonden` : `Lijst (${total} deelnemers)`}
+            </p>
+            <SlidersHorizontal size={14} className="text-ink-muted" />
+          </div>
+
+          {/* List */}
+          <div className="pb-24">
+            {list.length === 0 ? (
+              <div className="py-12 text-center text-ink-muted">
+                <p className="text-sm">
+                  {q || statusFilter ? "Geen deelnemers gevonden" : "Nog geen deelnemers"}
+                </p>
+              </div>
+            ) : (
+              <>
+                {paginated.map(a => <AttendeeItem key={a.id} attendee={a} eventId={params.id} />)}
+                <Pagination page={page} totalPages={totalPages} baseHref={paginationBase} />
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       {/* FAB — link to new attendee page */}
-      <Link
-        href={`/dashboard/events/${params.id}/deelnemers/new`}
-        className="fixed bottom-20 right-4 w-12 h-12 bg-terra-500 rounded-full shadow-lg flex items-center justify-center hover:bg-terra-600 transition-colors"
-      >
-        <UserPlus size={20} className="text-white" />
-      </Link>
+      {activeTab !== "wachtlijst" && (
+        <Link
+          href={`/dashboard/events/${params.id}/deelnemers/new`}
+          className="fixed bottom-20 right-4 w-12 h-12 bg-terra-500 rounded-full shadow-lg flex items-center justify-center hover:bg-terra-600 transition-colors"
+        >
+          <UserPlus size={20} className="text-white" />
+        </Link>
+      )}
 
       {/* Bottom nav */}
       <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">

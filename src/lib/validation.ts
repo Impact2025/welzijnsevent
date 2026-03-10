@@ -94,6 +94,20 @@ export const PaymentSchema = z.object({
   slug:         z.string().max(100).optional(),
 });
 
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+export const WaitlistSchema = z.object({
+  eventId:      z.string().uuid("Ongeldig eventId"),
+  name:         z.string().min(1, "Naam is verplicht").max(200),
+  email:        z.string().email("Ongeldig e-mailadres").max(320),
+  organization: z.string().max(200).optional(),
+  role:         z.string().max(100).optional(),
+  interests:    z.array(z.string().max(100)).max(20).default([]),
+});
+
+export const WaitlistPromoteSchema = z.object({
+  waitlistId: z.string().uuid("Ongeldig wachtlijst-id"),
+});
+
 // ─── Helper ───────────────────────────────────────────────────────────────────
 export function validationError(errors: z.ZodError) {
   const messages = errors.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ");
