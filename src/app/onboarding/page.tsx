@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, Building2, Sparkles, Loader2 } from "lucide-react";
+import { ArrowRight, Check, Building2, Sparkles, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { PLAN_FEATURES, PLAN_LIMITS } from "@/lib/plans";
 
@@ -46,6 +46,10 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [orgName, setOrgName] = useState("");
   const [logo, setLogo] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedPlan, setSelectedPlan] = useState("groei");
   const [loading, setLoading] = useState(false);
   const [checkingExisting, setCheckingExisting] = useState(true);
@@ -60,6 +64,26 @@ export default function OnboardingPage() {
       })
       .catch(() => setCheckingExisting(false));
   }, [router]);
+
+  const handleLogoUpload = async (file: File) => {
+    setLogoError("");
+    setLogoUploading(true);
+    setLogoPreview(URL.createObjectURL(file));
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setLogo(data.url);
+    } catch (err: unknown) {
+      setLogoError(err instanceof Error ? err.message : "Upload mislukt");
+      setLogoPreview("");
+      setLogo("");
+    } finally {
+      setLogoUploading(false);
+    }
+  };
 
   const handleComplete = async () => {
     if (!orgName.trim()) return;
@@ -146,15 +170,51 @@ export default function OnboardingPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
-                    Logo URL <span className="text-ink-muted/50 font-normal normal-case">(optioneel)</span>
+                    Logo <span className="text-ink-muted/50 font-normal normal-case">(optioneel)</span>
                   </label>
                   <input
-                    type="text"
-                    value={logo}
-                    onChange={e => setLogo(e.target.value)}
-                    placeholder="https://jouworganisatie.nl/logo.png"
-                    className="w-full bg-white border border-sand rounded-xl px-4 py-3 text-sm text-ink outline-none placeholder-ink-muted/40 focus:ring-2 focus:ring-terra-500/30 focus:border-terra-300 transition"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (file) handleLogoUpload(file);
+                    }}
                   />
+                  {logoPreview ? (
+                    <div className="flex items-center gap-3 bg-white border border-sand rounded-xl px-4 py-3">
+                      <Image src={logoPreview} alt="Logo preview" width={40} height={40} className="w-10 h-10 object-contain rounded" unoptimized />
+                      <div className="flex-1 min-w-0">
+                        {logoUploading ? (
+                          <span className="flex items-center gap-1.5 text-sm text-ink-muted">
+                            <Loader2 size={14} className="animate-spin" /> Uploaden…
+                          </span>
+                        ) : logoError ? (
+                          <span className="text-sm text-red-500">{logoError}</span>
+                        ) : (
+                          <span className="text-sm text-green-600 font-medium">Logo geüpload</span>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setLogo(""); setLogoPreview(""); setLogoError(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                        className="text-ink-muted hover:text-ink transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex items-center justify-center gap-2 bg-white border border-dashed border-sand hover:border-terra-300 rounded-xl px-4 py-4 text-sm text-ink-muted hover:text-ink transition-colors"
+                    >
+                      <Upload size={16} />
+                      Klik om een logo te uploaden
+                      <span className="text-xs text-ink-muted/60">PNG, JPG, SVG · max 2 MB</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
