@@ -109,7 +109,7 @@ export default function NewEventPage() {
     endsAt: "",
     maxAttendees: "",
     tagline: "",
-    isPublic: false,
+    isPublic: true,
   });
 
   const slugPreview =
