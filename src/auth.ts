@@ -1,7 +1,10 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Resend from "next-auth/providers/resend";
+import { Resend as ResendClient } from "resend";
 import { db, authUsers, authAccounts, authSessions, verificationTokens } from "@/db";
+
+const resend = new ResendClient(process.env.RESEND_API_KEY);
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
@@ -73,14 +76,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       apiKey: process.env.RESEND_API_KEY,
       from: "Bijeen <hello@bijeen.app>",
       sendVerificationRequest: async ({ identifier, url }) => {
-        const { Resend: ResendClient } = await import("resend");
-        const resend = new ResendClient(process.env.RESEND_API_KEY!);
-        await resend.emails.send({
+        const { error } = await resend.emails.send({
           from: "Bijeen <hello@bijeen.app>",
           to: identifier,
           subject: "Jouw inloglink voor Bijeen",
           html: buildMagicLinkHtml(url),
         });
+        if (error) throw new Error(`Resend fout: ${error.message}`);
       },
     }),
   ],

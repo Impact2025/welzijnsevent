@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { PLAN_LIMITS, PLAN_FEATURES } from "@/lib/plans";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const REPLY_TO = "hello@bijeen.app";
 
 // ─── Organisatie: welkomstmail (trial) ───────────────────────────────────────
 
@@ -20,6 +21,7 @@ export async function sendWelcomeTrialEmail(props: WelcomeTrialEmailProps) {
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Welkom bij Bijeen, ${firstName}! Je proefperiode is gestart`,
     html: buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardUrl }),
@@ -122,6 +124,7 @@ export async function sendPaymentConfirmationEmail(props: PaymentConfirmationEma
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Betaling ontvangen — ${planLabel} abonnement actief`,
     html: buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features, amount, expiryFormatted, dashboardUrl }),
@@ -229,6 +232,7 @@ export async function sendWaitlistConfirmation(props: WaitlistConfirmationProps)
   const { to, name, eventTitle, position } = props;
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Je staat op de wachtlijst: ${eventTitle}`,
     html: `<!DOCTYPE html>
@@ -285,6 +289,7 @@ export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
   const { to, name, eventTitle, registerUrl } = props;
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Goed nieuws! Er is een plek vrijgekomen: ${eventTitle}`,
     html: `<!DOCTYPE html>
@@ -347,6 +352,7 @@ export async function sendEventReminderEmail(props: EventReminderEmailProps) {
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Herinnering: morgen is het zover — ${eventTitle}`,
     html: `<!DOCTYPE html>
@@ -414,6 +420,7 @@ export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Bedankt voor je komst — deel je feedback over ${eventTitle}`,
     html: `<!DOCTYPE html>
@@ -482,6 +489,7 @@ export async function sendRegistrationConfirmation(props: ConfirmationEmailProps
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
     to,
     subject: `Je aanmelding is bevestigd: ${eventTitle}`,
     html: buildConfirmationHtml({ name, eventTitle, eventDate, eventLocation, ticketUrl }),

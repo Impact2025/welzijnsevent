@@ -307,7 +307,22 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt:      timestamp("updated_at").defaultNow(),
 });
 
+// ── ADMIN AUDIT LOG ────────────────────────────────────────
+export const adminAuditLog = pgTable("admin_audit_log", {
+  id:            uuid("id").defaultRandom().primaryKey(),
+  adminEmail:    text("admin_email").notNull(),
+  action:        text("action").notNull(),
+  // subscription_update | subscription_create | subscription_delete
+  targetOrgId:   uuid("target_org_id"),
+  targetOrgName: text("target_org_name"),
+  previousValue: jsonb("previous_value"),
+  newValue:      jsonb("new_value"),
+  note:          text("note"),
+  createdAt:     timestamp("created_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
+export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
 export type Organization       = typeof organizations.$inferSelect;
 export type Subscription       = typeof subscriptions.$inferSelect;
