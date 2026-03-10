@@ -22,12 +22,21 @@ export async function POST(req: Request) {
     const ext = file.name.split(".").pop() ?? "png";
     const filename = `logos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!token) {
+      return NextResponse.json({ error: "Blob token niet geconfigureerd" }, { status: 500 });
+    }
+
     const blob = await put(filename, file, {
-      access: "public",
+      access: "private",
       contentType: file.type,
+      token,
     });
 
-    return NextResponse.json({ url: blob.url });
+    // Return a proxied URL so private blobs are accessible via our own domain
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const proxyUrl = `${baseUrl}/api/blob?url=${encodeURIComponent(blob.url)}`;
+    return NextResponse.json({ url: proxyUrl });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[upload]", msg);
