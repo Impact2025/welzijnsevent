@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Bijeen — Evenementenplatform voor de welzijnssector",
+  title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
   description: "Organiseer verbindende evenementen voor welzijnsorganisaties.",
   manifest: "/manifest.json",
   appleWebApp: {

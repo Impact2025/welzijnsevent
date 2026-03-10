@@ -13,7 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {children}
       </main>
       <footer className="px-6 py-4 text-center text-xs text-ink-muted">
-        © {new Date().getFullYear()} Bijeen — Evenementenplatform voor de welzijnssector
+        © {new Date().getFullYear()} Bijeen — Van aanmelding tot impact, alles bijeen!
       </footer>
     </div>
   );
