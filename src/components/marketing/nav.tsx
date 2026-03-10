@@ -24,7 +24,7 @@ export function MarketingNav() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0">
-          <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
+          <Image src="/Bijeen-logo.png" alt="Bijeen" width={120} height={36} className="h-9 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}

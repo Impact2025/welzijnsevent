@@ -27,7 +27,7 @@ export function MarketingFooter() {
           {/* Brand */}
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="inline-flex mb-4">
-              <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" />
+              <Image src="/Bijeen-logo-footer.png" alt="Bijeen" width={110} height={34} className="h-8 w-auto" />
             </Link>
             <p className="text-ink/45 text-sm leading-relaxed">
               Eventplatform voor de welzijnssector. Gebouwd door WeAreImpact.nl.
