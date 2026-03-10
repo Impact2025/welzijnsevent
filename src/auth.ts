@@ -1,8 +1,11 @@
 import NextAuth from "next-auth";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import Resend from "next-auth/providers/resend";
+import Credentials from "next-auth/providers/credentials";
 import { Resend as ResendClient } from "resend";
 import { db, authUsers, authAccounts, authSessions, verificationTokens } from "@/db";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 const resend = new ResendClient(process.env.RESEND_API_KEY);
 
@@ -72,6 +75,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verificationTokensTable: verificationTokens as any,
   }),
   providers: [
+    Credentials({
+      id: "admin-credentials",
+      name: "Admin",
+      credentials: {
+        email:    { label: "E-mail",    type: "email" },
+        password: { label: "Wachtwoord", type: "password" },
+      },
+      async authorize(credentials) {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminHash  = process.env.ADMIN_PASSWORD_HASH;
+        if (!adminEmail || !adminHash) return null;
+        if (!credentials?.email || !credentials?.password) return null;
+        if ((credentials.email as string) !== adminEmail) return null;
+
+        const valid = await bcrypt.compare(credentials.password as string, adminHash);
+        if (!valid) return null;
+
+        // Find or create the admin user in DB
+        const existing = await db.select().from(authUsers)
+          .where(eq(authUsers.email, adminEmail)).limit(1);
+
+        if (existing[0]) return existing[0];
+
+        const [created] = await db.insert(authUsers).values({
+          email: adminEmail,
+          name: "Bijeen Admin",
+        }).returning();
+        return created;
+      },
+    }),
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: "Bijeen <hello@bijeen.app>",
@@ -91,10 +124,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verifyRequest: "/sign-in/verify",
     error: "/sign-in",
   },
+  session: { strategy: "jwt" },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: { ...session.user, id: user.id },
-    }),
+    async jwt({ token, user }) {
+      if (user) {
+        token.id    = user.id;
+        token.email = user.email;
+        token.name  = user.name;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id    = token.id as string;
+        session.user.email = token.email as string;
+        session.user.name  = token.name as string;
+      }
+      return session;
+    },
   },
 });
