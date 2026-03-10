@@ -68,43 +68,43 @@ export default function AdminAuditLogPage() {
       <div className="flex items-start justify-between mb-8">
         <div>
           <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Admin</p>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight">Audit Log</h1>
-          <p className="text-sm text-white/40 mt-1">
+          <h1 className="text-2xl font-extrabold text-[#1C1814] tracking-tight">Audit Log</h1>
+          <p className="text-sm text-[#9E9890] mt-1">
             {loading ? "Laden..." : `${logs.length} acties`}
           </p>
         </div>
         <button
           onClick={() => setRefreshKey(k => k + 1)}
           disabled={loading}
-          className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all disabled:opacity-50"
+          className="flex items-center gap-2 bg-black/4 hover:bg-black/8 border border-black/8 text-[#6B5E54] hover:text-[#1C1814] text-xs font-semibold px-3 py-2 rounded-xl transition-all disabled:opacity-50"
         >
           <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
           Vernieuwen
         </button>
       </div>
 
-      <div className="bg-[#1A1815] border border-white/8 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-black/8 rounded-2xl overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-[180px_1fr_160px_36px] gap-4 px-5 py-3 border-b border-white/8">
+        <div className="grid grid-cols-[180px_1fr_160px_36px] gap-4 px-5 py-3 border-b border-black/8">
           {["Tijdstip", "Actie / Organisatie", "Wijziging", ""].map(h => (
-            <span key={h} className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{h}</span>
+            <span key={h} className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest">{h}</span>
           ))}
         </div>
 
         {loading ? (
           <div className="py-16 text-center">
-            <RefreshCw size={20} className="text-white/20 animate-spin mx-auto" />
+            <RefreshCw size={20} className="text-black/20 animate-spin mx-auto" />
           </div>
         ) : logs.length === 0 ? (
           <div className="py-16 text-center">
-            <Shield size={28} className="text-white/15 mx-auto mb-3" />
-            <p className="text-sm text-white/40">Nog geen acties gelogd</p>
-            <p className="text-xs text-white/25 mt-1">Acties worden hier zichtbaar zodra wijzigingen worden opgeslagen</p>
+            <Shield size={28} className="text-black/15 mx-auto mb-3" />
+            <p className="text-sm text-[#9E9890]">Nog geen acties gelogd</p>
+            <p className="text-xs text-[#9E9890] mt-1">Acties worden hier zichtbaar zodra wijzigingen worden opgeslagen</p>
           </div>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-black/5">
             {logs.map(log => {
-              const cfg = ACTION_CFG[log.action] ?? { label: log.action, color: "bg-white/8 text-white/50 border-white/10" };
+              const cfg = ACTION_CFG[log.action] ?? { label: log.action, color: "bg-black/5 text-[#9E9890] border-black/8" };
               const isExpanded = expandedId === log.id;
               const prev = formatValue(log.previousValue);
               const next = formatValue(log.newValue);
@@ -112,49 +112,49 @@ export default function AdminAuditLogPage() {
               return (
                 <div key={log.id}>
                   <div
-                    className="grid grid-cols-[180px_1fr_160px_36px] gap-4 px-5 py-4 hover:bg-white/2 transition-colors cursor-pointer"
+                    className="grid grid-cols-[180px_1fr_160px_36px] gap-4 px-5 py-4 hover:bg-black/2 transition-colors cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : log.id)}
                   >
                     <div>
-                      <p className="text-xs text-white/60 font-mono">{formatDate(log.createdAt)}</p>
+                      <p className="text-xs text-[#6B5E54] font-mono">{formatDate(log.createdAt)}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-white mb-1">{log.targetOrgName ?? log.targetOrgId ?? "—"}</p>
+                      <p className="text-xs font-semibold text-[#1C1814] mb-1">{log.targetOrgName ?? log.targetOrgId ?? "—"}</p>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-bold border ${cfg.color}`}>
                         {cfg.label}
                       </span>
                     </div>
                     <div className="min-w-0">
                       {next && (
-                        <p className="text-[11px] text-white/50 truncate">{next}</p>
+                        <p className="text-[11px] text-[#9E9890] truncate">{next}</p>
                       )}
                     </div>
                     <div className="flex items-center justify-center">
                       {isExpanded
-                        ? <ChevronUp size={13} className="text-white/40" />
-                        : <ChevronDown size={13} className="text-white/25" />
+                        ? <ChevronUp size={13} className="text-[#9E9890]" />
+                        : <ChevronDown size={13} className="text-[#9E9890]" />
                       }
                     </div>
                   </div>
 
                   {isExpanded && (
-                    <div className="px-5 pb-5 bg-white/[0.01] border-t border-white/5">
+                    <div className="px-5 pb-5 bg-black/[0.01] border-t border-black/6">
                       <div className="grid grid-cols-2 gap-6 mt-4">
                         {prev && (
                           <div>
-                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">Vorige waarde</p>
-                            <p className="text-xs text-white/55 font-mono bg-white/3 rounded-lg px-3 py-2 border border-white/8">{prev}</p>
+                            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-2">Vorige waarde</p>
+                            <p className="text-xs text-[#6B5E54] font-mono bg-black/3 rounded-lg px-3 py-2 border border-black/8">{prev}</p>
                           </div>
                         )}
                         {next && (
                           <div>
-                            <p className="text-[10px] font-bold text-white/30 uppercase tracking-wider mb-2">Nieuwe waarde</p>
-                            <p className="text-xs text-white/80 font-mono bg-emerald-500/5 rounded-lg px-3 py-2 border border-emerald-500/15">{next}</p>
+                            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-2">Nieuwe waarde</p>
+                            <p className="text-xs text-emerald-700 font-mono bg-emerald-50 rounded-lg px-3 py-2 border border-emerald-200">{next}</p>
                           </div>
                         )}
                       </div>
                       <div className="mt-3">
-                        <p className="text-[10px] text-white/25 font-mono">Admin: {log.adminEmail} · ID: {log.id}</p>
+                        <p className="text-[10px] text-[#9E9890] font-mono">Admin: {log.adminEmail} · ID: {log.id}</p>
                       </div>
                     </div>
                   )}
@@ -166,7 +166,7 @@ export default function AdminAuditLogPage() {
       </div>
 
       {!loading && logs.length > 0 && (
-        <p className="text-xs text-white/25 text-center mt-4">
+        <p className="text-xs text-[#9E9890] text-center mt-4">
           Laatste {logs.length} acties (max 200)
         </p>
       )}

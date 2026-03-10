@@ -12,7 +12,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!adminEmail || session.user.email !== adminEmail) redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen bg-[#111009]">
+    <div className="flex min-h-screen bg-[#F5F4F0]">
       <AdminSidebar />
       <main className="flex-1 overflow-auto min-h-screen md:pt-0">
         {children}

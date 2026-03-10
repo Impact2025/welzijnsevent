@@ -86,52 +86,52 @@ export function OrgPlanEditor({
       (expiresAt || "") !== (currentExpiresAt ? new Date(currentExpiresAt).toISOString().split("T")[0] : "");
 
   return (
-    <div className="mt-3 p-4 bg-white/3 border border-white/10 rounded-xl space-y-3">
+    <div className="mt-3 p-4 bg-black/3 border border-black/8 rounded-xl space-y-3">
       {isNew && (
         <div className="flex items-center gap-2 mb-1">
-          <Plus size={12} className="text-emerald-400" />
+          <Plus size={12} className="text-emerald-600" />
           <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Nieuwe subscriptie aanmaken</p>
         </div>
       )}
       <div className="grid grid-cols-3 gap-3">
         {/* Plan */}
         <div>
-          <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-1.5">Plan</label>
+          <label className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider block mb-1.5">Plan</label>
           <div className="relative">
             <select
               value={plan}
               onChange={e => setPlan(e.target.value)}
-              className="w-full appearance-none bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-medium focus:outline-none focus:border-white/25 pr-8"
+              className="w-full appearance-none bg-black/3 border border-black/8 rounded-lg px-3 py-2 text-sm text-[#1C1814] font-medium focus:outline-none focus:border-black/25 pr-8"
             >
-              {PLANS.map(p => <option key={p} value={p} className="bg-[#1A1815]">{PLAN_LABELS[p]}</option>)}
+              {PLANS.map(p => <option key={p} value={p} className="bg-white">{PLAN_LABELS[p]}</option>)}
             </select>
-            <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/30 pointer-events-none" />
           </div>
         </div>
 
         {/* Status */}
         <div>
-          <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-1.5">Status</label>
+          <label className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider block mb-1.5">Status</label>
           <div className="relative">
             <select
               value={status}
               onChange={e => setStatus(e.target.value)}
-              className="w-full appearance-none bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-medium focus:outline-none focus:border-white/25 pr-8"
+              className="w-full appearance-none bg-black/3 border border-black/8 rounded-lg px-3 py-2 text-sm text-[#1C1814] font-medium focus:outline-none focus:border-black/25 pr-8"
             >
-              {STATUSES.map(s => <option key={s} value={s} className="bg-[#1A1815]">{STATUS_LABELS[s]}</option>)}
+              {STATUSES.map(s => <option key={s} value={s} className="bg-white">{STATUS_LABELS[s]}</option>)}
             </select>
-            <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black/30 pointer-events-none" />
           </div>
         </div>
 
         {/* Expires */}
         <div>
-          <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-1.5">Vervaldatum</label>
+          <label className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider block mb-1.5">Vervaldatum</label>
           <input
             type="date"
             value={expiresAt}
             onChange={e => setExpiresAt(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-medium focus:outline-none focus:border-white/25"
+            className="w-full bg-black/3 border border-black/8 rounded-lg px-3 py-2 text-sm text-[#1C1814] font-medium focus:outline-none focus:border-black/25"
           />
         </div>
       </div>

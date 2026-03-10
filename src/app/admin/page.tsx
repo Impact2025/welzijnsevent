@@ -18,19 +18,17 @@ function getInitials(name: string) {
 }
 
 function PlanBadge({ plan, status }: { plan: string; status: string | null }) {
-  const now = new Date();
-  const isActive = status === "active";
   const colors: Record<string, string> = {
-    trial:       "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    starter:     "bg-blue-500/15 text-blue-400 border-blue-500/25",
-    groei:       "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
-    organisatie: "bg-purple-500/15 text-purple-400 border-purple-500/25",
+    trial:       "bg-amber-50 text-amber-700 border-amber-200",
+    starter:     "bg-blue-50 text-blue-700 border-blue-200",
+    groei:       "bg-emerald-50 text-emerald-700 border-emerald-200",
+    organisatie: "bg-purple-50 text-purple-700 border-purple-200",
   };
   const labels: Record<string, string> = {
     trial: "Trial", starter: "Starter", groei: "Groei", organisatie: "Organisatie",
   };
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${colors[plan] ?? "bg-white/10 text-white/50 border-white/10"}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border ${colors[plan] ?? "bg-gray-50 text-gray-500 border-gray-200"}`}>
       {labels[plan] ?? plan}
     </span>
   );
@@ -39,12 +37,12 @@ function PlanBadge({ plan, status }: { plan: string; status: string | null }) {
 function StatusDot({ status, expiresAt }: { status: string | null; expiresAt: Date | null }) {
   const expired = expiresAt && new Date(expiresAt) < new Date();
   if (expired || status === "expired" || status === "cancelled") {
-    return <span className="inline-flex items-center gap-1 text-red-400 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />Verlopen</span>;
+    return <span className="inline-flex items-center gap-1 text-red-600 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />Verlopen</span>;
   }
   if (status === "pending_payment") {
-    return <span className="inline-flex items-center gap-1 text-amber-400 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />Betaling</span>;
+    return <span className="inline-flex items-center gap-1 text-amber-600 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block" />Betaling</span>;
   }
-  return <span className="inline-flex items-center gap-1 text-emerald-400 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />Actief</span>;
+  return <span className="inline-flex items-center gap-1 text-emerald-600 text-[10px] font-semibold"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />Actief</span>;
 }
 
 export default async function AdminOverviewPage() {
@@ -52,7 +50,6 @@ export default async function AdminOverviewPage() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-  // Fetch all base data in parallel
   const [
     allOrgs,
     [{ count: totalEvents }],
@@ -65,10 +62,8 @@ export default async function AdminOverviewPage() {
     db.select({ count: count() }).from(attendees),
   ]);
 
-  // Subscriptions
   const allSubs = await db.select().from(subscriptions).orderBy(desc(subscriptions.createdAt));
 
-  // Latest sub per org
   const latestSubMap = new Map<string, typeof allSubs[0]>();
   for (const sub of allSubs) {
     if (!latestSubMap.has(sub.organizationId)) {
@@ -76,7 +71,6 @@ export default async function AdminOverviewPage() {
     }
   }
 
-  // Plan breakdown + metrics
   const planCounts = { trial: 0, starter: 0, groei: 0, organisatie: 0, geen: 0 };
   let activeCount = 0;
   let expiredCount = 0;
@@ -100,7 +94,6 @@ export default async function AdminOverviewPage() {
       arr += sub.amountPaid;
     }
 
-    // Trial expiring within 7 days
     if (sub.plan === "trial" && sub.expiresAt) {
       const exp = new Date(sub.expiresAt);
       if (exp <= in7Days && exp > now) {
@@ -115,9 +108,23 @@ export default async function AdminOverviewPage() {
     o => o.createdAt && new Date(o.createdAt) >= startOfMonth
   ).length;
 
-  // Trial conversion rate
   const paidOrgs = planCounts.starter + planCounts.groei + planCounts.organisatie;
   const trialConversion = totalOrgs > 0 ? Math.round((paidOrgs / totalOrgs) * 100) : 0;
+
+  const recentOrgs = allOrgs.slice(0, 5).map(org => ({
+    ...org,
+    subscription: latestSubMap.get(org.id) ?? null,
+  }));
+
+  const churnRiskDetails = allOrgs
+    .filter(o => churnRiskOrgs.includes(o.id))
+    .map(org => ({
+      ...org,
+      subscription: latestSubMap.get(org.id)!,
+      daysLeft: Math.ceil(
+        (new Date(latestSubMap.get(org.id)!.expiresAt!).getTime() - now.getTime()) / 86400000
+      ),
+    }));
 
   // Monthly growth data (last 6 months)
   const growthData = (() => {
@@ -130,7 +137,6 @@ export default async function AdminOverviewPage() {
         const c = o.createdAt ? new Date(o.createdAt) : null;
         return c && c >= d && c < end;
       }).length;
-      // MRR contribution from subs starting that month
       const monthArr = allSubs
         .filter(s => {
           const c = s.startsAt ? new Date(s.startsAt) : null;
@@ -142,38 +148,18 @@ export default async function AdminOverviewPage() {
     return months;
   })();
 
-  // Recent orgs (last 5)
-  const recentOrgs = allOrgs.slice(0, 5).map(org => ({
-    ...org,
-    subscription: latestSubMap.get(org.id) ?? null,
-  }));
-
-  // Churn risk orgs with details
-  const churnRiskDetails = allOrgs
-    .filter(o => churnRiskOrgs.includes(o.id))
-    .map(org => ({
-      ...org,
-      subscription: latestSubMap.get(org.id)!,
-      daysLeft: Math.ceil(
-        (new Date(latestSubMap.get(org.id)!.expiresAt!).getTime() - now.getTime()) / 86400000
-      ),
-    }));
-
-  // Plan bar widths
-  const maxPlan = Math.max(...Object.values(planCounts), 1);
-
   return (
     <div className="px-6 py-7 max-w-5xl mx-auto">
 
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">
+        <p className="text-[10px] font-black text-[#C8522A] uppercase tracking-widest mb-1">
           Bijeen Admin
         </p>
-        <h1 className="text-2xl font-extrabold text-white tracking-tight">
+        <h1 className="text-2xl font-extrabold text-[#1C1814] tracking-tight">
           Platform Overzicht
         </h1>
-        <p className="text-sm text-white/40 mt-1">
+        <p className="text-sm text-[#9E9890] mt-1">
           {new Date().toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         </p>
       </div>
@@ -181,65 +167,65 @@ export default async function AdminOverviewPage() {
       {/* KPI Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* ARR */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0" />
+        <div className="bg-white border border-black/8 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-emerald-400/0 via-emerald-500 to-emerald-400/0" />
           <div className="flex items-start justify-between mb-3">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">ARR</p>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-              <Euro size={13} className="text-emerald-400" />
+            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest">ARR</p>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <Euro size={13} className="text-emerald-600" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-white tracking-tight">
+          <p className="text-2xl font-extrabold text-[#1C1814] tracking-tight">
             €{(arr / 100).toLocaleString("nl-NL", { maximumFractionDigits: 0 })}
           </p>
-          <p className="text-[11px] text-white/35 mt-1 font-medium">
+          <p className="text-[11px] text-[#9E9890] mt-1 font-medium">
             MRR: €{(mrr / 100).toLocaleString("nl-NL", { maximumFractionDigits: 0 })}
           </p>
         </div>
 
         {/* Organisaties */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500 to-blue-500/0" />
+        <div className="bg-white border border-black/8 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-blue-400/0 via-blue-500 to-blue-400/0" />
           <div className="flex items-start justify-between mb-3">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Organisaties</p>
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Building2 size={13} className="text-blue-400" />
+            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest">Organisaties</p>
+            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+              <Building2 size={13} className="text-blue-600" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-white tracking-tight">{totalOrgs}</p>
-          <p className="text-[11px] text-white/35 mt-1 font-medium">
+          <p className="text-2xl font-extrabold text-[#1C1814] tracking-tight">{totalOrgs}</p>
+          <p className="text-[11px] text-[#9E9890] mt-1 font-medium">
             +{orgsThisMonth} deze maand
           </p>
         </div>
 
         {/* Actief */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-amber-500/0 via-amber-500 to-amber-500/0" />
+        <div className="bg-white border border-black/8 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-amber-400/0 via-amber-500 to-amber-400/0" />
           <div className="flex items-start justify-between mb-3">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Actief</p>
-            <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-              <Activity size={13} className="text-amber-400" />
+            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest">Actief</p>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center">
+              <Activity size={13} className="text-amber-600" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-white tracking-tight">{activeCount}</p>
-          <p className="text-[11px] text-white/35 mt-1 font-medium">
+          <p className="text-2xl font-extrabold text-[#1C1814] tracking-tight">{activeCount}</p>
+          <p className="text-[11px] text-[#9E9890] mt-1 font-medium">
             {expiredCount} verlopen
           </p>
         </div>
 
         {/* Deelnemers */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 relative overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-purple-500/0 via-purple-500 to-purple-500/0" />
+        <div className="bg-white border border-black/8 rounded-2xl p-5 relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 inset-x-0 h-[3px] bg-gradient-to-r from-purple-400/0 via-purple-500 to-purple-400/0" />
           <div className="flex items-start justify-between mb-3">
-            <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Deelnemers</p>
-            <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              <Users size={13} className="text-purple-400" />
+            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest">Deelnemers</p>
+            <div className="w-7 h-7 rounded-lg bg-purple-50 flex items-center justify-center">
+              <Users size={13} className="text-purple-600" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-white tracking-tight">
+          <p className="text-2xl font-extrabold text-[#1C1814] tracking-tight">
             {Number(totalAttendees).toLocaleString("nl-NL")}
           </p>
-          <p className="text-[11px] text-white/35 mt-1 font-medium">
+          <p className="text-[11px] text-[#9E9890] mt-1 font-medium">
             {Number(totalEvents)} events · {eventsThisMonth} deze maand
           </p>
         </div>
@@ -248,8 +234,8 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
         {/* Plan Distributie */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5">
-          <h2 className="text-xs font-bold text-white/70 uppercase tracking-widest mb-5">
+        <div className="bg-white border border-black/8 rounded-2xl p-5 shadow-sm">
+          <h2 className="text-xs font-bold text-[#6B5E54] uppercase tracking-widest mb-5">
             Plan distributie
           </h2>
           <div className="space-y-3">
@@ -264,44 +250,41 @@ export default async function AdminOverviewPage() {
               return (
                 <div key={key}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-xs text-white/60 font-medium">{label}</span>
-                    <span className="text-xs font-bold text-white">{n} <span className="text-white/35 font-normal">({pct}%)</span></span>
+                    <span className="text-xs text-[#6B5E54] font-medium">{label}</span>
+                    <span className="text-xs font-bold text-[#1C1814]">{n} <span className="text-[#9E9890] font-normal">({pct}%)</span></span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${color}`}
-                      style={{ width: `${pct}%` }}
-                    />
+                  <div className="h-1.5 bg-black/5 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
             })}
           </div>
-          <div className="mt-5 pt-4 border-t border-white/8 flex items-center justify-between">
-            <span className="text-[11px] text-white/40">Trial → Betaald</span>
-            <span className="text-[11px] font-bold text-emerald-400">{trialConversion}%</span>
+          <div className="mt-5 pt-4 border-t border-black/6 flex items-center justify-between">
+            <span className="text-[11px] text-[#9E9890]">Trial → Betaald</span>
+            <span className="text-[11px] font-bold text-emerald-600">{trialConversion}%</span>
           </div>
         </div>
 
         {/* Churn Risico's */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5">
+        <div className="bg-white border border-black/8 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xs font-bold text-white/70 uppercase tracking-widest">
+            <h2 className="text-xs font-bold text-[#6B5E54] uppercase tracking-widest">
               Churn risico
             </h2>
             {churnRiskDetails.length > 0 && (
-              <span className="bg-red-500/15 text-red-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-500/20">
+              <span className="bg-red-50 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200">
                 {churnRiskDetails.length} trial ≤7d
               </span>
             )}
           </div>
           {churnRiskDetails.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-3">
-                <Activity size={18} className="text-emerald-400" />
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mb-3">
+                <Activity size={18} className="text-emerald-600" />
               </div>
-              <p className="text-sm font-semibold text-white/60">Geen risico's</p>
-              <p className="text-xs text-white/30 mt-1">Geen trials die binnenkort verlopen</p>
+              <p className="text-sm font-semibold text-[#6B5E54]">Geen risico's</p>
+              <p className="text-xs text-[#9E9890] mt-1">Geen trials die binnenkort verlopen</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -309,21 +292,21 @@ export default async function AdminOverviewPage() {
                 <Link
                   key={org.id}
                   href="/admin/organisaties"
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white/3 hover:bg-white/6 border border-white/5 hover:border-red-500/20 transition-all group"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-red-50/60 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all group"
                 >
                   <div
                     className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: adminAvatarColor(org.name) + "33" }}
+                    style={{ backgroundColor: adminAvatarColor(org.name) + "22" }}
                   >
-                    <span className="text-xs font-bold text-white">{getInitials(org.name)}</span>
+                    <span className="text-xs font-bold text-[#1C1814]">{getInitials(org.name)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{org.name}</p>
-                    <p className="text-[10px] text-red-400 font-medium">
+                    <p className="text-xs font-semibold text-[#1C1814] truncate">{org.name}</p>
+                    <p className="text-[10px] text-red-500 font-medium">
                       Nog {org.daysLeft} dag{org.daysLeft !== 1 ? "en" : ""}
                     </p>
                   </div>
-                  <AlertTriangle size={13} className="text-red-400/60 group-hover:text-red-400 shrink-0 transition-colors" />
+                  <AlertTriangle size={13} className="text-red-400 group-hover:text-red-500 shrink-0 transition-colors" />
                 </Link>
               ))}
             </div>
@@ -331,48 +314,52 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Recente aanmeldingen */}
-        <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5">
+        <div className="bg-white border border-black/8 rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xs font-bold text-white/70 uppercase tracking-widest">
+            <h2 className="text-xs font-bold text-[#6B5E54] uppercase tracking-widest">
               Recente aanmeldingen
             </h2>
-            <Link
-              href="/admin/organisaties"
-              className="text-[10px] font-bold text-white/35 hover:text-white/60 transition-colors"
-            >
+            <Link href="/admin/organisaties" className="text-[10px] font-bold text-[#9E9890] hover:text-[#6B5E54] transition-colors">
               Alles →
             </Link>
           </div>
-          <div className="space-y-2.5">
-            {recentOrgs.map(org => (
-              <div key={org.id} className="flex items-center gap-3">
-                <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold text-white"
-                  style={{ backgroundColor: adminAvatarColor(org.name) }}
-                >
-                  {getInitials(org.name)}
+          {recentOrgs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Building2 size={24} className="text-black/15 mb-2" />
+              <p className="text-xs text-[#9E9890]">Nog geen aanmeldingen</p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {recentOrgs.map(org => (
+                <div key={org.id} className="flex items-center gap-3">
+                  <div
+                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold text-white"
+                    style={{ backgroundColor: adminAvatarColor(org.name) }}
+                  >
+                    {getInitials(org.name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-[#1C1814] truncate">{org.name}</p>
+                    <p className="text-[10px] text-[#9E9890]">
+                      {org.createdAt ? formatDate(org.createdAt, "d MMM yyyy") : "—"}
+                    </p>
+                  </div>
+                  {org.subscription && (
+                    <PlanBadge plan={org.subscription.plan} status={org.subscription.status} />
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold text-white truncate">{org.name}</p>
-                  <p className="text-[10px] text-white/35">
-                    {org.createdAt ? formatDate(org.createdAt, "d MMM yyyy") : "—"}
-                  </p>
-                </div>
-                {org.subscription && (
-                  <PlanBadge plan={org.subscription.plan} status={org.subscription.status} />
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Groei grafiek */}
-      <div className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 mb-6">
+      <div className="bg-white border border-black/8 rounded-2xl p-5 mb-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xs font-bold text-white/70 uppercase tracking-widest">Groei afgelopen 6 maanden</h2>
-            <p className="text-[11px] text-white/30 mt-0.5">
+            <h2 className="text-xs font-bold text-[#6B5E54] uppercase tracking-widest">Groei afgelopen 6 maanden</h2>
+            <p className="text-[11px] text-[#9E9890] mt-0.5">
               <span className="inline-flex items-center gap-1 mr-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />Nieuwe orgs
               </span>
@@ -389,38 +376,38 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           href="/admin/organisaties"
-          className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 flex items-center gap-4 hover:border-white/15 hover:bg-[#201E1A] transition-all group"
+          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-            <Building2 size={18} className="text-blue-400" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+            <Building2 size={18} className="text-blue-600" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">Organisaties</p>
-            <p className="text-xs text-white/40 mt-0.5">Plans, subscripties, CSV export</p>
+            <p className="text-sm font-bold text-[#1C1814]">Organisaties</p>
+            <p className="text-xs text-[#9E9890] mt-0.5">Plans, subscripties, CSV export</p>
           </div>
         </Link>
         <Link
           href="/admin/ai-inzichten"
-          className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 flex items-center gap-4 hover:border-white/15 hover:bg-[#201E1A] transition-all group"
+          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-            <TrendingUp size={18} className="text-purple-400" />
+          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
+            <TrendingUp size={18} className="text-purple-600" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">AI Inzichten</p>
-            <p className="text-xs text-white/40 mt-0.5">Churn risico's, kansen, aanbevelingen</p>
+            <p className="text-sm font-bold text-[#1C1814]">AI Inzichten</p>
+            <p className="text-xs text-[#9E9890] mt-0.5">Churn risico's, kansen, aanbevelingen</p>
           </div>
         </Link>
         <Link
           href="/admin/audit-log"
-          className="bg-[#1A1815] border border-white/8 rounded-2xl p-5 flex items-center gap-4 hover:border-white/15 hover:bg-[#201E1A] transition-all group"
+          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
-            <Shield size={18} className="text-red-400" />
+          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
+            <Shield size={18} className="text-red-500" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">Audit Log</p>
-            <p className="text-xs text-white/40 mt-0.5">Wie wijzigde wat, wanneer</p>
+            <p className="text-sm font-bold text-[#1C1814]">Audit Log</p>
+            <p className="text-xs text-[#9E9890] mt-0.5">Wie wijzigde wat, wanneer</p>
           </div>
         </Link>
       </div>

@@ -26,24 +26,25 @@ export function GrowthChart({ data }: GrowthChartProps) {
         </defs>
         <XAxis
           dataKey="maand"
-          tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+          tick={{ fill: "#9E9890", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 10 }}
+          tick={{ fill: "#9E9890", fontSize: 10 }}
           axisLine={false}
           tickLine={false}
         />
         <Tooltip
           contentStyle={{
-            background: "#1A1815",
-            border: "1px solid rgba(255,255,255,0.1)",
+            background: "#FFFFFF",
+            border: "1px solid rgba(0,0,0,0.08)",
             borderRadius: "10px",
             fontSize: "11px",
-            color: "#fff",
+            color: "#1C1814",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           }}
-          labelStyle={{ color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}
+          labelStyle={{ color: "#9E9890", marginBottom: "4px" }}
           formatter={(value: number, name: string) => {
             if (name === "arr") return [`€${value.toLocaleString("nl-NL")}`, "MRR"];
             return [value, "Nieuwe orgs"];
