@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
-import { Show, UserButton } from "@clerk/nextjs";
+import { useAuth, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Zap, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +49,7 @@ export function MarketingNav() {
 
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
-          <Show when="signed-out">
+          <SignedOut>
             <Link
               href="/sign-in"
               className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
@@ -63,8 +62,8 @@ export function MarketingNav() {
             >
               Gratis starten
             </Link>
-          </Show>
-          <Show when="signed-in">
+          </SignedOut>
+          <SignedIn>
             <Link
               href="/dashboard"
               className="px-4 py-2 text-sm font-medium text-white/55 hover:text-white transition-colors rounded-xl hover:bg-white/5"
@@ -74,7 +73,7 @@ export function MarketingNav() {
             <UserButton
               appearance={{ elements: { avatarBox: "w-8 h-8" } }}
             />
-          </Show>
+          </SignedIn>
         </div>
 
         {/* Mobile hamburger */}
