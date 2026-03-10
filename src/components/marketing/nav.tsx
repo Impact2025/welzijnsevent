@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X } from "lucide-react";
-import Image from "next/image";
+import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -24,8 +24,8 @@ export function MarketingNav() {
     <header className="fixed top-0 inset-x-0 z-50 bg-cream/95 backdrop-blur-md border-b border-ink/8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="shrink-0">
-          <Image src="/Bijeen-logo.png" alt="Bijeen" width={120} height={36} className="h-9 w-auto" priority />
+        <Link href="/" className="shrink-0 inline-flex items-center px-1 py-1">
+          <BijeenWordmark variant="dark" size="md" />
         </Link>
 
         {/* Desktop nav */}

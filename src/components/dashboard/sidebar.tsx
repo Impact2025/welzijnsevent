@@ -7,8 +7,8 @@ import { LogOut,
   LayoutDashboard, Calendar, Settings, Plus,
 } from "lucide-react";
 
-import Image from "next/image";
 import { cn, getInitials, avatarColor } from "@/lib/utils";
+import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { PLAN_LIMITS } from "@/lib/plans";
 
 const navItems = [
@@ -35,10 +35,8 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
     <aside className="hidden md:flex w-[220px] min-h-screen bg-[#12100E] flex-col py-5 px-3 shrink-0">
       {/* Logo */}
       <div className="px-2 mb-7">
-        <Link href="/dashboard">
-          <div className="bg-white/95 rounded-xl px-3 py-2.5 inline-flex items-center">
-            <Image src="/Bijeen-logo.png" alt="Bijeen" width={90} height={28} className="h-6 w-auto" priority />
-          </div>
+        <Link href="/dashboard" className="inline-flex items-center px-1 py-1">
+          <BijeenWordmark variant="light" size="md" />
         </Link>
       </div>
 

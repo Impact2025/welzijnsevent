@@ -6,8 +6,8 @@ import { useState } from "react";
 import {
   LayoutDashboard, Building2, Sparkles, ArrowLeft, Shield, Menu, X,
 } from "lucide-react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 
 const navItems = [
   { href: "/admin",              icon: LayoutDashboard, label: "Overzicht",    exact: true },
@@ -23,10 +23,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     <>
       {/* Logo + Admin Badge */}
       <div className="px-2 mb-6">
-        <Link href="/admin" onClick={onClose}>
-          <div className="bg-white rounded-xl px-3 py-2.5 inline-flex items-center shadow-sm">
-            <Image src="/Bijeen-logo.png" alt="Bijeen" width={90} height={28} className="h-6 w-auto" priority />
-          </div>
+        <Link href="/admin" onClick={onClose} className="inline-flex items-center px-1 py-1">
+          <BijeenWordmark variant="light" size="md" />
         </Link>
         <div className="mt-2.5 inline-flex items-center gap-1.5 bg-red-500/20 text-red-300 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-red-500/25">
           <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
@@ -88,10 +86,8 @@ export function AdminSidebar() {
 
       {/* Mobile topbar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 py-3 bg-[#1C1814] border-b border-white/10">
-        <Link href="/admin">
-          <div className="bg-white rounded-lg px-2.5 py-1.5 inline-flex items-center">
-            <Image src="/Bijeen-logo.png" alt="Bijeen" width={70} height={22} className="h-5 w-auto" priority />
-          </div>
+        <Link href="/admin" className="inline-flex items-center px-1 py-1">
+          <BijeenWordmark variant="light" size="sm" />
         </Link>
         <button
           onClick={() => setMobileOpen(true)}
