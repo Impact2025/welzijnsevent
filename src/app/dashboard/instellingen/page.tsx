@@ -37,6 +37,7 @@ export default function InstellingenPage() {
   const [saving, setSaving]         = useState(false);
   const [loading, setLoading]       = useState(true);
   const [upgrading, setUpgrading]   = useState<string | null>(null);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const fileInputRef                = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -106,6 +107,7 @@ export default function InstellingenPage() {
 
   const handleUpgrade = async (plan: string) => {
     setUpgrading(plan);
+    setUpgradeError(null);
     try {
       const res = await fetch("/api/payments/multisafepay/subscription", {
         method: "POST",
@@ -113,7 +115,16 @@ export default function InstellingenPage() {
         body: JSON.stringify({ plan }),
       });
       const data = await res.json();
-      if (data.paymentUrl) window.location.href = data.paymentUrl;
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        const detail = data.details?.error_code
+          ? `MSP fout ${data.details.error_code}: ${data.details.error_info ?? data.error}`
+          : (data.error ?? "Betaallink aanmaken mislukt");
+        setUpgradeError(detail);
+      }
+    } catch {
+      setUpgradeError("Netwerkfout — probeer opnieuw");
     } finally {
       setUpgrading(null);
     }
@@ -336,6 +347,11 @@ export default function InstellingenPage() {
 
           {/* Upgrade options */}
           <div className="p-4 space-y-3">
+            {upgradeError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                <p className="text-xs font-semibold text-red-700">{upgradeError}</p>
+              </div>
+            )}
             {UPGRADE_PLANS.filter(p => p !== currentPlan || !isActive || isExpired).map(plan => {
               const features = PLAN_FEATURES[plan] ?? [];
               const price = PLAN_PRICES_CENTS[plan];

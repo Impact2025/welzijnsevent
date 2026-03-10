@@ -66,8 +66,17 @@ export async function POST(req: Request) {
 
     const mspData = await mspRes.json();
     if (!mspRes.ok || !mspData.data?.payment_url) {
-      console.error("[msp/subscription] MSP fout:", mspData);
-      return NextResponse.json({ error: "Betaallink aanmaken mislukt", details: mspData }, { status: 502 });
+      console.error("[msp/subscription] MSP fout (HTTP", mspRes.status, "):", JSON.stringify(mspData));
+      console.error("[msp/subscription] ENV:", process.env.MULTISAFEPAY_ENV ?? "niet gezet (→ test API)");
+      console.error("[msp/subscription] API_BASE:", MSP_API_BASE);
+      return NextResponse.json({
+        error: "Betaallink aanmaken mislukt",
+        details: {
+          error_code:  mspData.error_code  ?? mspData.error  ?? mspRes.status,
+          error_info:  mspData.error_info  ?? mspData.message ?? null,
+          msp_response: mspData,
+        },
+      }, { status: 502 });
     }
 
     await db
