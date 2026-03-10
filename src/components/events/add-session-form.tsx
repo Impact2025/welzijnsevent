@@ -50,7 +50,12 @@ export function AddSessionForm({
       const res = await fetch("/api/sessions", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ ...form, eventId }),
+        body:    JSON.stringify({
+          ...form,
+          startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
+          endsAt:   form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
+          eventId,
+        }),
       });
       if (!res.ok) throw new Error();
       setForm({ title: "", description: "", speaker: "", speakerOrg: "", location: "", startsAt: defaultStart, endsAt: defaultEnd });

@@ -149,6 +149,8 @@ export default function NewEventPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
+          endsAt:   form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
           maxAttendees: form.maxAttendees ? parseInt(form.maxAttendees) : undefined,
         }),
       });
