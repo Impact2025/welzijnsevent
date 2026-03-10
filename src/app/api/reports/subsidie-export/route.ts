@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { db, events, attendees, feedback, networkMatches, sessions, sessionRegistrations, organizations } from "@/db";
 import { eq, count, avg, and } from "drizzle-orm";
@@ -380,7 +382,7 @@ export async function GET(req: Request) {
 
     <!-- Footer -->
     <div class="footer">
-      <p>Bijeen — Evenementenplatform voor de welzijnssector</p>
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" style="height: 24px; width: auto; opacity: 0.6;" />
       <p>Rapport gegenereerd op ${rapportDatum}</p>
     </div>
   </div>

@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import {
-  LayoutDashboard, Calendar, Settings, Plus, Zap,
+  LayoutDashboard, Calendar, Settings, Plus,
 } from "lucide-react";
+import Image from "next/image";
 import { cn, getInitials, avatarColor } from "@/lib/utils";
 import { PLAN_LIMITS } from "@/lib/plans";
 
@@ -33,12 +34,11 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
     <aside className="hidden md:flex w-[220px] min-h-screen bg-[#12100E] flex-col py-5 px-3 shrink-0">
       {/* Logo */}
       <div className="px-2 mb-7">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-terra-500 flex items-center justify-center shrink-0 shadow-lg shadow-terra-500/30">
-            <Zap size={14} className="text-white fill-white" />
+        <Link href="/dashboard">
+          <div className="bg-white/95 rounded-xl px-3 py-2 inline-flex">
+            <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
           </div>
-          <span className="font-bold text-white text-base tracking-tight">Bijeen</span>
-        </div>
+        </Link>
       </div>
 
       {/* New event CTA */}

@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { Zap, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -22,11 +23,10 @@ export function MarketingNav() {
     <header className="fixed top-0 inset-x-0 z-50 bg-[#12100E]/95 backdrop-blur-md border-b border-white/8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
-            <Zap size={14} className="text-white fill-white" />
+        <Link href="/" className="shrink-0">
+          <div className="bg-white/95 rounded-xl px-3 py-1.5 inline-flex hover:bg-white transition-colors">
+            <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" priority />
           </div>
-          <span className="font-bold text-white text-base tracking-tight">Bijeen</span>
         </Link>
 
         {/* Desktop nav */}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = {
   Product: [
@@ -26,11 +26,10 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
-                <Zap size={14} className="text-white fill-white" />
+            <Link href="/" className="inline-flex mb-4">
+              <div className="bg-white/95 rounded-xl px-3 py-1.5 inline-flex hover:bg-white transition-colors">
+                <Image src="/Bijeen-logo.png" alt="Bijeen" width={100} height={30} className="h-7 w-auto" />
               </div>
-              <span className="font-bold text-white text-base tracking-tight">Bijeen</span>
             </Link>
             <p className="text-white/35 text-sm leading-relaxed">
               Eventplatform voor de welzijnssector. Gebouwd door WeAreImpact.nl.

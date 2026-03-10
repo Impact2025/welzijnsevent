@@ -63,7 +63,7 @@ function buildConfirmationHtml({
 
     <!-- Logo/Brand -->
     <div style="text-align: center; margin-bottom: 24px;">
-      <span style="font-size: 28px; font-weight: 900; color: #C8522A; letter-spacing: -0.5px;">Bijeen</span>
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height: 40px; width: auto; display: inline-block;" />
     </div>
 
     <!-- Card -->
