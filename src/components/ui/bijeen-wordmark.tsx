@@ -1,6 +1,6 @@
 /**
- * BijeenWordmark — inline SVG logo, exact nagebootst naar Bijeen-logo.png.
- * Twee gevulde mensenfiguren (opgeheven armen) + woordmerk "Bijeen".
+ * BijeenWordmark — inline SVG logo.
+ * Gebruikt de exacte paden uit Bijeen-logo.png via een geneste SVG viewport.
  *
  * variant="light"  → wit woordmerk  (donkere sidebar / dark backgrounds)
  * variant="dark"   → ink woordmerk  (lichte backgrounds)
@@ -20,14 +20,29 @@ const SIZES = {
   lg: { width: 132, height: 36 },
 };
 
+// Originele paden uit het logo (viewBox 800×600)
+// Bounding box figuren: x 55–745, y 85–510
+const ICON_PATHS = (color: string) => (
+  <>
+    <path
+      d="M70.5,491.5 C70.5,491.5 130,280 230,260 C210,230 195,190 205,155 C215,120 250,100 285,110 C320,120 340,155 330,190 C325,210 310,230 290,245 C350,250 420,330 455,491.5 L345,491.5 C345,491.5 280,360 215,491.5 L70.5,491.5 Z"
+      fill={color}
+    />
+    <path
+      d="M729.5,491.5 C729.5,491.5 670,280 570,260 C590,230 605,190 595,155 C585,120 550,100 515,110 C480,120 460,155 470,190 C475,210 490,230 510,245 C450,250 380,330 345,491.5 L455,491.5 C455,491.5 520,360 585,491.5 L729.5,491.5 Z"
+      fill={color}
+    />
+  </>
+);
+
 export function BijeenWordmark({
   variant = "dark",
   size = "md",
   className,
 }: BijeenWordmarkProps) {
   const { width, height } = SIZES[size];
-  const textColor  = variant === "light" ? "#FFFFFF" : "#1C1814";
-  const iconColor  = "#C8522A";
+  const textColor = variant === "light" ? "#FFFFFF" : "#1C1814";
+  const iconColor = "#C8522A";
 
   return (
     <svg
@@ -40,43 +55,25 @@ export function BijeenWordmark({
       aria-label="Bijeen"
       role="img"
     >
-      {/* ── Linker figuur ───────────────────────────────────── */}
-      {/* Hoofd */}
-      <circle cx="9" cy="6.5" r="3.2" fill={iconColor} />
-      {/* Lichaam met opgeheven linker arm */}
-      <path
-        d="
-          M 9 10.5
-          C 7 9.5, 4.5 8.5, 2.5 7
-          C 1 6, 0.5 7.5, 1 11
-          C 1 16, 3 21, 5.5 25.5
-          L 15 25.5
-          C 13 21, 11.5 16, 9 10.5
-          Z
-        "
-        fill={iconColor}
-      />
+      {/*
+        Geneste SVG: geeft de icon-paden hun eigen coördinatenstelsel.
+        viewBox geeft exact het gedeelte van de originele 800×600 SVG
+        dat de twee figuren bevat. preserveAspectRatio centreert + past aan.
+      */}
+      <svg
+        x="0"
+        y="0"
+        width="42"
+        height="30"
+        viewBox="55 88 690 420"
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {ICON_PATHS(iconColor)}
+      </svg>
 
-      {/* ── Rechter figuur (spiegel) ─────────────────────────── */}
-      {/* Hoofd */}
-      <circle cx="21" cy="6.5" r="3.2" fill={iconColor} />
-      {/* Lichaam met opgeheven rechter arm */}
-      <path
-        d="
-          M 21 10.5
-          C 23 9.5, 25.5 8.5, 27.5 7
-          C 29 6, 29.5 7.5, 29 11
-          C 29 16, 27 21, 24.5 25.5
-          L 15 25.5
-          C 17 21, 18.5 16, 21 10.5
-          Z
-        "
-        fill={iconColor}
-      />
-
-      {/* ── Woordmerk ────────────────────────────────────────── */}
+      {/* Woordmerk */}
       <text
-        x="35"
+        x="47"
         y="22"
         fontFamily="'Plus Jakarta Sans', -apple-system, sans-serif"
         fontWeight="800"
@@ -90,7 +87,7 @@ export function BijeenWordmark({
   );
 }
 
-/** Alleen het icoon — voor kleine formaten of favicon-gebruik */
+/** Alleen het icoon — voor favicon of kleine formaten */
 export function BijeenIcon({
   size = 24,
   className,
@@ -98,46 +95,17 @@ export function BijeenIcon({
   size?: number;
   className?: string;
 }) {
-  const iconColor = "#C8522A";
-
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 30 30"
+      viewBox="55 88 690 420"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden="true"
     >
-      {/* Linker figuur */}
-      <circle cx="9" cy="6.5" r="3.2" fill={iconColor} />
-      <path
-        d="
-          M 9 10.5
-          C 7 9.5, 4.5 8.5, 2.5 7
-          C 1 6, 0.5 7.5, 1 11
-          C 1 16, 3 21, 5.5 25.5
-          L 15 25.5
-          C 13 21, 11.5 16, 9 10.5
-          Z
-        "
-        fill={iconColor}
-      />
-      {/* Rechter figuur */}
-      <circle cx="21" cy="6.5" r="3.2" fill={iconColor} />
-      <path
-        d="
-          M 21 10.5
-          C 23 9.5, 25.5 8.5, 27.5 7
-          C 29 6, 29.5 7.5, 29 11
-          C 29 16, 27 21, 24.5 25.5
-          L 15 25.5
-          C 17 21, 18.5 16, 21 10.5
-          Z
-        "
-        fill={iconColor}
-      />
+      {ICON_PATHS("#C8522A")}
     </svg>
   );
 }
