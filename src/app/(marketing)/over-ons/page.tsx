@@ -37,6 +37,7 @@ const demoExpect = [
   "Jouw specifieke use case centraal",
   "Eerlijk antwoord of Bijeen bij jullie past",
   "Geen verkooppraatje, geen verplichtingen",
+  "ANBI of WMO-gefinancierd? Vraag direct het Sociaal Tarief aan (15% korting)",
 ];
 
 export default function OverOnsPage() {

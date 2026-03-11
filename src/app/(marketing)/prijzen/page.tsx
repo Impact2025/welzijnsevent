@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Check, X, ChevronDown, Zap, ArrowRight,
   BookOpen, MessageCircle, Shield, Wrench,
-  FileText, Receipt, BadgePercent,
+  FileText, Receipt, BadgePercent, Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -235,8 +235,8 @@ const faqs = [
     a: "Nee. Jaarabonnementen lopen 12 maanden en zijn daarna maandelijks opzegbaar. Pay-per-event heeft geen verplichtingen.",
   },
   {
-    q: "Is er een WMO/nonprofit-korting?",
-    a: "Organisaties die uitsluitend met gemeentelijke subsidies (WMO/Participatiewet) worden gefinancierd, kunnen aanspraak maken op 15% korting. Stuur een mail naar hallo@bijeen.nl met je subsidiebeschikking.",
+    q: "Is er korting voor ANBI-stichtingen of WMO-organisaties?",
+    a: "Ja — het Sociaal Tarief geeft 15% korting op alle betaalde abonnementen. Dit tarief geldt voor ANBI-geregistreerde stichtingen én voor organisaties die uitsluitend met WMO- of gemeentelijke subsidies worden gefinancierd. Stuur je RSIN-nummer (uit het ANBI-register) of subsidiebeschikking naar hallo@bijeen.nl. De korting is niet cumulatief: max. 15% per abonnement.",
   },
 ];
 
@@ -429,13 +429,21 @@ export default function PrijzenPage() {
                 subsidiebudgetten. Bijeen is volledig opvoerbaar als IT-post binnen WMO-, IZA- en
                 AZWA-projectbudgetten.
               </p>
-              <a
-                href="mailto:hallo@bijeen.nl?subject=Subsidie factuur aanvragen"
-                className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
-              >
-                Vraag een subsidie-factuur aan
-                <ArrowRight size={14} />
-              </a>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <a
+                  href="mailto:hallo@bijeen.nl?subject=Sociaal tarief aanvragen"
+                  className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+                >
+                  Sociaal tarief aanvragen
+                  <ArrowRight size={14} />
+                </a>
+                <a
+                  href="mailto:hallo@bijeen.nl?subject=WMO-factuur aanvragen"
+                  className="inline-flex items-center gap-2 bg-ink/6 hover:bg-ink/10 border border-ink/10 text-ink/70 font-semibold px-5 py-3 rounded-xl transition-colors text-sm"
+                >
+                  WMO-factuur aanvragen
+                </a>
+              </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
@@ -450,9 +458,9 @@ export default function PrijzenPage() {
                   desc: "Sluit aan bij uw subsidiecyclus — kwartaalrekening van ~€123–€723 i.p.v. een jaarnota.",
                 },
                 {
-                  icon: BadgePercent,
-                  title: "15% WMO-korting",
-                  desc: "Uitsluitend WMO-gefinancierde organisaties ontvangen 15% korting. Mail uw subsidie­beschikking.",
+                  icon: Heart,
+                  title: "Sociaal tarief",
+                  desc: "15% korting voor ANBI-stichtingen en WMO-gefinancierde organisaties. Stuur je RSIN of subsidiebeschikking.",
                 },
               ].map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="bg-cream rounded-2xl border border-sand/60 p-4 sm:p-5">
