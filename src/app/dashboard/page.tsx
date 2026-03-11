@@ -143,7 +143,7 @@ export default async function DashboardPage() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3 mb-5 sm:mb-7">
+      <div data-tour="kpi" className="grid grid-cols-3 gap-3 mb-5 sm:mb-7">
         <KpiCard
           label="Registraties"
           value={totalAttendees.toLocaleString("nl")}
@@ -166,7 +166,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Events list */}
-      <div className="card-base overflow-hidden">
+      <div data-tour="events-list" className="card-base overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-sand/50">
           <div>
             <h2 className="font-bold text-ink text-sm">Aankomende Evenementen</h2>

@@ -43,6 +43,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
       {/* New event CTA */}
       <Link
         href="/dashboard/events/new"
+        data-tour="new-event"
         className="flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 text-white rounded-xl px-3 py-2.5 text-sm font-semibold mb-6 transition-all duration-150 shadow-lg shadow-terra-500/25"
       >
         <Plus size={15} />
@@ -50,7 +51,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
       </Link>
 
       {/* Navigation */}
-      <nav className="flex flex-col gap-0.5 flex-1">
+      <nav data-tour="nav" className="flex flex-col gap-0.5 flex-1">
         {navItems.map(({ href, icon: Icon, label }) => {
           const active = path === href || (href !== "/dashboard" && path.startsWith(href));
           return (

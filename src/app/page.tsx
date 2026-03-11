@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/nav";
 import { MarketingFooter } from "@/components/marketing/footer";
+import { AiAssistant } from "@/components/marketing/ai-assistant";
 
 const features = [
   {
@@ -377,6 +378,9 @@ export default function HomePage() {
       </section>
 
       <MarketingFooter />
+
+      {/* AI chat assistant — floating bottom-right */}
+      <AiAssistant />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
+import { ProductTour } from "@/components/onboarding/product-tour";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -39,6 +40,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
         )}
         {children}
       </main>
+
+      {/* Product tour — auto-starts for new users, client-only */}
+      <ProductTour />
     </div>
   );
 }
