@@ -61,9 +61,8 @@ export function MarketingFooter() {
             © {new Date().getFullYear()} Bijeen — een concept van WeAreImpact.nl
           </p>
           <div className="flex items-center gap-6">
-            <Link href="#" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Privacy</Link>
-            <Link href="#" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">AVG-compliant</Link>
-            <Link href="#" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Verwerkersovereenkomst</Link>
+            <Link href="/privacyverklaring" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Privacy</Link>
+            <Link href="/verwerkersovereenkomst" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Verwerkersovereenkomst</Link>
           </div>
         </div>
       </div>
