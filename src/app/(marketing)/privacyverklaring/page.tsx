@@ -31,7 +31,8 @@ export default function PrivacyverklaringPage() {
           </p>
           <div className="bg-sand/40 rounded-xl p-4 mt-3 text-sm">
             <p><strong>WeAreImpact B.V.</strong></p>
-            <p>KvK: [KVK-nummer]</p>
+            <p>KvK: 70285888</p>
+            <p>Heintje Hoeksteeg 11a, 1012 GR Amsterdam</p>
             <p>E-mail: <a href="mailto:privacy@bijeen.app" className="text-terra-600 underline">privacy@bijeen.app</a></p>
           </div>
         </section>

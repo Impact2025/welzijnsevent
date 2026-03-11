@@ -39,8 +39,8 @@ export default function VerwerkersovereenkomstPage() {
               <p className="text-xs font-bold uppercase tracking-wide text-ink-muted mb-1">Verwerker</p>
               <p className="text-sm">
                 <strong>WeAreImpact B.V.</strong><br />
-                KvK: [KVK-nummer invullen]<br />
-                Adres: [Adres invullen]<br />
+                KvK: 70285888<br />
+                Adres: Heintje Hoeksteeg 11a, 1012 GR Amsterdam<br />
                 E-mail: <a href="mailto:privacy@bijeen.app" className="text-terra-600 underline">privacy@bijeen.app</a><br />
                 hierna: <strong>"Bijeen"</strong> of <strong>"Verwerker"</strong>
               </p>
