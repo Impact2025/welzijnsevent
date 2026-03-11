@@ -8,28 +8,28 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Over ons — Bijeen",
-  description: "Bijeen is gebouwd door WeAreImpact.nl — een Nederlands social tech bedrijf dat digitale producten ontwikkelt voor de welzijns- en zorgsector.",
+  description: "Bijeen is gebouwd door Vincent van Munster — iemand die 15+ jaar sociale events organiseerde en precies weet wat een organisator nodig heeft.",
 };
 
 const stats = [
+  { value: "15+", label: "Jaar ervaring" },
   { value: "AVG", label: "Compliant" },
   { value: "NL", label: "Servers" },
-  { value: "14", label: "Dagen gratis" },
   { value: "100%", label: "Welzijnsfocus" },
 ];
 
 const products = [
-  { icon: Navigation,  name: "IctusGo",                desc: "GPS-gebaseerde teambuilding die buitenactiviteiten combineert met maatschappelijke impact." },
-  { icon: Heart,       name: "VrijwilligersAssistent.nl", desc: "AI-platform dat vrijwilligers matcht met organisaties op basis van passie en beschikbaarheid." },
-  { icon: Bot,         name: "WelzijnsAssistent.AI",   desc: "Intelligente intake-tool die administratie vermindert en contactmomenten vergroot." },
-  { icon: Target,      name: "DatingAssistent.nl",     desc: "Datingsplatform voor mensen met een bijzonder verhaal, ondersteund door AI coaching." },
+  { icon: Navigation, name: "IctusGo",                  desc: "GPS-gebaseerde teambuilding die buitenactiviteiten combineert met maatschappelijke impact." },
+  { icon: Heart,      name: "VrijwilligersAssistent.nl", desc: "AI-platform dat vrijwilligers matcht met organisaties op basis van passie en beschikbaarheid." },
+  { icon: Bot,        name: "WelzijnsAssistent.AI",      desc: "Intelligente intake-tool die administratie vermindert en contactmomenten vergroot." },
+  { icon: Target,     name: "DatingAssistent.nl",        desc: "Datingsplatform voor mensen met een bijzonder verhaal, ondersteund door AI coaching." },
 ];
 
 const values = [
-  { icon: Leaf,      title: "Sector eerst",              desc: "We bouwen voor welzijn — niet voor profit. Onze prijzen zijn eerlijk en onze features relevant voor jouw werk." },
-  { icon: Link2,     title: "Verbinding boven tech",     desc: "De technologie dient de mens. Elk feature begint met: helpt dit mensen dichter bij elkaar brengen?" },
-  { icon: BarChart3, title: "Impact meetbaar maken",     desc: "Goed werk verdient zichtbaarheid. We geven je de data om aan te tonen wat jij al wist: jouw evenementen maken verschil." },
-  { icon: Lock,      title: "Privacy en vertrouwen",     desc: "Deelnemersdata is heilig. Nederlandse servers, AVG-compliant, verwerkersovereenkomst standaard inbegrepen." },
+  { icon: Leaf,      title: "Sector eerst",          desc: "We bouwen voor welzijn — niet voor profit. Onze prijzen zijn eerlijk en onze features relevant voor jouw werk." },
+  { icon: Link2,     title: "Verbinding boven tech",  desc: "De technologie dient de mens. Elk feature begint met: helpt dit mensen dichter bij elkaar brengen?" },
+  { icon: BarChart3, title: "Impact meetbaar maken",  desc: "Goed werk verdient zichtbaarheid. We geven je de data om aan te tonen wat jij al wist: jouw evenementen maken verschil." },
+  { icon: Lock,      title: "Privacy en vertrouwen",  desc: "Deelnemersdata is heilig. Nederlandse servers, AVG-compliant, verwerkersovereenkomst standaard inbegrepen." },
 ];
 
 const demoExpect = [
@@ -39,18 +39,12 @@ const demoExpect = [
   "Geen verkooppraatje, geen verplichtingen",
 ];
 
-const team = [
-  { initials: "MO", name: "Michiel", role: "Oprichter & developer", color: "#C8522A" },
-  { initials: "TM", name: "Team",    role: "Welzijn & implementatie", color: "#2D5A3D" },
-];
-
 export default function OverOnsPage() {
   return (
     <div className="bg-cream min-h-screen pt-16">
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="bg-[#12100E] pt-20 pb-24 sm:pt-28 sm:pb-32 relative overflow-hidden">
-        {/* Glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-terra-500/8 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <div className="inline-flex items-center gap-2 bg-terra-500/15 border border-terra-500/25 text-terra-400 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
@@ -58,9 +52,9 @@ export default function OverOnsPage() {
             Ons verhaal
           </div>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight mb-6">
-            Gebouwd door mensen
+            Gebouwd door iemand die
             <br />
-            <span className="text-terra-400">die de sector kennen.</span>
+            <span className="text-terra-400">de sector van binnenuit kent.</span>
           </h1>
           <p className="text-white/65 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-8">
             Bijeen is geen generiek softwareproduct dat toevallig ook werkt voor welzijn.
@@ -99,102 +93,127 @@ export default function OverOnsPage() {
         </div>
       </section>
 
-      {/* ── VERHAAL ──────────────────────────────────────────────── */}
+      {/* ── VINCENT ──────────────────────────────────────────────── */}
       <section className="py-20 sm:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-            <div className="space-y-6">
-              <div>
-                <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-3">Het waarom</p>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight leading-tight">
-                  We zagen een gat dat gedicht moest worden.
-                </h2>
-              </div>
-              <p className="text-lg text-ink/65 leading-relaxed">
-                We zagen hoe hardwerkende coördinatoren uren verloren aan registratielijsten in Excel.
-                Hoe netwerkbijeenkomsten eindigden zonder dat mensen de juiste mensen hadden ontmoet.
-                Hoe impactvolle evenementen onzichtbaar bleven omdat de data er nooit was.
-              </p>
-              <p className="text-lg text-ink/65 leading-relaxed">
-                Bestaande event-tools zijn gebouwd voor muziekfestivals en congressen — niet voor de
-                buurtcoördinator die 60 vrijwilligers wil verbinden met 40 mantelzorgers.
-              </p>
-              <p className="text-lg font-semibold text-ink leading-relaxed">
-                Dat wilden we veranderen. Dus bouwden we Bijeen.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12 lg:gap-16 items-start">
 
-            {/* Pull-quote */}
-            <div className="lg:pt-8">
-              <div className="bg-[#12100E] rounded-2xl p-8 sm:p-10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-terra-500/10 rounded-full blur-2xl" />
-                <p className="text-[60px] leading-none font-serif text-terra-500/40 mb-4">"</p>
-                <p className="text-white/85 text-lg sm:text-xl leading-relaxed font-medium relative">
-                  Elke welzijnsevenement heeft een verhaal. Bijeen zorgt ervoor dat dat verhaal
-                  verteld kan worden — met data, met impact, met trots.
+            {/* Story */}
+            <div>
+              <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-4">Wie zit er achter Bijeen?</p>
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight leading-tight mb-8">
+                Geen anoniem techbedrijf.
+                <br />
+                <span className="text-ink/50">Eén persoon die de sector van binnenuit kent.</span>
+              </h2>
+
+              <div className="space-y-5 text-lg text-ink/65 leading-relaxed">
+                <p>
+                  Meer dan 15 jaar lang organiseerde ik sociale events. Speeddates voor mensen
+                  met een beperking via DatingAssistent, vrijwilligersdagen met Stichting Philia —
+                  mijn persoonlijk favoriete dag van het jaar — en talloze bijeenkomsten waar mensen
+                  elkaar vonden die elkaar anders nooit hadden ontmoet.
                 </p>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-terra-500 flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">WI</span>
+                <p>
+                  Wat ik al die jaren zag: de events zelf waren waardevol. Maar de tools om ze
+                  te organiseren, te verantwoorden en te bewijzen — die ontbraken volledig.
+                  Eventbrite is gemaakt voor concertkaartjes. Excel is geen subsidieveantwoording.
+                  En wij, in de welzijnssector, verdienen beter.
+                </p>
+                <p className="text-ink font-semibold text-xl">
+                  Dus bouwde ik Bijeen.
+                </p>
+                <p>
+                  Niet als techneut die een markt zag, maar als iemand die elke stoel heeft
+                  neergezet, elke deelnemer heeft verwelkomd, en precies weet wat een organisator
+                  nodig heeft op de dag zelf én de dag erna.
+                </p>
+              </div>
+            </div>
+
+            {/* Founder card */}
+            <div className="lg:sticky lg:top-24">
+              <div className="bg-white rounded-2xl border border-sand/60 overflow-hidden shadow-sm">
+                {/* Top bar */}
+                <div className="h-2 bg-gradient-to-r from-terra-500 to-terra-400" />
+                <div className="p-7">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-white text-lg font-bold shadow-md"
+                      style={{ background: "linear-gradient(135deg, #C8522A 0%, #a8421f 100%)" }}
+                    >
+                      VM
+                    </div>
+                    <div>
+                      <p className="font-extrabold text-ink text-base">Vincent van Munster</p>
+                      <p className="text-sm text-ink/50">Oprichter & bouwer</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white/80 text-sm font-semibold">Team Bijeen</p>
-                    <p className="text-white/35 text-xs">WeAreImpact.nl</p>
+
+                  {/* Pull-quote */}
+                  <div className="bg-cream rounded-xl p-4 mb-5 border border-sand/60">
+                    <p className="text-sm text-ink/70 leading-relaxed italic">
+                      "Ik heb elke stoel neergezet, elke deelnemer verwelkomd. Ik weet precies wat een
+                      organisator nodig heeft op de dag zelf én de dag erna."
+                    </p>
                   </div>
+
+                  {/* Facts */}
+                  <ul className="space-y-2.5">
+                    {[
+                      "15+ jaar events in de welzijnssector",
+                      "Oprichter DatingAssistent.nl",
+                      "Vrijwilligersdag Stichting Philia",
+                      "WeAreImpact.nl — social tech NL",
+                    ].map(fact => (
+                      <li key={fact} className="flex items-center gap-2.5 text-sm text-ink/60">
+                        <Check size={13} className="text-terra-500 shrink-0" />
+                        {fact}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <a
+                    href="mailto:hallo@bijeen.nl"
+                    className="mt-5 flex items-center justify-center gap-2 bg-terra-50 hover:bg-terra-100 border border-terra-200 text-terra-700 text-sm font-semibold py-2.5 rounded-xl transition-colors"
+                  >
+                    <Mail size={14} />
+                    hallo@bijeen.nl
+                  </a>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEAM ─────────────────────────────────────────────────── */}
-      <section className="bg-white py-20 sm:py-24">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-2">De mensen</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-3">
-              Wie zit er achter Bijeen?
-            </h2>
-            <p className="text-ink/55 text-lg max-w-xl mx-auto">
-              Geen anoniem techbedrijf. Mensen met een missie.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl mx-auto">
-            {team.map(({ initials, name, role, color }) => (
-              <div key={name} className="flex items-center gap-4 bg-cream rounded-2xl border border-sand/60 p-5 hover:border-terra-200 hover:shadow-sm transition-all">
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: color }}
-                >
-                  <span className="text-white text-base font-bold">{initials}</span>
-                </div>
-                <div>
-                  <p className="font-bold text-ink">{name}</p>
-                  <p className="text-sm text-ink/55">{role}</p>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>
 
       {/* ── WEAREIMPACT ──────────────────────────────────────────── */}
-      <section id="weareimpact" className="py-20 sm:py-24">
+      <section id="weareimpact" className="bg-white py-20 sm:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="mb-12">
-            <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-2">WeAreImpact.nl</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-3">
-              De holding achter Bijeen
-            </h2>
-            <p className="text-ink/55 text-lg leading-relaxed max-w-2xl">
-              Bijeen is een concept van WeAreImpact.nl — een Nederlands social tech bedrijf dat
-              digitale producten ontwikkelt voor de welzijns- en zorgsector.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start mb-12">
+            <div>
+              <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-3">WeAreImpact.nl</p>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight mb-4">
+                De organisatie achter Bijeen
+              </h2>
+              <p className="text-ink/60 text-lg leading-relaxed">
+                Bijeen is een initiatief van WeAreImpact.nl — een Nederlands social tech bedrijf
+                dat digitale producten ontwikkelt voor de welzijns- en zorgsector.
+              </p>
+            </div>
+            <div className="bg-[#12100E] rounded-2xl p-7 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-terra-500/10 rounded-full blur-2xl" />
+              <p className="text-white/85 text-lg leading-relaxed font-medium relative">
+                "Technologie moet de mensen dienen die maatschappelijke impact maken.
+                Niet andersom."
+              </p>
+              <p className="text-white/35 text-sm mt-4">Overtuiging van WeAreImpact.nl</p>
+            </div>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {products.map(({ icon: Icon, name, desc }) => (
-              <div key={name} className="group bg-white rounded-2xl border border-sand/60 p-5 sm:p-6 hover:border-terra-200 hover:shadow-md transition-all">
+              <div key={name} className="group bg-cream rounded-2xl border border-sand/60 p-5 sm:p-6 hover:border-terra-200 hover:shadow-md transition-all">
                 <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
                   <Icon size={18} strokeWidth={2} />
                 </div>
@@ -207,7 +226,7 @@ export default function OverOnsPage() {
       </section>
 
       {/* ── WAARDEN ──────────────────────────────────────────────── */}
-      <section className="bg-white py-20 sm:py-24">
+      <section className="py-20 sm:py-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-2">Onze waarden</p>
@@ -215,7 +234,7 @@ export default function OverOnsPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             {values.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group rounded-2xl border border-sand/60 bg-cream p-6 sm:p-8 hover:border-terra-200 hover:shadow-md transition-all">
+              <div key={title} className="group bg-white rounded-2xl border border-sand/60 p-6 sm:p-8 hover:border-terra-200 hover:shadow-md transition-all">
                 <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
                   <Icon size={18} strokeWidth={2} />
                 </div>
@@ -233,7 +252,6 @@ export default function OverOnsPage() {
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-            {/* Left: headline + what to expect */}
             <div>
               <p className="text-[11px] font-bold text-terra-400 uppercase tracking-widest mb-4">Gratis demo</p>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-5">
@@ -256,7 +274,6 @@ export default function OverOnsPage() {
               </ul>
             </div>
 
-            {/* Right: contact cards */}
             <div className="space-y-4">
               <a
                 href="mailto:hallo@bijeen.nl?subject=Demo aanvragen"
@@ -266,7 +283,7 @@ export default function OverOnsPage() {
                   <Mail size={20} />
                 </div>
                 <div className="flex-1">
-                  <p className="font-bold text-white text-sm mb-0.5">Mail ons direct</p>
+                  <p className="font-bold text-white text-sm mb-0.5">Mail Vincent direct</p>
                   <p className="text-white/50 text-sm">hallo@bijeen.nl</p>
                   <p className="text-white/30 text-xs mt-1">Reactie binnen 1 werkdag</p>
                 </div>
@@ -274,7 +291,7 @@ export default function OverOnsPage() {
               </a>
 
               <a
-                href="https://wa.me/31612345678?text=Hoi,%20ik%20wil%20graag%20een%20demo%20van%20Bijeen%20aanvragen."
+                href="https://wa.me/31612345678?text=Hoi%20Vincent,%20ik%20wil%20graag%20een%20demo%20van%20Bijeen%20aanvragen."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-5 bg-white/6 hover:bg-white/10 border border-white/10 hover:border-[#25D366]/40 rounded-2xl p-5 sm:p-6 transition-all"
@@ -285,7 +302,7 @@ export default function OverOnsPage() {
                 <div className="flex-1">
                   <p className="font-bold text-white text-sm mb-0.5">WhatsApp</p>
                   <p className="text-white/50 text-sm">Snel even overleggen?</p>
-                  <p className="text-white/30 text-xs mt-1">Direct contact met het team</p>
+                  <p className="text-white/30 text-xs mt-1">Direct contact met Vincent</p>
                 </div>
                 <ArrowRight size={16} className="text-white/20 group-hover:text-[#25D366] transition-colors shrink-0" />
               </a>
@@ -296,9 +313,7 @@ export default function OverOnsPage() {
                 </div>
                 <div>
                   <p className="font-bold text-white/50 text-sm mb-0.5">Gratis · 30 minuten · Vrijblijvend</p>
-                  <p className="text-white/30 text-xs">
-                    We sturen je een Zoom-link na bevestiging
-                  </p>
+                  <p className="text-white/30 text-xs">We sturen je een Zoom-link na bevestiging</p>
                 </div>
               </div>
             </div>
