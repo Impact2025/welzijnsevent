@@ -5,6 +5,7 @@ const footerLinks = {
   Product: [
     { href: "/functies",  label: "Functies"      },
     { href: "/prijzen",   label: "Prijzen"        },
+    { href: "/faq",       label: "FAQ"            },
     { href: "/sign-in",   label: "Inloggen"       },
     { href: "/sign-up",   label: "Gratis starten" },
   ],

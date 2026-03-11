@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { href: "/functies", label: "Functies" },
   { href: "/prijzen",  label: "Prijzen"  },
+  { href: "/faq",      label: "FAQ"      },
   { href: "/over-ons", label: "Over ons" },
 ];
 

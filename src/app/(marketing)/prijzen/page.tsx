@@ -1,11 +1,9 @@
-import Link from "next/link";
-import { Check, Zap, BookOpen, MessageCircle, Shield, Wrench } from "lucide-react";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Prijzen — Bijeen",
-  description: "Transparante prijzen voor eventplatform Bijeen. Betaal per event of kies een voordelig jaarabonnement.",
-};
+import { useState } from "react";
+import Link from "next/link";
+import { Check, ChevronDown, Zap, BookOpen, MessageCircle, Shield, Wrench } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const payPerEvent = [
   {
@@ -108,6 +106,8 @@ const faqs = [
 ];
 
 export default function PrijzenPage() {
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+
   return (
     <div className="bg-cream min-h-screen pt-16">
 
@@ -294,13 +294,42 @@ export default function PrijzenPage() {
             </h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="bg-cream rounded-2xl border border-sand/60 px-5 sm:px-7">
             {faqs.map(({ q, a }) => (
-              <div key={q} className="bg-cream rounded-2xl border border-sand/60 p-5 sm:p-6">
-                <p className="font-bold text-ink mb-2">{q}</p>
-                <p className="text-sm text-ink-muted leading-relaxed">{a}</p>
+              <div key={q} className="border-b border-ink/8 last:border-b-0">
+                <button
+                  onClick={() => setOpenFaq(prev => prev === q ? null : q)}
+                  className="w-full flex items-start justify-between gap-4 py-5 text-left group"
+                  aria-expanded={openFaq === q}
+                >
+                  <span className={cn(
+                    "text-sm font-semibold leading-snug transition-colors",
+                    openFaq === q ? "text-terra-500" : "text-ink group-hover:text-terra-500"
+                  )}>
+                    {q}
+                  </span>
+                  <ChevronDown
+                    size={17}
+                    className={cn("mt-0.5 shrink-0 text-ink/35 transition-transform duration-200", openFaq === q && "rotate-180 text-terra-500")}
+                  />
+                </button>
+                <div className={cn(
+                  "overflow-hidden transition-all duration-200",
+                  openFaq === q ? "max-h-96 opacity-100 pb-5" : "max-h-0 opacity-0"
+                )}>
+                  <p className="text-sm text-ink-muted leading-relaxed">{a}</p>
+                </div>
               </div>
             ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link
+              href="/faq"
+              className="text-sm font-semibold text-terra-500 hover:text-terra-600 underline underline-offset-2 transition-colors"
+            >
+              Bekijk alle veelgestelde vragen →
+            </Link>
           </div>
         </div>
       </section>
