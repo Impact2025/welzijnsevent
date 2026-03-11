@@ -7,8 +7,6 @@
  * size: "sm" | "md" | "lg"
  */
 
-import Image from "next/image";
-
 interface BijeenWordmarkProps {
   variant?: "light" | "dark";
   size?: "sm" | "md" | "lg";
@@ -35,13 +33,13 @@ export function BijeenWordmark({
       style={{ gap, height }}
       aria-label="Bijeen"
     >
-      <Image
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
         src="/Bijeen-logo-icon.png"
         alt=""
         width={iconSize}
         height={iconSize}
         style={{ width: iconSize, height: iconSize, objectFit: "contain" }}
-        priority
       />
       <span
         style={{
@@ -67,8 +65,9 @@ export function BijeenIcon({
   size?: number;
   className?: string;
 }) {
+  // eslint-disable-next-line @next/next/no-img-element
   return (
-    <Image
+    <img
       src="/Bijeen-logo-icon.png"
       alt="Bijeen"
       width={size}
