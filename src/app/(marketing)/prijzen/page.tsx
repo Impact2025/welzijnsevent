@@ -338,18 +338,18 @@ export default function PrijzenPage() {
                       )}>
                         {tier.priceLabel}
                       </span>
-                      {"period" in tier && tier.period && (
+                      {(tier as {period?: string}).period && (
                         <span className={cn("text-sm", tier.highlight ? "text-white/45" : "text-ink/40")}>
-                          {tier.period}
+                          {(tier as {period?: string}).period}
                         </span>
                       )}
                     </div>
                     <p className={cn("text-xs", tier.highlight ? "text-white/45" : "text-ink/45")}>
                       {tier.desc}
                     </p>
-                    {"perEvent" in tier && tier.perEvent && (
+                    {(tier as {perEvent?: string}).perEvent && (
                       <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
-                        {tier.perEvent} gem. · {(tier as typeof jaarTiers[number]).saving} goedkoper
+                        {(tier as {perEvent?: string}).perEvent} gem. · {(tier as {saving?: string}).saving} goedkoper
                       </p>
                     )}
                   </div>

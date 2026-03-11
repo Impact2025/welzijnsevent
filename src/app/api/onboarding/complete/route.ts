@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     // Stuur welkomstmail
     const [user] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
-    if (user?.email) {
+    if (user?.email && expiresAt) {
       sendWelcomeTrialEmail({
         to: user.email,
         firstName: user.name?.split(" ")[0] ?? name.trim().split(" ")[0],
