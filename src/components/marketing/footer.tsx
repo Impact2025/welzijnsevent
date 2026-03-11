@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 
 const footerLinks = {
   Product: [
@@ -26,8 +26,8 @@ export function MarketingFooter() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 mb-12">
           {/* Brand */}
           <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="inline-flex mb-4">
-              <Image src="/Bijeen-logo-footer.png" alt="Bijeen" width={110} height={34} className="h-8 w-auto" />
+            <Link href="/" className="inline-flex items-center px-1 py-1 mb-3">
+              <BijeenWordmark variant="dark" size="md" />
             </Link>
             <p className="text-ink/45 text-sm leading-relaxed">
               Eventplatform voor de welzijnssector. Gebouwd door WeAreImpact.nl.
