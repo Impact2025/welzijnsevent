@@ -9,25 +9,25 @@ import { PLAN_FEATURES, PLAN_LIMITS } from "@/lib/plans";
 
 const PLANS = [
   {
-    key: "trial",
-    name: "Probeer gratis",
+    key: "community",
+    name: "Community",
     price: "€0",
-    period: "14 dagen",
+    period: "voor altijd gratis",
     highlight: false,
     badge: null,
   },
   {
-    key: "starter",
-    name: "Starter",
-    price: "€590",
+    key: "welzijn",
+    name: "Welzijn",
+    price: "€490",
     period: "/jaar",
     highlight: false,
     badge: null,
   },
   {
-    key: "groei",
-    name: "Groei",
-    price: "€1.490",
+    key: "netwerk",
+    name: "Netwerk",
+    price: "€1.290",
     period: "/jaar",
     highlight: true,
     badge: "Meest gekozen",
@@ -35,7 +35,7 @@ const PLANS = [
   {
     key: "organisatie",
     name: "Organisatie",
-    price: "€3.490",
+    price: "€2.890",
     period: "/jaar",
     highlight: false,
     badge: null,
@@ -51,7 +51,7 @@ export default function OnboardingPage() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoError, setLogoError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedPlan, setSelectedPlan] = useState("groei");
+  const [selectedPlan, setSelectedPlan] = useState("netwerk");
   const [loading, setLoading] = useState(false);
   const [checkingExisting, setCheckingExisting] = useState(true);
 

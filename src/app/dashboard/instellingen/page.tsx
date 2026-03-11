@@ -13,7 +13,7 @@ const DEFAULT_NOTIFICATIONS = [
   { key: "weeklyReport",    label: "Wekelijks rapport",  desc: "Samenvatting elke maandag", on: false },
 ];
 
-const UPGRADE_PLANS = ["starter", "groei", "organisatie"] as const;
+const UPGRADE_PLANS = ["welzijn", "netwerk", "organisatie"] as const;
 
 interface Subscription {
   id: string;

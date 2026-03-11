@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { db, organizations, subscriptions, authUsers } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { PLAN_PRICES_CENTS } from "@/lib/plans";
+import { PLAN_PRICES_CENTS, FREE_PLANS } from "@/lib/plans";
 import { sendWelcomeTrialEmail } from "@/lib/email";
 
 const MSP_API_BASE =
@@ -69,13 +69,12 @@ export async function POST(req: Request) {
     org = created;
   }
 
-  if (plan === "trial") {
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 14);
+  if (FREE_PLANS.has(plan)) {
+    const expiresAt = plan === "trial" ? new Date(Date.now() + 14 * 86_400_000) : null;
 
     await db.insert(subscriptions).values({
       organizationId: org.id,
-      plan: "trial",
+      plan,
       status: "active",
       expiresAt,
     });

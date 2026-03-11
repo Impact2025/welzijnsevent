@@ -12,7 +12,7 @@ interface OrgPlanEditorProps {
   onSaved: () => void;
 }
 
-const PLANS = ["trial", "starter", "groei", "organisatie"];
+const PLANS = ["community", "welzijn", "netwerk", "organisatie", "platform", "trial", "starter", "groei"];
 const STATUSES = ["active", "expired", "cancelled", "pending_payment"];
 const STATUS_LABELS: Record<string, string> = {
   active: "Actief",
@@ -21,10 +21,13 @@ const STATUS_LABELS: Record<string, string> = {
   pending_payment: "Betaling lopend",
 };
 const PLAN_LABELS: Record<string, string> = {
-  trial: "Trial", starter: "Starter", groei: "Groei", organisatie: "Organisatie",
+  community: "Community", welzijn: "Welzijn", netwerk: "Netwerk",
+  organisatie: "Organisatie", platform: "Platform",
+  trial: "Trial (legacy)", starter: "Starter (legacy)", groei: "Groei (legacy)",
 };
 const PLAN_PRICES: Record<string, number> = {
-  trial: 0, starter: 59000, groei: 149000, organisatie: 349000,
+  community: 0, welzijn: 49000, netwerk: 129000, organisatie: 289000, platform: 0,
+  trial: 0, starter: 59000, groei: 149000,
 };
 
 export function OrgPlanEditor({

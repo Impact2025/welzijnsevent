@@ -77,7 +77,7 @@ export const OrganizationPatchSchema = z.object({
 
 // ─── Subscriptions ────────────────────────────────────────────────────────────
 export const SubscriptionSchema = z.object({
-  plan: z.enum(["starter", "groei", "organisatie"], {
+  plan: z.enum(["welzijn", "netwerk", "organisatie", "starter", "groei"], {
     errorMap: () => ({ message: "Ongeldig abonnementsplan" }),
   }),
 });
