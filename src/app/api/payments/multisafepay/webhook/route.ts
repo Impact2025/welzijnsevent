@@ -34,8 +34,8 @@ export async function POST(req: Request) {
 
   // Handle subscription payment (order_id starts with "sub_")
   if (rawId.startsWith("sub_")) {
-    const subId = rawId.replace("sub_", "");
-    const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.id, subId));
+    // Match on paymentId (which stores the full order_id)
+    const [sub] = await db.select().from(subscriptions).where(eq(subscriptions.paymentId, rawId));
     if (!sub) return NextResponse.json({ error: "Subscription not found" }, { status: 404 });
 
     if (mspStatus === "completed") {
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       await db
         .update(subscriptions)
         .set({ status: "active", expiresAt, updatedAt: new Date() })
-        .where(eq(subscriptions.id, subId));
+        .where(eq(subscriptions.id, sub.id));
 
       // Stuur betalingsbevestiging
       const [org] = await db.select().from(organizations).where(eq(organizations.id, sub.organizationId));
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       await db
         .update(subscriptions)
         .set({ status: "cancelled", updatedAt: new Date() })
-        .where(eq(subscriptions.id, subId));
+        .where(eq(subscriptions.id, sub.id));
     }
 
     return NextResponse.json({ ok: true });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, organizations, subscriptions, authUsers } from "@/db";
 import { eq, desc } from "drizzle-orm";
+import { randomUUID } from "crypto";
 import { PLAN_PRICES_CENTS } from "@/lib/plans";
 import { sendWelcomeTrialEmail } from "@/lib/email";
 
@@ -118,9 +119,11 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${req.headers.get("host")}`;
 
+  const orderId = `sub_${randomUUID()}`;
+
   const mspPayload = {
     type: "redirect",
-    order_id: `sub_${sub.id}`,
+    order_id: orderId,
     currency: "EUR",
     amount: amountCents,
     description: `Bijeen abonnement — ${plan}`,
@@ -145,7 +148,7 @@ export async function POST(req: Request) {
 
   await db
     .update(subscriptions)
-    .set({ paymentId: `sub_${sub.id}` })
+    .set({ paymentId: orderId })
     .where(eq(subscriptions.id, sub.id));
 
   return NextResponse.json({ paymentUrl: mspData.data.payment_url });
