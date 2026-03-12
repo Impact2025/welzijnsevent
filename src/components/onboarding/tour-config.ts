@@ -2,8 +2,10 @@ export type TourPosition = "top" | "bottom" | "left" | "right";
 
 export interface TourStep {
   id: string;
-  /** CSS selector using data-tour attribute, or null for a centred modal step */
+  /** CSS selector for desktop, or null for a centred modal step */
   target: string | null;
+  /** Overrides target on screens narrower than md (768 px). Omit = use target. null = no spotlight. */
+  targetMobile?: string | null;
   title: string;
   description: string;
   position?: TourPosition;
@@ -13,6 +15,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
     target: null,
+    targetMobile: null,
     title: "Welkom bij Bijeen! 👋",
     description:
       "Je bent er bijna. In 6 korte stappen laten we je zien hoe je evenementen organiseert, deelnemers beheert en live polls en Q&A inzet. Duurt minder dan 2 minuten.",
@@ -21,6 +24,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "new-event",
     target: "[data-tour='new-event']",
+    targetMobile: "[data-tour='new-event-mobile']",
     title: "Maak je eerste evenement",
     description:
       "Klik hier om te starten. Kies een naam, datum en locatie — je event staat in 5 minuten online met een eigen aanmeldpagina en QR check-in.",
@@ -29,6 +33,7 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "nav",
     target: "[data-tour='nav']",
+    targetMobile: "[data-tour='nav-mobile']",
     title: "Alles binnen handbereik",
     description:
       "Via Overzicht zie je je KPI's, via Evenementen beheer je registraties en sessies, en bij Instellingen pas je logo, domein en abonnement aan.",
@@ -53,9 +58,10 @@ export const TOUR_STEPS: TourStep[] = [
   {
     id: "finish",
     target: null,
+    targetMobile: null,
     title: "Je bent helemaal klaar! 🎉",
     description:
-      "Maak je eerste evenement aan en ontdek al het andere onderweg. Heb je hulp nodig? Klik op het ? icoon of stuur ons een bericht. Succes!",
+      "Maak je eerste evenement aan en ontdek al het andere onderweg. Heb je hulp nodig? Stuur ons een bericht. Succes!",
     position: "bottom",
   },
 ];

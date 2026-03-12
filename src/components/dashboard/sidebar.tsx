@@ -112,7 +112,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
     </aside>
 
     {/* Mobile bottom navigation */}
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 pb-safe">
+    <nav data-tour="nav-mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 pb-safe">
       {navItems.map(({ href, icon: Icon, label }) => {
         const active = path === href || (href !== "/dashboard" && path.startsWith(href));
         return (
@@ -131,6 +131,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
       })}
       <Link
         href="/dashboard/events/new"
+        data-tour="new-event-mobile"
         className="flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-150"
       >
         <div className="w-10 h-10 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
