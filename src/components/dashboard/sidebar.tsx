@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOutAction } from "@/actions/auth";
 import { LogOut,
   LayoutDashboard, Calendar, Settings, Plus,
 } from "lucide-react";
@@ -100,13 +100,15 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
               </p>
             )}
           </div>
-          <button
-            onClick={() => signOut({ callbackUrl: "/sign-in" })}
-            title="Uitloggen"
-            className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
-          >
-            <LogOut size={15} />
-          </button>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              title="Uitloggen"
+              className="shrink-0 p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors"
+            >
+              <LogOut size={15} />
+            </button>
+          </form>
         </div>
       </div>
     </aside>

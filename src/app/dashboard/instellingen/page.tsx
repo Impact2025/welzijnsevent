@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Upload, X } from "lucide-react";
+import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Upload, X, LogOut } from "lucide-react";
+import { signOutAction } from "@/actions/auth";
 import { PLAN_FEATURES, PLAN_LIMITS, PLAN_PRICES_CENTS } from "@/lib/plans";
 import { formatDate } from "@/lib/utils";
 
@@ -403,6 +404,17 @@ export default function InstellingenPage() {
             })}
           </div>
         </div>
+
+        {/* Uitloggen — zichtbaar op mobiel (desktop heeft sidebar-knop) */}
+        <form action={signOutAction} className="md:hidden">
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 border border-sand text-ink-muted font-semibold py-3.5 rounded-2xl text-sm hover:bg-sand/60 transition-colors mb-3"
+          >
+            <LogOut size={15} />
+            Uitloggen
+          </button>
+        </form>
 
         {/* Save */}
         <button
