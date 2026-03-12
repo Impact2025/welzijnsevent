@@ -15,7 +15,7 @@ export const TOUR_STEPS: TourStep[] = [
     target: null,
     title: "Welkom bij Bijeen! 👋",
     description:
-      "We laten je in een minuutje zien hoe alles werkt. Je kunt de tour altijd overslaan of later opnieuw starten.",
+      "Je bent er bijna. In 6 korte stappen laten we je zien hoe je evenementen organiseert, deelnemers beheert en live polls en Q&A inzet. Duurt minder dan 2 minuten.",
     position: "bottom",
   },
   {
@@ -23,39 +23,39 @@ export const TOUR_STEPS: TourStep[] = [
     target: "[data-tour='new-event']",
     title: "Maak je eerste evenement",
     description:
-      "Begin hier. Kies een template — vrijwilligersdag, netwerkbijeenkomst, congres — en je bent in 5 minuten live.",
+      "Klik hier om te starten. Kies een naam, datum en locatie — je event staat in 5 minuten online met een eigen aanmeldpagina en QR check-in.",
     position: "right",
   },
   {
     id: "nav",
     target: "[data-tour='nav']",
-    title: "Alles op één plek",
+    title: "Alles binnen handbereik",
     description:
-      "Overzicht, al je evenementen en instellingen vind je hier. Pas je huisstijl, domein en abonnement aan bij Instellingen.",
+      "Via Overzicht zie je je KPI's, via Evenementen beheer je registraties en sessies, en bij Instellingen pas je logo, domein en abonnement aan.",
     position: "right",
   },
   {
     id: "kpi",
     target: "[data-tour='kpi']",
-    title: "Jouw impact in één oogopslag",
+    title: "Jouw impact in cijfers",
     description:
-      "Registraties, tevredenheidsscore en sessies — automatisch bijgehouden. Altijd klaar voor je subsidieaanvraag.",
+      "Registraties, gemiddelde tevredenheidsscore en sessieaantallen worden automatisch bijgehouden. Altijd klaar voor je subsidieaanvraag of jaarverslag.",
     position: "bottom",
   },
   {
     id: "events-list",
     target: "[data-tour='events-list']",
-    title: "Live beheren & AI-koppeling",
+    title: "Live beheren & slimme koppelingen",
     description:
-      "Open een event voor QR check-in, live polls en Q&A. Na afloop genereert AI automatisch de beste netwerkmatches.",
+      "Open een event voor realtime QR check-in, live polls en Q&A. Na afloop genereert AI automatisch de beste netwerkmatches tussen deelnemers.",
     position: "top",
   },
   {
     id: "finish",
     target: null,
-    title: "Je bent er klaar voor! 🎉",
+    title: "Je bent helemaal klaar! 🎉",
     description:
-      "Maak je eerste evenement aan en ontdek al het andere terwijl je bezig bent. Succes!",
+      "Maak je eerste evenement aan en ontdek al het andere onderweg. Heb je hulp nodig? Klik op het ? icoon of stuur ons een bericht. Succes!",
     position: "bottom",
   },
 ];

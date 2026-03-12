@@ -64,6 +64,15 @@
   }
 }
 
+/* ── CONFETTI ANIMATIE ─────────────────────────────────────── */
+
+@keyframes confetti-fall {
+  0%   { opacity: 1; transform: translateY(0px) rotate(0deg) scale(1); }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(105vh) rotate(740deg) scale(0.4); }
+}
+
 /* ── MOBIEL ────────────────────────────────────────────────── */
 
 /* iOS safe-area utilities — gebruik op fixed bottom navs */
