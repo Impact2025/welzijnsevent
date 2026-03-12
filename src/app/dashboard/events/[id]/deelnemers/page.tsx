@@ -114,7 +114,7 @@ export default async function AttendeesPage({
   const paginationBase = `/dashboard/events/${params.id}/deelnemers${baseParams.toString() ? `?${baseParams.toString()}` : ""}`;
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
       {/* Header */}
       <div className="bg-terra-500 text-white px-4 pt-10 pb-5">
         <Link href={`/dashboard/events/${params.id}`} className="text-white/70 text-sm mb-3 inline-block">
@@ -213,8 +213,8 @@ export default async function AttendeesPage({
         </Link>
       )}
 
-      {/* Bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
+      {/* Bottom nav — mobile only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
         {[
           { label: "Dashboard",    icon: "📊", href: "/dashboard" },
           { label: "Events",       icon: "📅", href: "/dashboard/events" },

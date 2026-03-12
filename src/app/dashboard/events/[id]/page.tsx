@@ -23,7 +23,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
   const now = new Date();
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
       {/* Header */}
       <div className="relative bg-terra-500 pt-safe-top pb-6 px-4 text-white">
         <Link href="/dashboard/events" className="inline-flex items-center gap-1.5 text-white/80 text-sm mb-4 hover:text-white py-2 -ml-1">

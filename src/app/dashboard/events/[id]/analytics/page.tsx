@@ -122,7 +122,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
   const ratingStars = avgRating ? Math.round(parseFloat(avgRating)) : 0;
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
       {/* Header */}
       <div className="bg-terra-500 text-white px-4 pt-10 pb-5">
         <div className="flex items-center justify-between mb-3">
@@ -384,8 +384,8 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
         </div>
       </div>
 
-      {/* Bottom nav */}
-      <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
+      {/* Bottom nav — mobile only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
         {[
           { label: "Home", icon: "🏠", href: "/dashboard" },
           { label: "Events", icon: "📅", href: "/dashboard/events" },
