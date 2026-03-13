@@ -4,12 +4,13 @@ import { db, events, sessions } from "@/db";
 import { eq, asc } from "drizzle-orm";
 import { SessionCard } from "@/components/events/session-card";
 import { formatDate, formatTime } from "@/lib/utils";
-import { ArrowLeft, MapPin, Calendar, MoreHorizontal, Filter, Globe, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Filter, Globe, ExternalLink } from "lucide-react";
 import { ShareEventButton } from "@/components/dashboard/share-event-button";
 import { AddSessionForm } from "@/components/events/add-session-form";
 import { EmailActionsPanel } from "@/components/events/email-actions-panel";
 import { CustomFieldsManager } from "@/components/events/custom-fields-manager";
 import { EventTabs } from "@/components/events/event-tabs";
+import { EventActionsMenu } from "@/components/events/event-actions-menu";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
@@ -53,9 +54,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
               </div>
             )}
           </div>
-          <button className="text-white/70 hover:text-white p-2 -mr-2 rounded-xl hover:bg-white/10 transition-colors">
-            <MoreHorizontal size={20} />
-          </button>
+          <EventActionsMenu eventId={event.id} />
         </div>
       </div>
 

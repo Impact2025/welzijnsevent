@@ -610,3 +610,59 @@ function buildConfirmationHtml({
 </body>
 </html>`;
 }
+
+// ─── Custom broadcast ────────────────────────────────────────────────────────
+
+export async function sendCustomBroadcast(props: {
+  to: string;
+  attendeeName: string;
+  eventTitle: string;
+  subject: string;
+  message: string;
+}) {
+  if (!resend) return;
+  const { to, attendeeName, eventTitle, subject, message } = props;
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject,
+    html: buildBroadcastHtml({ attendeeName, eventTitle, message }),
+  });
+}
+
+function buildBroadcastHtml({ attendeeName, eventTitle, message }: {
+  attendeeName: string; eventTitle: string; message: string;
+}) {
+  const paragraphs = message
+    .split(/\n\n+/)
+    .map(p => `<p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 16px;">${p.replace(/\n/g, "<br>")}</p>`)
+    .join("");
+  return `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="100" height="30" style="height:30px;width:auto;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8431F 100%);padding:32px;text-align:center;">
+        <p style="color:rgba(255,255,255,0.75);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">${eventTitle}</p>
+        <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0;">Bericht van de organisatie</h1>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:15px;font-weight:700;margin:0 0 20px;">Beste ${attendeeName},</p>
+        ${paragraphs}
+        <p style="color:#9E9890;font-size:13px;margin:24px 0 0;padding-top:20px;border-top:1px solid #F0E8DC;">
+          Je ontvangt dit bericht omdat je geregistreerd bent voor <strong>${eventTitle}</strong>.
+        </p>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`;
+}

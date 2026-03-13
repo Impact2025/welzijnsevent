@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Send, CheckCircle2, Loader2, Bell, Star } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, Bell, Star, Megaphone, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 
@@ -29,6 +29,10 @@ export function EmailActionsPanel({
   const [reminderCount, setReminderCount] = useState<number | null>(null);
   const [thankYouCount, setThankYouCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [broadcastOpen, setBroadcastOpen] = useState(false);
+  const [broadcastForm, setBroadcastForm] = useState({ subject: "", message: "", segment: "all" as "all" | "aangemeld" | "ingecheckt" });
+  const [broadcastState, setBroadcastState] = useState<"idle" | "loading" | "done">("idle");
+  const [broadcastResult, setBroadcastResult] = useState<{ sent: number; total: number } | null>(null);
 
   const sendReminder = async () => {
     setReminderState("loading");
@@ -42,6 +46,26 @@ export function EmailActionsPanel({
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fout bij versturen");
       setReminderState("idle");
+    }
+  };
+
+  const sendBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBroadcastState("loading");
+    setError(null);
+    try {
+      const res = await fetch(`/api/events/${eventId}/send-broadcast`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(broadcastForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Mislukt");
+      setBroadcastResult(data);
+      setBroadcastState("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fout bij versturen");
+      setBroadcastState("idle");
     }
   };
 
@@ -153,6 +177,82 @@ export function EmailActionsPanel({
             )}
             {thankYouState === "done" ? "Verstuurd" : "Sturen"}
           </button>
+        </div>
+
+        {/* Vrij bericht */}
+        <div className="p-4">
+          <button
+            type="button"
+            onClick={() => { setBroadcastOpen(o => !o); setBroadcastState("idle"); setBroadcastResult(null); }}
+            className="flex items-center justify-between w-full"
+          >
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
+                <Megaphone size={14} className="text-purple-600" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-ink">Vrij bericht sturen</p>
+                <p className="text-xs text-ink-muted">Aankondiging of update naar deelnemers</p>
+              </div>
+            </div>
+            {broadcastOpen ? <ChevronUp size={14} className="text-ink-muted" /> : <ChevronDown size={14} className="text-ink-muted" />}
+          </button>
+
+          {broadcastOpen && (
+            broadcastState === "done" && broadcastResult ? (
+              <div className="mt-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2">
+                <CheckCircle2 size={14} className="text-green-600 shrink-0" />
+                <p className="text-sm text-green-700 font-semibold">
+                  Verstuurd naar {broadcastResult.sent} deelnemer{broadcastResult.sent !== 1 ? "s" : ""}
+                  {broadcastResult.total > broadcastResult.sent ? ` (van ${broadcastResult.total})` : ""}
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={sendBroadcast} className="mt-3 space-y-3">
+                {/* Segment */}
+                <div className="flex gap-2">
+                  {(["all", "aangemeld", "ingecheckt"] as const).map(s => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setBroadcastForm(f => ({ ...f, segment: s }))}
+                      className={`flex-1 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                        broadcastForm.segment === s
+                          ? "border-terra-400 bg-terra-50 text-terra-700"
+                          : "border-sand text-ink-muted hover:border-terra-200"
+                      }`}
+                    >
+                      {s === "all" ? "Iedereen" : s === "aangemeld" ? "Aangemeld" : "Ingecheckt"}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  required
+                  type="text"
+                  placeholder="Onderwerpregel"
+                  value={broadcastForm.subject}
+                  onChange={e => setBroadcastForm(f => ({ ...f, subject: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl border border-sand text-sm text-ink focus:outline-none focus:border-terra-400"
+                />
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Schrijf hier je bericht…"
+                  value={broadcastForm.message}
+                  onChange={e => setBroadcastForm(f => ({ ...f, message: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-xl border border-sand text-sm text-ink focus:outline-none focus:border-terra-400 resize-none"
+                />
+                <button
+                  type="submit"
+                  disabled={broadcastState === "loading" || !broadcastForm.subject || !broadcastForm.message}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-terra-500 text-white text-sm font-bold hover:bg-terra-600 disabled:opacity-50 transition-colors"
+                >
+                  {broadcastState === "loading" ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                  {broadcastState === "loading" ? "Versturen…" : "Bericht versturen"}
+                </button>
+              </form>
+            )
+          )}
         </div>
 
         {/* Survey link bekijken */}
