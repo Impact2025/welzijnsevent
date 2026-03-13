@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Copy, Trash2, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { MoreHorizontal, Copy, Trash2, Loader2, Pencil } from "lucide-react";
 
 interface Props {
   eventId: string;
@@ -70,6 +71,15 @@ export function EventActionsMenu({ eventId }: Props) {
 
       {open && (
         <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-2xl shadow-xl border border-sand overflow-hidden z-50">
+          <Link
+            href={`/dashboard/events/${eventId}/edit`}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-ink hover:bg-sand/60 transition-colors"
+          >
+            <Pencil size={14} className="text-ink-muted" />
+            Bewerk evenement
+          </Link>
+          <div className="h-px bg-sand mx-3" />
           <button
             onClick={handleDuplicate}
             className="flex items-center gap-3 w-full px-4 py-3 text-sm text-ink hover:bg-sand/60 transition-colors"

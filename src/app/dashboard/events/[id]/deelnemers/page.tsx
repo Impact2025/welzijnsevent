@@ -3,7 +3,7 @@ import { eq, count } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
-import { SlidersHorizontal, UserPlus, FileUp } from "lucide-react";
+import { SlidersHorizontal, UserPlus, FileUp, ScanLine } from "lucide-react";
 import { SearchInput } from "@/components/events/search-input";
 import { FilterTabs } from "@/components/events/filter-tabs";
 import { Pagination } from "@/components/ui/pagination";
@@ -205,9 +205,16 @@ export default async function AttendeesPage({
         </>
       )}
 
-      {/* FABs — new + import */}
+      {/* FABs — scan + import + new */}
       {activeTab !== "wachtlijst" && (
         <div className="fixed bottom-20 right-4 flex flex-col gap-2 items-end">
+          <Link
+            href={`/dashboard/events/${params.id}/scan`}
+            className="flex items-center gap-2 bg-green-500 text-white text-xs font-bold rounded-full shadow-lg px-4 py-2 hover:bg-green-600 transition-colors"
+          >
+            <ScanLine size={14} />
+            Scanner
+          </Link>
           <Link
             href={`/dashboard/events/${params.id}/deelnemers/import`}
             className="flex items-center gap-2 bg-white border border-sand text-ink-muted text-xs font-semibold rounded-full shadow px-4 py-2 hover:bg-sand transition-colors"

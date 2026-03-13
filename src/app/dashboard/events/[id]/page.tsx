@@ -11,6 +11,7 @@ import { EmailActionsPanel } from "@/components/events/email-actions-panel";
 import { CustomFieldsManager } from "@/components/events/custom-fields-manager";
 import { EventTabs } from "@/components/events/event-tabs";
 import { EventActionsMenu } from "@/components/events/event-actions-menu";
+import { EventStatusPanel } from "@/components/events/event-status-panel";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
@@ -59,6 +60,9 @@ export default async function EventDetailPage({ params }: { params: { id: string
       </div>
 
       <EventTabs eventId={params.id} />
+
+      {/* Status beheer */}
+      <EventStatusPanel eventId={event.id} initialStatus={event.status as "draft" | "published" | "live" | "ended"} />
 
       {/* Uitnodigingslink */}
       {event.isPublic && event.slug && (
