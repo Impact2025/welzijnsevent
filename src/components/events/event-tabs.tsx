@@ -2,47 +2,155 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  Calendar, Users, Mic2, Building2, Ticket,
+  Radio, Network, BarChart3, Globe, MoreHorizontal, X,
+} from "lucide-react";
 
-const TABS = [
-  { label: "Programma",    segment: ""           },
-  { label: "Deelnemers",   segment: "deelnemers" },
-  { label: "Sprekers",     segment: "sprekers"   },
-  { label: "Sponsors",     segment: "sponsors"   },
-  { label: "Tickets",      segment: "tickets"    },
-  { label: "Netwerk",      segment: "netwerk"    },
-  { label: "Statistieken", segment: "analytics"  },
-  { label: "Website",      segment: "website"    },
+const PRIMARY_TABS = [
+  { label: "Programma",    segment: "",           icon: Calendar  },
+  { label: "Deelnemers",   segment: "deelnemers", icon: Users     },
+  { label: "Live",         segment: "live",       icon: Radio     },
+  { label: "Statistieken", segment: "analytics",  icon: BarChart3 },
 ];
+
+const MORE_TABS = [
+  { label: "Sprekers", segment: "sprekers", icon: Mic2      },
+  { label: "Sponsors", segment: "sponsors", icon: Building2 },
+  { label: "Tickets",  segment: "tickets",  icon: Ticket    },
+  { label: "Netwerk",  segment: "netwerk",  icon: Network   },
+  { label: "Website",  segment: "website",  icon: Globe     },
+];
+
+const ALL_TABS = [...PRIMARY_TABS, ...MORE_TABS];
 
 export function EventTabs({ eventId }: { eventId: string }) {
   const pathname = usePathname();
   const base = `/dashboard/events/${eventId}`;
+  const [meerOpen, setMeerOpen] = useState(false);
+
+  function isActive(segment: string) {
+    if (segment === "") return pathname === base;
+    return pathname.startsWith(`${base}/${segment}`);
+  }
+
+  const anyMoreActive = MORE_TABS.some(t => isActive(t.segment));
 
   return (
-    <div className="border-b border-sand px-4">
-      <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-        {TABS.map(({ label, segment }) => {
-          const href = segment ? `${base}/${segment}` : base;
-          const active = segment === ""
-            ? pathname === base
-            : pathname.startsWith(`${base}/${segment}`);
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors",
-                active
-                  ? "text-terra-500 border-terra-500"
-                  : "text-ink-muted border-transparent hover:text-ink"
-              )}
-            >
-              {label}
-            </Link>
-          );
-        })}
+    <>
+      <div className="border-b border-sand relative">
+
+        {/* Desktop: alle 9 tabs in één rij met icoon + label */}
+        <div className="hidden md:flex overflow-x-auto scrollbar-hide px-6">
+          {ALL_TABS.map(({ label, segment, icon: Icon }) => {
+            const href = segment ? `${base}/${segment}` : base;
+            const active = isActive(segment);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors shrink-0",
+                  active
+                    ? "text-terra-500 border-terra-500"
+                    : "text-ink-muted border-transparent hover:text-ink"
+                )}
+              >
+                <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Mobiel: 4 primaire tabs + "Meer"-knop */}
+        <div className="md:hidden flex overflow-x-auto scrollbar-hide px-4 pr-10">
+          {PRIMARY_TABS.map(({ label, segment, icon: Icon }) => {
+            const href = segment ? `${base}/${segment}` : base;
+            const active = isActive(segment);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors shrink-0",
+                  active
+                    ? "text-terra-500 border-terra-500"
+                    : "text-ink-muted border-transparent hover:text-ink"
+                )}
+              >
+                <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+                {label}
+              </Link>
+            );
+          })}
+          <button
+            onClick={() => setMeerOpen(true)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors shrink-0",
+              anyMoreActive
+                ? "text-terra-500 border-terra-500"
+                : "text-ink-muted border-transparent hover:text-ink"
+            )}
+          >
+            <MoreHorizontal size={14} />
+            Meer
+          </button>
+        </div>
+
+        {/* Fade rechts als scroll-hint (mobiel) */}
+        <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
       </div>
-    </div>
+
+      {/* "Meer" bottom sheet — mobiel */}
+      {meerOpen && (
+        <div className="fixed inset-0 z-50 md:hidden" onClick={() => setMeerOpen(false)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl pb-safe"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
+              <p className="text-sm font-bold text-ink">Meer</p>
+              <button
+                onClick={() => setMeerOpen(false)}
+                className="p-1.5 rounded-xl hover:bg-sand transition-colors"
+              >
+                <X size={16} className="text-ink-muted" />
+              </button>
+            </div>
+            <div className="p-3 space-y-1">
+              {MORE_TABS.map(({ label, segment, icon: Icon }) => {
+                const href = `${base}/${segment}`;
+                const active = isActive(segment);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMeerOpen(false)}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3.5 rounded-xl transition-colors",
+                      active ? "bg-terra-50 text-terra-600" : "text-ink hover:bg-sand/50"
+                    )}
+                  >
+                    <Icon
+                      size={18}
+                      className={active ? "text-terra-500" : "text-ink-muted"}
+                      strokeWidth={active ? 2.5 : 2}
+                    />
+                    <span className="text-sm font-semibold">{label}</span>
+                    {active && (
+                      <span className="ml-auto w-1.5 h-1.5 rounded-full bg-terra-500" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,6 +1,6 @@
 export default function EventDetailLoading() {
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen animate-pulse">
+    <div className="w-full md:max-w-4xl md:mx-auto bg-white min-h-screen animate-pulse">
       {/* Header */}
       <div className="bg-terra-500/30 px-4 pt-10 pb-6">
         <div className="h-4 w-16 bg-white/30 rounded-full mb-4" />

@@ -17,7 +17,7 @@ export default async function SpeakersPage({ params }: { params: { id: string } 
     .orderBy(asc(speakers.sortOrder), asc(speakers.createdAt));
 
   return (
-    <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
+    <div className="w-full md:max-w-4xl md:mx-auto bg-white min-h-screen">
       {/* Header */}
       <div className="bg-terra-500 text-white px-4 pt-10 pb-6">
         <Link

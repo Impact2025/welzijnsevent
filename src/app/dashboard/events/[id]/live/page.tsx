@@ -179,7 +179,7 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
   }
 
   return (
-    <div className="max-w-md md:max-w-2xl mx-auto min-h-screen bg-white flex flex-col">
+    <div className="w-full md:max-w-4xl md:mx-auto min-h-screen bg-white flex flex-col">
       {/* Toast */}
       {toast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-green-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg animate-fade-in">
@@ -477,22 +477,6 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
         )}
       </div>
 
-      {/* Bottom nav — mobile only */}
-      <div className="md:hidden bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
-        {[
-          { label: "Dashboard", icon: "📊", href: "/dashboard" },
-          { label: "Events",    icon: "📅", href: "/dashboard/events", active: true },
-          { label: "Stats",     icon: "📈", href: `#` },
-          { label: "Opties",    icon: "⚙️", href: "/dashboard/instellingen" },
-        ].map(item => (
-          <Link key={item.label} href={item.href}
-            className={`flex flex-col items-center gap-0.5 text-xs font-medium px-3 py-1 ${item.active ? "text-terra-500" : "text-ink-muted"}`}
-          >
-            <span className="text-base">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

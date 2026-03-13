@@ -70,7 +70,7 @@ export default async function NetwerkPage({ params }: { params: { id: string } }
   const otherMatches = enrichedMatches.filter((m) => (m.match.score ?? 0) < 0.6);
 
   return (
-    <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
+    <div className="w-full md:max-w-4xl md:mx-auto bg-white min-h-screen">
       {/* Header */}
       <div className="bg-terra-500 text-white px-4 pt-10 pb-5">
         <Link
@@ -151,26 +151,6 @@ export default async function NetwerkPage({ params }: { params: { id: string } }
         )}
       </div>
 
-      {/* Bottom nav — mobile only */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-sand flex justify-around pt-2 pb-safe-nav">
-        {[
-          { label: "Home", icon: "🏠", href: "/dashboard" },
-          { label: "Events", icon: "📅", href: "/dashboard/events" },
-          { label: "Netwerk", icon: "🔗", href: "#", active: true },
-          { label: "Opties", icon: "⚙️", href: "/dashboard/instellingen" },
-        ].map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={`flex flex-col items-center gap-0.5 text-xs font-medium px-3 py-1 ${
-              item.active ? "text-terra-500" : "text-ink-muted"
-            }`}
-          >
-            <span className="text-base">{item.icon}</span>
-            {item.label}
-          </Link>
-        ))}
-      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, Globe, Copy, Check, ExternalLink, Plus, Trash2 } from "lucide-react";
 import { EventTabs } from "@/components/events/event-tabs";
+import { AiGenButton } from "@/components/ui/ai-gen-button";
 
 type Event = {
   id: string;
@@ -138,7 +139,7 @@ export default function WebsiteTab() {
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white min-h-screen pb-24">
+    <div className="w-full md:max-w-4xl md:mx-auto bg-white min-h-screen pb-24">
       {/* Header */}
       <div className="relative bg-terra-500 pt-10 pb-6 px-4 text-white">
         <Link href={`/dashboard/events/${params.id}`} className="flex items-center gap-1 text-white/80 text-sm mb-4 hover:text-white">
@@ -206,7 +207,15 @@ export default function WebsiteTab() {
 
           {/* Tagline */}
           <div>
-            <label className="block text-xs font-semibold text-ink-muted mb-1.5">Tagline (korte slogan)</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-ink-muted">Tagline (korte slogan)</label>
+              <AiGenButton
+                type="tagline"
+                context={{ title: event?.title ?? "" }}
+                onResult={(text) => setForm(f => ({ ...f, tagline: text.split("\n")[0] }))}
+                disabled={!event?.title}
+              />
+            </div>
             <input
               type="text"
               value={form.tagline}
