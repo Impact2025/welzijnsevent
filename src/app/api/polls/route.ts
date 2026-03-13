@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db, polls } from "@/db";
 import { eq } from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { sendEventPush } from "@/lib/push";
 import { PollSchema, PollPatchSchema, validationError } from "@/lib/validation";
 
 export async function GET(req: Request) {
@@ -42,6 +43,13 @@ export async function POST(req: Request) {
       options:   data.options,
       isActive:  true,
     }).returning();
+
+    // Notify subscribers a new poll is live
+    sendEventPush(data.eventId, {
+      title: "📊 Nieuwe poll",
+      body:  data.question,
+      url:   `/e/${data.eventId}/live`,
+    }).catch(console.error);
 
     return NextResponse.json({ poll }, { status: 201 });
   } catch (err) {

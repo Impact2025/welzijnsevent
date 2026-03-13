@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, attendees } from "@/db";
 import { eq } from "drizzle-orm";
 import { pusherServer, getEventChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { awardPoints, ACTIONS } from "@/lib/gamification";
 
 export async function POST(req: Request) {
   try {
@@ -19,6 +20,9 @@ export async function POST(req: Request) {
       PUSHER_EVENTS.ATTENDEE_CHECKIN,
       { attendeeId, name: updated.name }
     );
+
+    // Gamification: award check-in points (fire-and-forget)
+    awardPoints(attendeeId, eventId, ACTIONS.CHECKIN.key, ACTIONS.CHECKIN.points).catch(console.error);
 
     return NextResponse.json({ attendee: updated });
   } catch (err) {

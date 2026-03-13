@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { db, orders, attendees, ticketTypes, subscriptions, organizations, authUsers } from "@/db";
+import { db, orders, attendees, ticketTypes, events, subscriptions, organizations, authUsers } from "@/db";
 import { eq } from "drizzle-orm";
+import { randomUUID } from "crypto";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
-import { sendPaymentConfirmationEmail } from "@/lib/email";
+import { sendPaymentConfirmationEmail, sendRegistrationConfirmation } from "@/lib/email";
+import { formatDateTime } from "@/lib/utils";
 
 const MSP_API_BASE =
   process.env.MULTISAFEPAY_ENV === "live"
@@ -91,13 +93,16 @@ export async function POST(req: Request) {
 
   // On successful payment: create attendee and update soldCount
   if (newStatus === "paid" && !order.attendeeId) {
+    const qrCode = randomUUID();
+
     const [attendee] = await db
       .insert(attendees)
       .values({
         eventId: order.eventId,
-        name: order.customerName,
-        email: order.customerEmail,
-        status: "aangemeld",
+        name:    order.customerName,
+        email:   order.customerEmail,
+        status:  "aangemeld",
+        qrCode,
       })
       .returning();
 
@@ -111,6 +116,21 @@ export async function POST(req: Request) {
           .set({ soldCount: (ticket.soldCount ?? 0) + 1 })
           .where(eq(ticketTypes.id, ticket.id));
       }
+    }
+
+    // Send confirmation email with ticket link
+    const [event] = await db.select().from(events).where(eq(events.id, order.eventId));
+    if (event) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+      sendRegistrationConfirmation({
+        to:            order.customerEmail,
+        name:          order.customerName,
+        eventTitle:    event.title,
+        eventDate:     formatDateTime(event.startsAt),
+        eventLocation: event.location,
+        qrCode,
+        appUrl,
+      }).catch(console.error);
     }
   }
 

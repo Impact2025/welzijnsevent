@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Clock, MapPin, User, AlignLeft } from "lucide-react";
+import { Plus, X, Clock, MapPin, User, AlignLeft, Video } from "lucide-react";
 
 export function AddSessionForm({
   eventId,
@@ -30,6 +30,7 @@ export function AddSessionForm({
     speaker:     "",
     speakerOrg:  "",
     location:    "",
+    streamUrl:   "",
     startsAt:    defaultStart,
     endsAt:      defaultEnd,
   });
@@ -52,13 +53,14 @@ export function AddSessionForm({
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({
           ...form,
-          startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
-          endsAt:   form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
+          streamUrl: form.streamUrl || null,
+          startsAt:  form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
+          endsAt:    form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
           eventId,
         }),
       });
       if (!res.ok) throw new Error();
-      setForm({ title: "", description: "", speaker: "", speakerOrg: "", location: "", startsAt: defaultStart, endsAt: defaultEnd });
+      setForm({ title: "", description: "", speaker: "", speakerOrg: "", location: "", streamUrl: "", startsAt: defaultStart, endsAt: defaultEnd });
       setOpen(false);
       router.refresh();
     } catch {
@@ -189,6 +191,21 @@ export function AddSessionForm({
             onChange={set("location")}
             className="w-full text-sm border border-sand rounded-xl px-3 py-2.5 outline-none focus:border-terra-400 transition-colors"
           />
+        </div>
+
+        {/* Stream URL */}
+        <div>
+          <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-1">
+            <span className="flex items-center gap-1"><Video size={10} /> Stream URL (hybride)</span>
+          </label>
+          <input
+            type="url"
+            placeholder="https://youtube.com/live/... of Teams-link"
+            value={form.streamUrl}
+            onChange={set("streamUrl")}
+            className="w-full text-sm border border-sand rounded-xl px-3 py-2.5 outline-none focus:border-terra-400 transition-colors"
+          />
+          <p className="text-[10px] text-ink-muted/60 mt-1">Optioneel: deelnemers online kunnen meekijken tijdens de sessie</p>
         </div>
 
         {/* Knoppen */}

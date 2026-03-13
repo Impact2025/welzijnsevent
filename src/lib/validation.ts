@@ -31,6 +31,7 @@ export const SessionSchema = z.object({
   speaker:     z.string().max(200).optional(),
   speakerOrg:  z.string().max(200).optional(),
   location:    z.string().max(500).optional(),
+  streamUrl:   z.string().url().max(500).optional().nullable(),
   startsAt:    z.string().datetime(),
   endsAt:      z.string().datetime(),
   capacity:    z.number().int().positive().max(10_000).optional().nullable(),
@@ -38,9 +39,10 @@ export const SessionSchema = z.object({
 });
 
 export const SessionPatchSchema = z.object({
-  id:      z.string().uuid("Ongeldig sessie-id"),
-  isLive:  z.boolean(),
-  eventId: z.string().uuid().optional(),
+  id:        z.string().uuid("Ongeldig sessie-id"),
+  isLive:    z.boolean().optional(),
+  streamUrl: z.string().url().max(500).optional().nullable(),
+  eventId:   z.string().uuid().optional(),
 });
 
 // ─── Polls ────────────────────────────────────────────────────────────────────

@@ -166,11 +166,11 @@ export default function RegisterPage() {
             waitlistToken: waitlistToken ?? undefined,
           }),
         });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error ?? "Registratie mislukt");
-        }
-        router.push(`/e/${params.slug}/register/success${langParam}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? "Registratie mislukt");
+        const token = data.attendee?.qrCode;
+        const tokenParam = token ? `&token=${token}` : "";
+        router.push(`/e/${params.slug}/register/success${langParam ? langParam : "?"}${tokenParam}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Er is iets misgegaan");

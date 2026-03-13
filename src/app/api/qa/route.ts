@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { db, qaMessages } from "@/db";
+import { db, qaMessages, attendees } from "@/db";
 import { eq } from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { awardPoints, ACTIONS } from "@/lib/gamification";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -33,6 +34,17 @@ export async function POST(req: Request) {
     PUSHER_EVENTS.QA_NEW,
     message
   );
+
+  // Gamification: award points if question is non-anonymous and author is identifiable
+  if (!body.isAnonymous && body.authorEmail) {
+    const [attendee] = await db
+      .select({ id: attendees.id })
+      .from(attendees)
+      .where(eq(attendees.email, body.authorEmail));
+    if (attendee) {
+      awardPoints(attendee.id, body.eventId, ACTIONS.QA_QUESTION.key, ACTIONS.QA_QUESTION.points).catch(console.error);
+    }
+  }
 
   return NextResponse.json({ message }, { status: 201 });
 }

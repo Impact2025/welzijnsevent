@@ -95,6 +95,7 @@ export default async function NetwerkPage({ params }: { params: { id: string } }
           {[
             { label: "Programma", href: `/dashboard/events/${params.id}` },
             { label: "Deelnemers", href: `/dashboard/events/${params.id}/deelnemers` },
+            { label: "Tickets", href: `/dashboard/events/${params.id}/tickets` },
             { label: "Netwerk", href: `/dashboard/events/${params.id}/netwerk`, active: true },
             { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
           ].map((tab) => (

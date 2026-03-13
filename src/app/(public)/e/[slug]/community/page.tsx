@@ -2,8 +2,9 @@ import { db, events, attendees, networkMatches } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { EventNav } from "@/components/public/event-nav";
+import { Leaderboard } from "@/components/public/leaderboard";
 import { getInitials, avatarColor, cn } from "@/lib/utils";
-import { Users, Sparkles, UserCheck } from "lucide-react";
+import { Users, Sparkles, UserCheck, Trophy } from "lucide-react";
 
 export default async function CommunityPage({ params }: { params: { slug: string } }) {
   const [event] = await db.select().from(events).where(eq(events.slug, params.slug));
@@ -30,6 +31,15 @@ export default async function CommunityPage({ params }: { params: { slug: string
       <EventNav slug={params.slug} eventTitle={event.title} primaryColor={primaryColor} />
 
       <div className="max-w-2xl mx-auto px-4 py-5 space-y-5 pb-24">
+
+        {/* Leaderboard */}
+        <div>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <Trophy size={13} style={{ color: primaryColor }} />
+            <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Scorebord</p>
+          </div>
+          <Leaderboard eventId={event.id} primaryColor={primaryColor} />
+        </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-3">

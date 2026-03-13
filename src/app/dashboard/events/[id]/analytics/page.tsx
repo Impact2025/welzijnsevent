@@ -3,8 +3,9 @@ import { eq, count, and, avg } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { DonutChart, SessionBars } from "@/components/analytics/impact-chart";
 import { SubsidieExportButton } from "@/components/analytics/subsidie-export-button";
+import { LiveStats } from "@/components/analytics/live-stats";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Network, Star, Users, TrendingUp, MessageCircle, ThumbsUp } from "lucide-react";
+import { ArrowLeft, Network, Star, Users, TrendingUp, MessageCircle, ThumbsUp, Radio } from "lucide-react";
 import Link from "next/link";
 
 export default async function AnalyticsPage({ params }: { params: { id: string } }) {
@@ -145,6 +146,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
           {[
             { label: "Programma", href: `/dashboard/events/${params.id}` },
             { label: "Deelnemers", href: `/dashboard/events/${params.id}/deelnemers` },
+            { label: "Tickets", href: `/dashboard/events/${params.id}/tickets` },
             { label: "Netwerk", href: `/dashboard/events/${params.id}/netwerk` },
             { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics`, active: true },
           ].map((tab) => (
@@ -164,6 +166,18 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
       </div>
 
       <div className="p-4 space-y-4">
+
+        {/* Real-time stats — shown for live or published events */}
+        {(event.status === "live" || event.status === "published") && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-3">
+              <Radio size={13} className="text-red-500" />
+              <p className="text-[10px] font-bold text-ink-muted uppercase tracking-wider">Real-time</p>
+            </div>
+            <LiveStats eventId={params.id} primaryColor={event.websiteColor ?? "#C8522A"} />
+          </div>
+        )}
+
         {/* KPI row 1 */}
         <div className="grid grid-cols-2 gap-3">
           <div className="card-base p-4 flex flex-col items-center">

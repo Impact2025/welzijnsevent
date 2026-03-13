@@ -139,6 +139,9 @@ export default async function AttendeesPage({
             { label: "Programma",    href: `/dashboard/events/${params.id}` },
             { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers`, active: activeTab === "deelnemers" },
             { label: `Wachtlijst${waitingCount > 0 ? ` (${waitingCount})` : ""}`, href: `/dashboard/events/${params.id}/deelnemers?tab=wachtlijst`, active: activeTab === "wachtlijst" },
+            { label: "Sprekers",     href: `/dashboard/events/${params.id}/sprekers` },
+            { label: "Sponsors",     href: `/dashboard/events/${params.id}/sponsors` },
+            { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets` },
             { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
             { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
           ].map(tab => (

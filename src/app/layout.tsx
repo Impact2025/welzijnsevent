@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "./providers";
+import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
 
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="nl" suppressHydrationWarning>
       <body className={`${jakarta.variable} min-h-screen bg-cream font-sans`}>
         <Providers>
+          <PwaRegister />
           {children}
         </Providers>
       </body>

@@ -1,5 +1,5 @@
 import { formatTime, cn } from "@/lib/utils";
-import { MapPin, Check } from "lucide-react";
+import { MapPin, Check, Video } from "lucide-react";
 import type { Session } from "@/db/schema";
 
 interface SessionCardProps {
@@ -44,9 +44,23 @@ export function SessionCard({ session, isPast }: SessionCardProps) {
       )}>
         {/* Live badge */}
         {session.isLive && !isPast && (
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-2 h-2 rounded-full bg-terra-500 animate-pulse" />
-            <span className="text-xs font-bold text-terra-600 uppercase tracking-wide">Live nu</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-terra-500 animate-pulse" />
+              <span className="text-xs font-bold text-terra-600 uppercase tracking-wide">Live nu</span>
+            </div>
+            {session.streamUrl && (
+              <a
+                href={session.streamUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={e => e.stopPropagation()}
+                className="flex items-center gap-1 text-[11px] font-bold text-white bg-terra-500 hover:bg-terra-600 px-2.5 py-1 rounded-full transition-colors"
+              >
+                <Video size={10} />
+                Online meekijken
+              </a>
+            )}
           </div>
         )}
 
@@ -79,6 +93,14 @@ export function SessionCard({ session, isPast }: SessionCardProps) {
             <div className="flex items-center gap-1 text-xs text-ink-muted">
               <MapPin size={10} />
               {session.location}
+            </div>
+          )}
+
+          {/* Stream indicator (not live yet) */}
+          {session.streamUrl && !session.isLive && (
+            <div className="flex items-center gap-1 text-xs text-blue-500">
+              <Video size={10} />
+              Hybride
             </div>
           )}
         </div>

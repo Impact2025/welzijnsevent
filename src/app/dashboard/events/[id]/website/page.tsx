@@ -154,6 +154,7 @@ export default function WebsiteTab() {
           {[
             { label: "Programma",    href: `/dashboard/events/${params.id}` },
             { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers` },
+            { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets` },
             { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
             { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
             { label: "Website",      href: `/dashboard/events/${params.id}/website`, active: true },

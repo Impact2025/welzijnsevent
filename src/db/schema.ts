@@ -104,6 +104,8 @@ export const sessions = pgTable("sessions", {
   startsAt:    timestamp("starts_at").notNull(),
   endsAt:      timestamp("ends_at").notNull(),
   isLive:      boolean("is_live").default(false),
+  streamUrl:   text("stream_url"),
+  // YouTube/Vimeo/Teams live stream URL for hybrid events
   capacity:    integer("capacity"),
   sortOrder:   integer("sort_order").default(0),
   createdAt:   timestamp("created_at").defaultNow(),
@@ -321,6 +323,62 @@ export const adminAuditLog = pgTable("admin_audit_log", {
   createdAt:     timestamp("created_at").defaultNow(),
 });
 
+// ── GAMIFICATION ───────────────────────────────────────────
+export const attendeePoints = pgTable("attendee_points", {
+  id:          uuid("id").defaultRandom().primaryKey(),
+  attendeeId:  uuid("attendee_id").references(() => attendees.id, { onDelete: "cascade" }).notNull(),
+  eventId:     uuid("event_id").references(() => events.id,    { onDelete: "cascade" }).notNull(),
+  action:      text("action").notNull(),
+  // checkin | qa_question | network_match_accept | survey_complete
+  points:      integer("points").notNull(),
+  createdAt:   timestamp("created_at").defaultNow(),
+});
+
+export const attendeeBadges = pgTable("attendee_badges", {
+  id:          uuid("id").defaultRandom().primaryKey(),
+  attendeeId:  uuid("attendee_id").references(() => attendees.id, { onDelete: "cascade" }).notNull(),
+  eventId:     uuid("event_id").references(() => events.id,    { onDelete: "cascade" }).notNull(),
+  badgeId:     text("badge_id").notNull(),
+  // references built-in badge ID string
+  earnedAt:    timestamp("earned_at").defaultNow(),
+});
+
+// ── PUSH SUBSCRIPTIONS ─────────────────────────────────────
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id:        uuid("id").defaultRandom().primaryKey(),
+  eventId:   uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  endpoint:  text("endpoint").notNull(),
+  auth:      text("auth").notNull(),
+  p256dh:    text("p256dh").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// ── SPEAKERS ───────────────────────────────────────────────
+export const speakers = pgTable("speakers", {
+  id:          uuid("id").defaultRandom().primaryKey(),
+  eventId:     uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  name:        text("name").notNull(),
+  bio:         text("bio"),
+  photoUrl:    text("photo_url"),
+  company:     text("company"),
+  linkedinUrl: text("linkedin_url"),
+  sortOrder:   integer("sort_order").default(0),
+  createdAt:   timestamp("created_at").defaultNow(),
+});
+
+// ── SPONSORS ───────────────────────────────────────────────
+export const sponsors = pgTable("sponsors", {
+  id:        uuid("id").defaultRandom().primaryKey(),
+  eventId:   uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  name:      text("name").notNull(),
+  logoUrl:   text("logo_url"),
+  websiteUrl: text("website_url"),
+  tier:      text("tier").default("silver"),
+  // gold | silver | bronze
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -339,3 +397,8 @@ export type WaitlistEntry      = typeof waitlist.$inferSelect;
 export type SocialWallPost     = typeof socialWallPosts.$inferSelect;
 export type SurveyResponse     = typeof surveyResponses.$inferSelect;
 export type CustomFormField    = typeof customFormFields.$inferSelect;
+export type AttendeePoints     = typeof attendeePoints.$inferSelect;
+export type AttendeeBadge      = typeof attendeeBadges.$inferSelect;
+export type PushSubscription   = typeof pushSubscriptions.$inferSelect;
+export type Speaker            = typeof speakers.$inferSelect;
+export type Sponsor            = typeof sponsors.$inferSelect;

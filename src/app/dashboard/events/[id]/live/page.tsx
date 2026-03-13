@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Settings, Play, Square, EyeOff, Eye, Trash2 } from "lucide-react";
+import { ArrowLeft, Settings, Play, Square, EyeOff, Eye, Trash2, Bell, Send, Video, X } from "lucide-react";
 import Link from "next/link";
 import { QAMessageCard } from "@/components/live/qa-message";
 import { PollWidget } from "@/components/live/poll-widget";
@@ -138,6 +138,46 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
     s.speaker ? [{ name: s.speaker, org: s.speakerOrg, session: s.title }] : []
   );
 
+  // ── Stream URL editing state ───────────────────────────────
+  const [streamEdit, setStreamEdit]   = useState<string | null>(null); // sessionId being edited
+  const [streamInput, setStreamInput] = useState("");
+
+  async function saveStreamUrl(sessionId: string) {
+    const res = await fetch("/api/sessions", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: sessionId, streamUrl: streamInput || null }),
+    });
+    const data = await res.json();
+    if (data.session) {
+      setSessions(prev => prev.map(s => s.id === data.session.id ? data.session : s));
+    }
+    setStreamEdit(null);
+    setStreamInput("");
+  }
+
+  // ── Push notification panel state ─────────────────────────
+  const [pushTitle, setPushTitle]   = useState("");
+  const [pushBody, setPushBody]     = useState("");
+  const [pushSending, setPushSending] = useState(false);
+
+  async function sendPush() {
+    if (!pushTitle.trim() || !pushBody.trim()) return;
+    setPushSending(true);
+    try {
+      await fetch("/api/push/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: params.id, title: pushTitle.trim(), body: pushBody.trim() }),
+      });
+      setPushTitle("");
+      setPushBody("");
+      setToast("Notificatie verstuurd");
+    } finally {
+      setPushSending(false);
+    }
+  }
+
   return (
     <div className="max-w-md md:max-w-2xl mx-auto min-h-screen bg-white flex flex-col">
       {/* Toast */}
@@ -247,10 +287,78 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
                       )}
                     </button>
                   </div>
+
+                  {/* Stream URL row */}
+                  {streamEdit === session.id ? (
+                    <div className="mt-2.5 flex gap-2">
+                      <input
+                        value={streamInput}
+                        onChange={e => setStreamInput(e.target.value)}
+                        placeholder="https://youtube.com/live/..."
+                        className="flex-1 text-xs px-2.5 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/30 focus:outline-none focus:border-terra-400"
+                      />
+                      <button
+                        onClick={() => saveStreamUrl(session.id)}
+                        className="text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors"
+                      >
+                        OK
+                      </button>
+                      <button
+                        onClick={() => { setStreamEdit(null); setStreamInput(""); }}
+                        className="p-1.5 rounded-lg text-white/40 hover:text-white/70"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => { setStreamEdit(session.id); setStreamInput(session.streamUrl ?? ""); }}
+                      className={`mt-2 flex items-center gap-1.5 text-[10px] font-bold transition-colors ${
+                        session.streamUrl
+                          ? "text-blue-400 hover:text-blue-300"
+                          : session.isLive ? "text-white/30 hover:text-white/60" : "text-ink-muted/50 hover:text-ink-muted"
+                      }`}
+                    >
+                      <Video size={10} />
+                      {session.streamUrl ? "Stream URL instellen" : "Stream URL toevoegen"}
+                    </button>
+                  )}
                 </div>
               ))
             )}
           </>
+        )}
+
+        {/* Push notification panel — always in programma tab */}
+        {activeTab === "programma" && (
+          <div className="rounded-2xl bg-[#2A2420] p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Bell size={14} className="text-terra-400" />
+              <h3 className="text-sm font-bold text-white">Stuur pushmelding</h3>
+            </div>
+            <input
+              value={pushTitle}
+              onChange={e => setPushTitle(e.target.value)}
+              placeholder="Titel  (bv. Lunch begint zo)"
+              maxLength={60}
+              className="w-full px-3 py-2 rounded-xl bg-white/10 text-white text-sm placeholder-white/30 border border-white/10 focus:outline-none focus:border-terra-400"
+            />
+            <input
+              value={pushBody}
+              onChange={e => setPushBody(e.target.value)}
+              placeholder="Bericht (bv. Zie je bij de entree)"
+              maxLength={120}
+              className="w-full px-3 py-2 rounded-xl bg-white/10 text-white text-sm placeholder-white/30 border border-white/10 focus:outline-none focus:border-terra-400"
+            />
+            <button
+              onClick={sendPush}
+              disabled={pushSending || !pushTitle.trim() || !pushBody.trim()}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-terra-500 hover:bg-terra-600 text-white text-sm font-bold transition-colors disabled:opacity-40"
+            >
+              <Send size={13} />
+              {pushSending ? "Versturen..." : "Verstuur naar abonnees"}
+            </button>
+          </div>
         )}
 
         {/* PUBLIEK TAB */}

@@ -2,11 +2,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { db, events, sessions, ticketTypes } from "@/db";
+import { db, events, sessions, ticketTypes, speakers, sponsors } from "@/db";
 import { eq, asc } from "drizzle-orm";
 import { formatDate, formatTime } from "@/lib/utils";
-import { Calendar, MapPin, Clock, ExternalLink, Ticket } from "lucide-react";
+import { Calendar, CalendarPlus, MapPin, Clock, ExternalLink, Ticket } from "lucide-react";
 import { EventNav } from "@/components/public/event-nav";
+import { PushSubscribeButton } from "@/components/public/push-subscribe-button";
 import nlDict from "@/i18n/nl.json";
 import enDict from "@/i18n/en.json";
 
@@ -62,6 +63,18 @@ export default async function PublicEventPage({
     .where(eq(ticketTypes.eventId, event.id))
     .orderBy(asc(ticketTypes.sortOrder));
 
+  const eventSpeakers = await db
+    .select()
+    .from(speakers)
+    .where(eq(speakers.eventId, event.id))
+    .orderBy(asc(speakers.sortOrder), asc(speakers.createdAt));
+
+  const eventSponsors = await db
+    .select()
+    .from(sponsors)
+    .where(eq(sponsors.eventId, event.id))
+    .orderBy(asc(sponsors.sortOrder), asc(sponsors.createdAt));
+
   const primaryColor = event.websiteColor ?? "#C8522A";
   const minPrice = tickets.length > 0
     ? Math.min(...tickets.filter(t => t.isActive).map(t => t.price))
@@ -69,7 +82,8 @@ export default async function PublicEventPage({
 
   const langParam = searchParams.lang === "en" ? "?lang=en" : "";
 
-  const speakers = eventSessions
+  // Speakers: prefer DB speakers table, fallback to unique names from sessions
+  const sessionSpeakers = eventSessions
     .filter(s => s.speaker)
     .reduce<{ name: string; org: string | null }[]>((acc, s) => {
       if (!acc.find(sp => sp.name === s.speaker)) {
@@ -120,6 +134,23 @@ export default async function PublicEventPage({
                   {event.location}
                 </span>
               )}
+              <a
+                href={`/api/public/events/${params.slug}/ical`}
+                download
+                className="flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full hover:bg-white/30 transition-colors"
+              >
+                <CalendarPlus size={12} />
+                {t.add_to_calendar}
+              </a>
+            </div>
+
+            {/* Push subscribe — floats to the right of the hero chips */}
+            <div className="mt-2">
+              <PushSubscribeButton
+                eventId={event.id}
+                eventSlug={params.slug}
+                primaryColor="rgba(255,255,255,0.9)"
+              />
             </div>
           </div>
         </div>
@@ -208,26 +239,107 @@ export default async function PublicEventPage({
           </section>
         )}
 
-        {/* Speakers */}
-        {speakers.length > 0 && (
+        {/* Speakers — rich cards from DB, fallback to session names */}
+        {(eventSpeakers.length > 0 || sessionSpeakers.length > 0) && (
           <section className="animate-fade-in" style={{ animationDelay: "200ms" }}>
             <h2 className="text-lg font-bold text-gray-900 mb-4">{t.speakers}</h2>
             <div className="grid grid-cols-2 gap-3">
-              {speakers.map((sp) => (
-                <div key={sp.name} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
-                  <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {sp.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{sp.name}</p>
-                    {sp.org && <p className="text-xs text-gray-500 truncate">{sp.org}</p>}
+              {eventSpeakers.length > 0
+                ? eventSpeakers.map((sp) => (
+                    <div key={sp.id} className="flex flex-col items-center text-center p-4 rounded-2xl border border-gray-100 bg-gray-50 gap-2">
+                      {/* Avatar / Photo */}
+                      <div
+                        className="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center text-white text-lg font-bold flex-shrink-0"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        {sp.photoUrl ? (
+                          <Image
+                            src={sp.photoUrl}
+                            alt={sp.name}
+                            width={56}
+                            height={56}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          sp.name.charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div className="min-w-0 w-full">
+                        <p className="text-sm font-bold text-gray-900 truncate">{sp.name}</p>
+                        {sp.company && <p className="text-xs text-gray-500 truncate">{sp.company}</p>}
+                        {sp.bio && <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{sp.bio}</p>}
+                      </div>
+                      {sp.linkedinUrl && (
+                        <a
+                          href={sp.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-medium hover:underline"
+                          style={{ color: primaryColor }}
+                        >
+                          LinkedIn →
+                        </a>
+                      )}
+                    </div>
+                  ))
+                : sessionSpeakers.map((sp) => (
+                    <div key={sp.name} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        {sp.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">{sp.name}</p>
+                        {sp.org && <p className="text-xs text-gray-500 truncate">{sp.org}</p>}
+                      </div>
+                    </div>
+                  ))
+              }
+            </div>
+          </section>
+        )}
+
+        {/* Sponsors */}
+        {eventSponsors.length > 0 && (
+          <section className="animate-fade-in" style={{ animationDelay: "275ms" }}>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Sponsors</h2>
+            {(["gold", "silver", "bronze"] as const).map((tier) => {
+              const tierSponsors = eventSponsors.filter((s) => s.tier === tier);
+              if (tierSponsors.length === 0) return null;
+              const tierLabels = { gold: "Goud", silver: "Zilver", bronze: "Brons" };
+              return (
+                <div key={tier} className="mb-4">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">
+                    {tierLabels[tier]}
+                  </p>
+                  <div className={`grid gap-3 ${tier === "gold" ? "grid-cols-2" : "grid-cols-3"}`}>
+                    {tierSponsors.map((sp) => (
+                      <a
+                        key={sp.id}
+                        href={sp.websiteUrl ?? undefined}
+                        target={sp.websiteUrl ? "_blank" : undefined}
+                        rel="noopener noreferrer"
+                        className={`flex items-center justify-center p-3 rounded-xl border border-gray-100 bg-white transition-colors ${sp.websiteUrl ? "hover:border-gray-200 hover:shadow-sm" : "cursor-default"}`}
+                      >
+                        {sp.logoUrl ? (
+                          <Image
+                            src={sp.logoUrl}
+                            alt={sp.name}
+                            width={tier === "gold" ? 80 : 56}
+                            height={tier === "gold" ? 40 : 28}
+                            className="object-contain"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold text-gray-500 text-center">{sp.name}</span>
+                        )}
+                      </a>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
+              );
+            })}
           </section>
         )}
 
@@ -260,6 +372,19 @@ export default async function PublicEventPage({
             </div>
           </section>
         )}
+
+        {/* Add to calendar */}
+        <section className="animate-fade-in" style={{ animationDelay: "300ms" }}>
+          <a
+            href={`/api/public/events/${params.slug}/ical`}
+            download
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-dashed text-sm font-medium transition-colors hover:bg-gray-50"
+            style={{ borderColor: `${primaryColor}50`, color: primaryColor }}
+          >
+            <CalendarPlus size={15} />
+            {t.add_to_calendar}
+          </a>
+        </section>
 
         {/* Spacer for floating CTA */}
         <div className="h-4" />

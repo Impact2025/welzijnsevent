@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { db, sessions } from "@/db";
 import { eq } from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
+import { sendEventPush } from "@/lib/push";
 import { SessionSchema, SessionPatchSchema, validationError } from "@/lib/validation";
 
 export async function GET(req: Request) {
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
       speaker:     data.speaker,
       speakerOrg:  data.speakerOrg,
       location:    data.location,
+      streamUrl:   data.streamUrl ?? null,
       startsAt:    new Date(data.startsAt),
       endsAt:      new Date(data.endsAt),
       capacity:    data.capacity,
@@ -66,20 +68,33 @@ export async function PATCH(req: Request) {
       return NextResponse.json(validationError(parsed.error), { status: 422 });
     }
 
-    const { id, isLive, eventId } = parsed.data;
+    const { id, isLive, streamUrl, eventId } = parsed.data;
+
+    const patch: Record<string, unknown> = {};
+    if (isLive    !== undefined) patch.isLive    = isLive;
+    if (streamUrl !== undefined) patch.streamUrl = streamUrl;
 
     const [updated] = await db
       .update(sessions)
-      .set({ isLive })
+      .set(patch)
       .where(eq(sessions.id, id))
       .returning();
 
-    if (eventId) {
+    if (eventId && isLive !== undefined) {
       await pusherServer.trigger(
         getLiveChannel(eventId),
         isLive ? PUSHER_EVENTS.SESSION_STARTED : PUSHER_EVENTS.SESSION_ENDED,
         updated
       );
+
+      if (isLive) {
+        // Fire-and-forget: don't block the response
+        sendEventPush(eventId, {
+          title: "🎤 Nu live",
+          body:  updated.title + (updated.streamUrl ? " · Online meekijken beschikbaar" : ""),
+          url:   `/e/${eventId}`,
+        }).catch(console.error);
+      }
     }
 
     return NextResponse.json({ session: updated });
