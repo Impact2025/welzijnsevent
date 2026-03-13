@@ -9,6 +9,7 @@ import { ShareEventButton } from "@/components/dashboard/share-event-button";
 import { AddSessionForm } from "@/components/events/add-session-form";
 import { EmailActionsPanel } from "@/components/events/email-actions-panel";
 import { CustomFieldsManager } from "@/components/events/custom-fields-manager";
+import { EventTabs } from "@/components/events/event-tabs";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
   const [event] = await db.select().from(events).where(eq(events.id, params.id));
@@ -58,33 +59,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-sand px-4">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {[
-            { label: "Programma",    href: `/dashboard/events/${params.id}`, active: true },
-            { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers` },
-            { label: "Sprekers",     href: `/dashboard/events/${params.id}/sprekers` },
-            { label: "Sponsors",     href: `/dashboard/events/${params.id}/sponsors` },
-            { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets` },
-            { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
-            { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
-            { label: "Website",      href: `/dashboard/events/${params.id}/website` },
-          ].map(tab => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                tab.active
-                  ? "text-terra-500 border-terra-500"
-                  : "text-ink-muted border-transparent hover:text-ink"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <EventTabs eventId={params.id} />
 
       {/* Uitnodigingslink */}
       {event.isPublic && event.slug && (

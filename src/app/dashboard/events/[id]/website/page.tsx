@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, Globe, Copy, Check, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { EventTabs } from "@/components/events/event-tabs";
 
 type Event = {
   id: string;
@@ -148,31 +149,7 @@ export default function WebsiteTab() {
         <p className="text-white/70 text-xs mt-1">Publieke website</p>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-sand px-4">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {[
-            { label: "Programma",    href: `/dashboard/events/${params.id}` },
-            { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers` },
-            { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets` },
-            { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
-            { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
-            { label: "Website",      href: `/dashboard/events/${params.id}/website`, active: true },
-          ].map(tab => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                tab.active
-                  ? "text-terra-500 border-terra-500"
-                  : "text-ink-muted border-transparent hover:text-ink"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <EventTabs eventId={params.id} />
 
       <div className="px-4 pt-5 space-y-6">
         {/* Public URL preview */}

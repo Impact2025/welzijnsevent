@@ -5,6 +5,7 @@ import { Network, Users, Sparkles, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { GenerateMatchesButton } from "@/components/netwerk/generate-matches-button";
 import { getInitials, avatarColor } from "@/lib/utils";
+import { EventTabs } from "@/components/events/event-tabs";
 
 function parseReason(raw: string | null): { reason: string; starter?: string } {
   if (!raw) return { reason: "" };
@@ -89,30 +90,7 @@ export default async function NetwerkPage({ params }: { params: { id: string } }
         </p>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-sand px-4">
-        <div className="flex gap-4 overflow-x-auto">
-          {[
-            { label: "Programma", href: `/dashboard/events/${params.id}` },
-            { label: "Deelnemers", href: `/dashboard/events/${params.id}/deelnemers` },
-            { label: "Tickets", href: `/dashboard/events/${params.id}/tickets` },
-            { label: "Netwerk", href: `/dashboard/events/${params.id}/netwerk`, active: true },
-            { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
-          ].map((tab) => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                tab.active
-                  ? "text-terra-500 border-terra-500"
-                  : "text-ink-muted border-transparent hover:text-ink"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <EventTabs eventId={params.id} />
 
       <div className="p-4 pb-28 space-y-5">
         {/* AI Match Generator */}

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Euro, ShoppingBag, CheckCircle2, XCircle, Clock, Ticket } from "lucide-react";
 import { TicketTypesManager } from "@/components/events/ticket-types-manager";
+import { EventTabs } from "@/components/events/event-tabs";
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
   paid:      { label: "Betaald",    color: "text-green-600 bg-green-50" },
@@ -40,16 +41,6 @@ export default async function TicketsPage({ params }: { params: { id: string } }
   const totalRevenue = paidOrders.reduce((s, o) => s + o.amount, 0);
   const totalTicketsSold = paidOrders.length;
 
-  const tabs = [
-    { label: "Programma",    href: `/dashboard/events/${params.id}` },
-    { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers` },
-    { label: "Sprekers",     href: `/dashboard/events/${params.id}/sprekers` },
-    { label: "Sponsors",     href: `/dashboard/events/${params.id}/sponsors` },
-    { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets`, active: true },
-    { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
-    { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
-    { label: "Website",      href: `/dashboard/events/${params.id}/website` },
-  ];
 
   return (
     <div className="max-w-md md:max-w-2xl mx-auto bg-white min-h-screen">
@@ -63,24 +54,7 @@ export default async function TicketsPage({ params }: { params: { id: string } }
         <p className="text-white/70 text-xs">Ticketbeheer &amp; bestellingen</p>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-sand px-4">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {tabs.map(tab => (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={`py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                tab.active
-                  ? "text-terra-500 border-terra-500"
-                  : "text-ink-muted border-transparent hover:text-ink"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <EventTabs eventId={params.id} />
 
       <div className="p-4 space-y-5">
 

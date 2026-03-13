@@ -9,6 +9,7 @@ import { FilterTabs } from "@/components/events/filter-tabs";
 import { Pagination } from "@/components/ui/pagination";
 import { WaitlistTab } from "@/components/attendees/waitlist-tab";
 import { ExportButton } from "@/components/attendees/export-button";
+import { EventTabs } from "@/components/events/event-tabs";
 import type { Attendee, WaitlistEntry } from "@/db/schema";
 
 const PAGE_SIZE = 25;
@@ -132,28 +133,26 @@ export default async function AttendeesPage({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-sand px-4">
-        <div className="flex gap-4 overflow-x-auto">
-          {[
-            { label: "Programma",    href: `/dashboard/events/${params.id}` },
-            { label: "Deelnemers",   href: `/dashboard/events/${params.id}/deelnemers`, active: activeTab === "deelnemers" },
-            { label: `Wachtlijst${waitingCount > 0 ? ` (${waitingCount})` : ""}`, href: `/dashboard/events/${params.id}/deelnemers?tab=wachtlijst`, active: activeTab === "wachtlijst" },
-            { label: "Sprekers",     href: `/dashboard/events/${params.id}/sprekers` },
-            { label: "Sponsors",     href: `/dashboard/events/${params.id}/sponsors` },
-            { label: "Tickets",      href: `/dashboard/events/${params.id}/tickets` },
-            { label: "Netwerk",      href: `/dashboard/events/${params.id}/netwerk` },
-            { label: "Statistieken", href: `/dashboard/events/${params.id}/analytics` },
-          ].map(tab => (
-            <Link key={tab.href} href={tab.href}
-              className={`py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                tab.active ? "text-terra-500 border-terra-500" : "text-ink-muted border-transparent hover:text-ink"
-              }`}
-            >
-              {tab.label}
-            </Link>
-          ))}
-        </div>
+      <EventTabs eventId={params.id} />
+
+      {/* Deelnemers / Wachtlijst sub-tabs */}
+      <div className="flex gap-4 px-4 border-b border-sand/50">
+        <Link
+          href={`/dashboard/events/${params.id}/deelnemers`}
+          className={`py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors ${
+            activeTab === "deelnemers" ? "text-ink border-ink" : "text-ink-muted border-transparent hover:text-ink"
+          }`}
+        >
+          Lijst
+        </Link>
+        <Link
+          href={`/dashboard/events/${params.id}/deelnemers?tab=wachtlijst`}
+          className={`py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors ${
+            activeTab === "wachtlijst" ? "text-ink border-ink" : "text-ink-muted border-transparent hover:text-ink"
+          }`}
+        >
+          Wachtlijst{waitingCount > 0 ? ` (${waitingCount})` : ""}
+        </Link>
       </div>
 
       {activeTab === "wachtlijst" ? (
