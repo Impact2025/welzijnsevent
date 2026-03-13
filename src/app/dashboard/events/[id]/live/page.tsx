@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, Settings, Play, Square, EyeOff, Eye, Trash2, Bell, Send, Video, X } from "lucide-react";
+import { ArrowLeft, Settings, Play, Square, EyeOff, Eye, Trash2, Bell, Send, Video, X, ScanLine } from "lucide-react";
 import Link from "next/link";
 import { QAMessageCard } from "@/components/live/qa-message";
 import { PollWidget } from "@/components/live/poll-widget";
 import { getPusherClient, getEventChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import type { QAMessage, Poll, Session, SocialWallPost } from "@/db";
+import { EventTabs } from "@/components/events/event-tabs";
 
 export default function LiveControlPage({ params }: { params: { id: string } }) {
   const [sessions, setSessions]   = useState<Session[]>([]);
@@ -187,11 +188,17 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
         </div>
       )}
 
+      <EventTabs eventId={params.id} />
+
       {/* Dark header */}
       <div className="bg-[#1C1814] text-white px-4 py-3">
         <div className="flex items-center justify-between mb-3">
-          <Link href={`/dashboard/events/${params.id}`} className="text-white/60 hover:text-white">
-            <ArrowLeft size={20} />
+          <Link
+            href={`/dashboard/events/${params.id}/scan`}
+            className="flex items-center gap-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs font-bold px-3 py-1.5 rounded-xl transition-colors"
+          >
+            <ScanLine size={13} />
+            Check-in scanner
           </Link>
           <button className="text-white/60 hover:text-white">
             <Settings size={20} />
