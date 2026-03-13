@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Star, Loader2 } from "lucide-react";
-import { BADGES } from "@/lib/gamification";
+import { BADGES } from "@/lib/gamification-constants";
 
 interface Stats {
   totalPoints: number;
