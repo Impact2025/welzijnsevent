@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Trash2, Plus, ExternalLink, ChevronUp } from "lucide-react";
 import type { Sponsor } from "@/db/schema";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface Props {
   eventId: string;
@@ -150,23 +151,41 @@ export function SponsorsManager({ eventId, initialSponsors }: Props) {
             </button>
           </div>
 
-          {[
-            { key: "name",       label: "Naam *",       placeholder: "Stichting Welzijn", type: "text", required: true  },
-            { key: "logoUrl",    label: "Logo-URL",      placeholder: "https://...",       type: "url",  required: false },
-            { key: "websiteUrl", label: "Website-URL",   placeholder: "https://...",       type: "url",  required: false },
-          ].map(({ key, label, placeholder, type, required }) => (
-            <div key={key}>
-              <label className="block text-xs font-semibold text-ink mb-1">{label}</label>
-              <input
-                type={type}
-                value={form[key as keyof typeof form] as string}
-                onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                placeholder={placeholder}
-                required={required}
-                className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
-              />
-            </div>
-          ))}
+          {/* Name */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Naam *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="Stichting Welzijn"
+              required
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
+            />
+          </div>
+
+          {/* Logo upload */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Logo</label>
+            <ImageUpload
+              value={form.logoUrl}
+              onChange={url => setForm(f => ({ ...f, logoUrl: url }))}
+              aspectRatio="logo"
+              placeholder="Sleep het sponsorlogo of klik"
+            />
+          </div>
+
+          {/* Website */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Website-URL</label>
+            <input
+              type="url"
+              value={form.websiteUrl}
+              onChange={e => setForm(f => ({ ...f, websiteUrl: e.target.value }))}
+              placeholder="https://..."
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
+            />
+          </div>
 
           {/* Tier picker */}
           <div>

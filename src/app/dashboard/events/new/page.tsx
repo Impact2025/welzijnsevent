@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, MapPin, Users, Clock, Globe, Link2, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { AiGenButton } from "@/components/ui/ai-gen-button";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 const YEAR = new Date().getFullYear();
 
@@ -110,6 +112,7 @@ export default function NewEventPage() {
     maxAttendees: "",
     tagline: "",
     isPublic: true,
+    coverImage: "",
   });
 
   const slugPreview =
@@ -152,6 +155,7 @@ export default function NewEventPage() {
           startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
           endsAt:   form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
           maxAttendees: form.maxAttendees ? parseInt(form.maxAttendees) : undefined,
+          coverImage: form.coverImage || undefined,
         }),
       });
       const data = await res.json();
@@ -245,11 +249,32 @@ export default function NewEventPage() {
           />
         </div>
 
-        {/* Tagline */}
+        {/* Cover image */}
         <div className="card-base p-5">
           <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
-            Tagline
+            Omslagfoto
           </label>
+          <ImageUpload
+            value={form.coverImage}
+            onChange={(url) => setForm((f) => ({ ...f, coverImage: url }))}
+            aspectRatio="wide"
+            placeholder="Sleep een omslagfoto of klik om te uploaden"
+          />
+        </div>
+
+        {/* Tagline */}
+        <div className="card-base p-5">
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">
+              Tagline
+            </label>
+            <AiGenButton
+              type="tagline"
+              context={{ title: form.title }}
+              onResult={(text) => setForm((f) => ({ ...f, tagline: text.split("\n")[0] }))}
+              disabled={!form.title}
+            />
+          </div>
           <input
             type="text"
             placeholder="bijv. Samen bouwen aan een betere wijk"
@@ -261,9 +286,17 @@ export default function NewEventPage() {
 
         {/* Description */}
         <div className="card-base p-5">
-          <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider mb-2">
-            Beschrijving
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">
+              Beschrijving
+            </label>
+            <AiGenButton
+              type="description"
+              context={{ title: form.title, type: "evenement" }}
+              onResult={(text) => setForm((f) => ({ ...f, description: text }))}
+              disabled={!form.title}
+            />
+          </div>
           <textarea
             placeholder="Waar gaat het evenement over?"
             value={form.description}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X, Clock, MapPin, User, AlignLeft, Video } from "lucide-react";
+import { AiGenButton } from "@/components/ui/ai-gen-button";
 
 export function AddSessionForm({
   eventId,
@@ -113,9 +114,17 @@ export function AddSessionForm({
 
         {/* Beschrijving */}
         <div>
-          <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-1">
-            <span className="flex items-center gap-1"><AlignLeft size={10} /> Beschrijving</span>
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[10px] font-bold text-ink-muted uppercase tracking-wider">
+              <span className="flex items-center gap-1"><AlignLeft size={10} /> Beschrijving</span>
+            </label>
+            <AiGenButton
+              type="session"
+              context={{ title: form.title, speaker: form.speaker }}
+              onResult={(text) => setForm((f) => ({ ...f, description: text }))}
+              disabled={!form.title}
+            />
+          </div>
           <textarea
             placeholder="Korte omschrijving van de sessie..."
             value={form.description}

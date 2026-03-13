@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Trash2, Plus, Linkedin, ExternalLink, GripVertical, ChevronDown, ChevronUp } from "lucide-react";
+import { Trash2, Plus, Linkedin, ExternalLink, GripVertical, ChevronUp } from "lucide-react";
 import type { Speaker } from "@/db/schema";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { AiGenButton } from "@/components/ui/ai-gen-button";
 
 interface Props {
   eventId: string;
@@ -142,35 +144,74 @@ export function SpeakersManager({ eventId, initialSpeakers }: Props) {
             </button>
           </div>
 
-          {[
-            { key: "name",        label: "Naam *",             placeholder: "Jan de Vries",             required: true  },
-            { key: "company",     label: "Organisatie",        placeholder: "Welzijn NL",               required: false },
-            { key: "bio",         label: "Bio",                placeholder: "Korte beschrijving...",     required: false },
-            { key: "photoUrl",    label: "Foto-URL",           placeholder: "https://...",              required: false },
-            { key: "linkedinUrl", label: "LinkedIn-URL",       placeholder: "https://linkedin.com/in/", required: false },
-          ].map(({ key, label, placeholder, required }) => (
-            <div key={key}>
-              <label className="block text-xs font-semibold text-ink mb-1">{label}</label>
-              {key === "bio" ? (
-                <textarea
-                  value={form[key as keyof typeof form]}
-                  onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                  placeholder={placeholder}
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400 resize-none"
-                />
-              ) : (
-                <input
-                  type={key.includes("Url") ? "url" : "text"}
-                  value={form[key as keyof typeof form]}
-                  onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                  placeholder={placeholder}
-                  required={required}
-                  className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
-                />
-              )}
+          {/* Photo upload */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Foto</label>
+            <ImageUpload
+              value={form.photoUrl}
+              onChange={url => setForm(f => ({ ...f, photoUrl: url }))}
+              aspectRatio="square"
+              placeholder="Sleep een portretfoto of klik"
+              className="max-w-[120px]"
+            />
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Naam *</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="Jan de Vries"
+              required
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
+            />
+          </div>
+
+          {/* Company */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">Organisatie</label>
+            <input
+              type="text"
+              value={form.company}
+              onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
+              placeholder="Welzijn NL"
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
+            />
+          </div>
+
+          {/* Bio with AI */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-semibold text-ink">Bio</label>
+              <AiGenButton
+                type="bio"
+                context={{ name: form.name, company: form.company }}
+                onResult={text => setForm(f => ({ ...f, bio: text }))}
+                disabled={!form.name}
+              />
             </div>
-          ))}
+            <textarea
+              value={form.bio}
+              onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+              placeholder="Korte beschrijving..."
+              rows={3}
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400 resize-none"
+            />
+          </div>
+
+          {/* LinkedIn */}
+          <div>
+            <label className="block text-xs font-semibold text-ink mb-1">LinkedIn-URL</label>
+            <input
+              type="url"
+              value={form.linkedinUrl}
+              onChange={e => setForm(f => ({ ...f, linkedinUrl: e.target.value }))}
+              placeholder="https://linkedin.com/in/"
+              className="w-full px-3 py-2 rounded-xl border border-sand bg-white text-sm focus:outline-none focus:border-terra-400"
+            />
+          </div>
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 

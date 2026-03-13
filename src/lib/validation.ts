@@ -21,6 +21,7 @@ export const EventSchema = z.object({
   isPublic:     z.boolean().optional().default(false),
   tagline:      z.string().max(300).optional().nullable(),
   slug:         z.string().max(100).regex(/^[a-z0-9-]*$/, "Slug mag alleen kleine letters, cijfers en koppeltekens bevatten").optional(),
+  coverImage:   z.string().url().max(1000).optional().nullable(),
 });
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────

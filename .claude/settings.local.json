@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.bijeen.app)",
+      "Bash(find /d/APPS/welzijnsevent/welzijnsevent-starter/welzijnsevent/src -type f -name \"*.tsx\" -o -name \"*.ts\" -o -name \"*.md\" -o -name \"TODO*\" -o -name \"ROADMAP*\" -o -name \"PLAN*\" 2>/dev/null | head -100)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1 | head -80)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1 | head -100)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npm run build 2>&1 | tail -40)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsx src/db/migrate-features.ts 2>&1)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsx --env-file=.env.local src/db/migrate-features.ts 2>&1)",
+      "Bash(ls -la \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\\\\src\\\\app\\\\api\\\\payments\\\\multisafepay\\\\\" 2>/dev/null || echo \"Directory not found\")",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1 | head -60)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit --skipLibCheck 2>&1 | grep -v \"\\\\.next/types\" | head -30)",
+      "Bash(cd \"D:\\\\APPS\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit --skipLibCheck 2>&1 | grep -v \"\\\\.next/types\" | head -20)",
+      "Bash(ls -la /d/apps/welzijnsevent/welzijnsevent-starter/welzijnsevent/src/app/\\\\\\(auth\\\\\\)/)",
+      "Bash(ls -la /d/apps/welzijnsevent/welzijnsevent-starter/welzijnsevent/src/app/\\\\\\(auth\\\\\\)/sign-in/)",
+      "Bash(ls -la \"/d/apps/welzijnsevent/welzijnsevent-starter/welzijnsevent/src/app/\\(auth\\)/sign-in/[[...sign-in]]/\")",
+      "Bash(ls -la \"/d/apps/welzijnsevent/welzijnsevent-starter/welzijnsevent/src/app/\\(auth\\)/\" && ls -la \"/d/apps/welzijnsevent/welzijnsevent-starter/welzijnsevent/src/app/\\(auth\\)/sign-up/\")",
+      "Bash(cd \"D:\\\\apps\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1 | head -60)",
+      "Bash(cd \"D:\\\\apps\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx next build 2>&1 | tail -20)",
+      "Bash(cd \"D:\\\\apps\\\\welzijnsevent\\\\welzijnsevent-starter\\\\welzijnsevent\" && npx tsc --noEmit 2>&1)"
+    ]
+  }
+}

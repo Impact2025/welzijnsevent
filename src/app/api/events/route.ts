@@ -93,6 +93,7 @@ export async function POST(req: Request) {
       slug,
       isPublic:       data.isPublic ?? false,
       tagline:        data.tagline ?? null,
+      coverImage:     data.coverImage ?? null,
     }).returning();
 
     return NextResponse.json({ event }, { status: 201 });
