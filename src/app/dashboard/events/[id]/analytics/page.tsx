@@ -3,6 +3,7 @@ import { eq, count, and, avg } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { DonutChart, SessionBars } from "@/components/analytics/impact-chart";
 import { SubsidieExportButton } from "@/components/analytics/subsidie-export-button";
+import { CsvExportButton } from "@/components/analytics/csv-export-button";
 import { LiveStats } from "@/components/analytics/live-stats";
 import { formatDate } from "@/lib/utils";
 import { ArrowLeft, Network, Star, Users, TrendingUp, MessageCircle, ThumbsUp, Radio } from "lucide-react";
@@ -132,6 +133,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
             <ArrowLeft size={20} />
           </Link>
           <div className="flex items-center gap-2">
+            <CsvExportButton eventId={params.id} />
             <SubsidieExportButton eventId={params.id} />
           </div>
         </div>

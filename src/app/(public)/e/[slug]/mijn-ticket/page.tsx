@@ -2,11 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import QRCode from "qrcode";
-import { db, events, attendees } from "@/db";
+import { db, events, attendees, sessions } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Calendar, MapPin, CalendarPlus, ArrowLeft, CheckCircle2, Clock, Users } from "lucide-react";
 import { AttendeeStats } from "@/components/public/attendee-stats";
+import { SessionFeedback } from "@/components/public/session-feedback";
+import { CancelRegistration } from "@/components/public/cancel-registration";
 
 type Props = {
   params:       { slug: string };
@@ -43,6 +45,12 @@ export default async function MijnTicketPage({ params, searchParams }: Props) {
   });
 
   const isCheckedIn = attendee.status === "ingecheckt";
+  const isCancelled = attendee.status === "afwezig";
+
+  // Load sessions for feedback (only if event has ended or is live)
+  const eventSessions = (event.status === "ended" || event.status === "live")
+    ? await db.select().from(sessions).where(eq(sessions.eventId, event.id))
+    : [];
 
   return (
     <div className="min-h-screen bg-white" style={{ "--brand": primaryColor } as React.CSSProperties}>
@@ -152,16 +160,40 @@ export default async function MijnTicketPage({ params, searchParams }: Props) {
         {/* Points + badges */}
         <AttendeeStats attendeeToken={token} primaryColor={primaryColor} />
 
+        {/* Session feedback */}
+        {eventSessions.length > 0 && (
+          <SessionFeedback
+            sessions={eventSessions.map(s => ({
+              id: s.id,
+              title: s.title,
+              speaker: s.speaker,
+            }))}
+            attendeeToken={token}
+            primaryColor={primaryColor}
+          />
+        )}
+
         {/* Add to calendar */}
-        <a
-          href={`/api/public/events/${params.slug}/ical`}
-          download
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-dashed text-sm font-medium transition-colors hover:bg-gray-50"
-          style={{ borderColor: `${primaryColor}50`, color: primaryColor }}
-        >
-          <CalendarPlus size={15} />
-          Voeg toe aan agenda
-        </a>
+        {!isCancelled && (
+          <a
+            href={`/api/public/events/${params.slug}/ical`}
+            download
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-dashed text-sm font-medium transition-colors hover:bg-gray-50"
+            style={{ borderColor: `${primaryColor}50`, color: primaryColor }}
+          >
+            <CalendarPlus size={15} />
+            Voeg toe aan agenda
+          </a>
+        )}
+
+        {/* Cancel registration */}
+        {!isCheckedIn && !isCancelled && (
+          <CancelRegistration
+            attendeeId={attendee.id}
+            attendeeToken={token}
+            slug={params.slug}
+          />
+        )}
       </div>
     </div>
   );

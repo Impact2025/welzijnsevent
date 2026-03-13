@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Send, CheckCircle2, Loader2, Bell, Star, Megaphone, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Send, CheckCircle2, Loader2, Bell, Star, Megaphone, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 
@@ -88,7 +88,11 @@ export function EmailActionsPanel({
     <div className="card-base overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-sand bg-sand/30">
         <Mail size={14} className="text-terra-500" />
-        <h3 className="text-sm font-bold text-ink">Automatische communicatie</h3>
+        <h3 className="text-sm font-bold text-ink">Communicatie</h3>
+        <span className="ml-auto flex items-center gap-1 bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+          <Zap size={9} />
+          Automatisch
+        </span>
       </div>
 
       {error && (
@@ -111,7 +115,7 @@ export function EmailActionsPanel({
                   ? reminderCount !== null
                     ? `Verstuurd naar ${reminderCount} deelnemers`
                     : `Verstuurd op ${reminderSentAt ? formatDate(reminderSentAt) : "eerder"}`
-                  : "QR-ticket + datum + locatie naar alle aangemelden"}
+                  : "Automatisch 24u voor aanvang · of stuur nu handmatig"}
               </p>
             </div>
           </div>
@@ -149,8 +153,8 @@ export function EmailActionsPanel({
                     ? `Verstuurd naar ${thankYouCount} ingecheckte deelnemers`
                     : "Verstuurd naar ingecheckte deelnemers"
                   : surveyEnabled
-                  ? "Bedankje + link naar tevredenheidsonderzoek"
-                  : "Bedankje voor ingecheckte deelnemers"}
+                  ? "Automatisch 2u na afloop · of stuur nu handmatig"
+                  : "Automatisch 2u na afloop · of stuur nu handmatig"}
               </p>
               {!surveyEnabled && thankYouState === "idle" && (
                 <p className="text-[11px] text-amber-600 mt-0.5">

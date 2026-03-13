@@ -4,7 +4,8 @@ import { db, events, sessions } from "@/db";
 import { eq, asc } from "drizzle-orm";
 import { SessionCard } from "@/components/events/session-card";
 import { formatDate, formatTime } from "@/lib/utils";
-import { ArrowLeft, MapPin, Calendar, Filter, Globe, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Filter, Globe, ExternalLink, Code2 } from "lucide-react";
+import { EmbedSnippet } from "@/components/events/embed-snippet";
 import { ShareEventButton } from "@/components/dashboard/share-event-button";
 import { AddSessionForm } from "@/components/events/add-session-form";
 import { EmailActionsPanel } from "@/components/events/email-actions-panel";
@@ -143,9 +144,16 @@ export default async function EventDetailPage({ params }: { params: { id: string
       </div>
 
       {/* Custom inschrijfvragen */}
-      <div className="px-4 pb-8">
+      <div className="px-4 pb-4">
         <CustomFieldsManager eventId={event.id} />
       </div>
+
+      {/* Embed widget */}
+      {event.isPublic && event.slug && (
+        <div className="px-4 pb-8">
+          <EmbedSnippet slug={event.slug} />
+        </div>
+      )}
 
     </div>
   );

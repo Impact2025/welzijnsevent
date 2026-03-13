@@ -3,7 +3,7 @@ import { eq, count } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
-import { SlidersHorizontal, UserPlus, FileUp, ScanLine } from "lucide-react";
+import { SlidersHorizontal, UserPlus, FileUp, ScanLine, Tag } from "lucide-react";
 import { SearchInput } from "@/components/events/search-input";
 import { FilterTabs } from "@/components/events/filter-tabs";
 import { Pagination } from "@/components/ui/pagination";
@@ -214,6 +214,13 @@ export default async function AttendeesPage({
           >
             <ScanLine size={14} />
             Scanner
+          </Link>
+          <Link
+            href={`/dashboard/events/${params.id}/badges`}
+            className="flex items-center gap-2 bg-white border border-sand text-ink-muted text-xs font-semibold rounded-full shadow px-4 py-2 hover:bg-sand transition-colors"
+          >
+            <Tag size={14} />
+            Naamplaatjes
           </Link>
           <Link
             href={`/dashboard/events/${params.id}/deelnemers/import`}

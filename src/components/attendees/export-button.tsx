@@ -20,7 +20,11 @@ export function ExportButton({ eventId }: { eventId: string }) {
 
   function download(format: "csv" | "excel") {
     setOpen(false);
-    window.open(`/api/reports/attendees-export?eventId=${eventId}&format=${format}`, "_blank");
+    if (format === "csv") {
+      window.open(`/api/events/${eventId}/export-csv`, "_blank");
+    } else {
+      window.open(`/api/reports/attendees-export?eventId=${eventId}&format=${format}`, "_blank");
+    }
   }
 
   return (

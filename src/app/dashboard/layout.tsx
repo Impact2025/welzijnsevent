@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 import { ProductTour } from "@/components/onboarding/product-tour";
+import { CommandPalette } from "@/components/ui/command-palette";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -43,6 +44,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Product tour — auto-starts for new users, client-only */}
       <ProductTour />
+
+      {/* Command palette — ⌘K / Ctrl+K */}
+      <CommandPalette />
     </div>
   );
 }

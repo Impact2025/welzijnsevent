@@ -5,7 +5,8 @@ import Link from "next/link";
 import { db, events, sessions, ticketTypes, speakers, sponsors } from "@/db";
 import { eq, asc } from "drizzle-orm";
 import { formatDate, formatTime } from "@/lib/utils";
-import { Calendar, CalendarPlus, MapPin, Clock, ExternalLink, Ticket } from "lucide-react";
+import { Calendar, CalendarPlus, MapPin, ExternalLink, Ticket, Share2, Link2 } from "lucide-react";
+import { SocialShareButtons } from "@/components/public/social-share-buttons";
 import { EventNav } from "@/components/public/event-nav";
 import { PushSubscribeButton } from "@/components/public/push-subscribe-button";
 import nlDict from "@/i18n/nl.json";
@@ -81,6 +82,8 @@ export default async function PublicEventPage({
     : null;
 
   const langParam = searchParams.lang === "en" ? "?lang=en" : "";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const eventUrl = `${appUrl}/e/${params.slug}`;
 
   // Speakers: prefer DB speakers table, fallback to unique names from sessions
   const sessionSpeakers = eventSessions
@@ -158,6 +161,15 @@ export default async function PublicEventPage({
 
       {/* Tab nav */}
       <EventNav slug={params.slug} eventTitle={event.title} primaryColor={primaryColor} />
+
+      {/* Social sharing */}
+      <div className="max-w-2xl mx-auto px-4 pt-4">
+        <SocialShareButtons
+          url={eventUrl}
+          title={event.title}
+          primaryColor={primaryColor}
+        />
+      </div>
 
       <div className="max-w-2xl mx-auto px-4 pb-20 space-y-10">
         {/* About */}

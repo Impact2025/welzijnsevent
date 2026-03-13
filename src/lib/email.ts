@@ -343,12 +343,20 @@ interface EventReminderEmailProps {
   eventLocation: string | null;
   qrCode: string;
   appUrl: string;
+  orgName?:  string | null;
+  orgLogo?:  string | null;
+  orgColor?: string | null;
 }
 
 export async function sendEventReminderEmail(props: EventReminderEmailProps) {
   if (!resend) return;
-  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl } = props;
-  const ticketUrl = `${appUrl}/ticket/${qrCode}`;
+  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl, orgName, orgLogo, orgColor } = props;
+  const ticketUrl   = `${appUrl}/ticket/${qrCode}`;
+  const brandColor  = orgColor ?? "#C8522A";
+  const brandDark   = adjustColor(brandColor, -20);
+  const brandHeader = orgLogo
+    ? `<img src="${orgLogo}" alt="${orgName ?? "Organisator"}" height="36" style="height:36px;width:auto;display:inline-block;max-width:160px;" />`
+    : `<span style="color:#9E9890;font-size:13px;font-weight:600;">${orgName ?? "Bijeen"}</span>`;
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
@@ -360,11 +368,9 @@ export async function sendEventReminderEmail(props: EventReminderEmailProps) {
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
-    <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
-    </div>
+    <div style="text-align:center;margin-bottom:24px;">${brandHeader}</div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+      <div style="background:linear-gradient(135deg,${brandColor} 0%,${brandDark} 100%);padding:40px 32px;text-align:center;">
         <div style="font-size:40px;margin-bottom:12px;">⏰</div>
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Morgen is het zover!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
@@ -387,14 +393,14 @@ export async function sendEventReminderEmail(props: EventReminderEmailProps) {
           </table>
         </div>
         <div style="text-align:center;">
-          <a href="${ticketUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
+          <a href="${ticketUrl}" style="display:inline-block;background:${brandColor};color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
             Bekijk mijn QR-ticket →
           </a>
         </div>
       </div>
     </div>
     <div style="text-align:center;padding:24px 0 0;">
-      <p style="color:#B8B3AC;font-size:12px;margin:0;"><strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector</p>
+      <p style="color:#B8B3AC;font-size:12px;margin:0;">Verstuurd via <strong style="color:#9E9890;">Bijeen</strong></p>
     </div>
   </div>
 </body>
@@ -476,6 +482,11 @@ interface ConfirmationEmailProps {
   eventLocation: string | null;
   qrCode: string;
   appUrl: string;
+  attendeeId?: string;
+  // Org branding (optional — falls back to Bijeen defaults)
+  orgName?: string | null;
+  orgLogo?: string | null;
+  orgColor?: string | null;
 }
 
 export async function sendRegistrationConfirmation(props: ConfirmationEmailProps) {
@@ -484,7 +495,7 @@ export async function sendRegistrationConfirmation(props: ConfirmationEmailProps
     return;
   }
 
-  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl } = props;
+  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl, attendeeId, orgName, orgLogo, orgColor } = props;
   const ticketUrl = `${appUrl}/ticket/${qrCode}`;
 
   await resend.emails.send({
@@ -492,8 +503,17 @@ export async function sendRegistrationConfirmation(props: ConfirmationEmailProps
     replyTo: REPLY_TO,
     to,
     subject: `Je aanmelding is bevestigd: ${eventTitle}`,
-    html: buildConfirmationHtml({ name, eventTitle, eventDate, eventLocation, ticketUrl }),
+    html: buildConfirmationHtml({ name, eventTitle, eventDate, eventLocation, ticketUrl, attendeeId, orgName, orgLogo, orgColor }),
   });
+}
+
+// Darken a hex color by `amount` (0–255 per channel)
+function adjustColor(hex: string, amount: number): string {
+  const clean = hex.replace("#", "");
+  const r = Math.max(0, Math.min(255, parseInt(clean.slice(0, 2), 16) + amount));
+  const g = Math.max(0, Math.min(255, parseInt(clean.slice(2, 4), 16) + amount));
+  const b = Math.max(0, Math.min(255, parseInt(clean.slice(4, 6), 16) + amount));
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
 function buildConfirmationHtml({
@@ -502,13 +522,28 @@ function buildConfirmationHtml({
   eventDate,
   eventLocation,
   ticketUrl,
+  orgName,
+  orgLogo,
+  orgColor,
+  attendeeId,
 }: {
   name: string;
   eventTitle: string;
   eventDate: string;
   eventLocation: string | null;
   ticketUrl: string;
+  orgName?: string | null;
+  orgLogo?: string | null;
+  orgColor?: string | null;
+  attendeeId?: string;
 }) {
+  const appUrl      = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const brandColor  = orgColor ?? "#C8522A";
+  const brandDark   = adjustColor(brandColor, -20);
+  const brandHeader = orgLogo
+    ? `<img src="${orgLogo}" alt="${orgName ?? "Organisator"}" height="40" style="height:40px;width:auto;display:inline-block;max-width:180px;" />`
+    : `<span style="color:#9E9890;font-size:13px;font-weight:600;">${orgName ?? "Bijeen"}</span>`;
+
   const locationRow = eventLocation
     ? `<tr>
         <td style="padding: 6px 0; vertical-align: top;">
@@ -530,14 +565,14 @@ function buildConfirmationHtml({
 
     <!-- Logo/Brand -->
     <div style="text-align: center; margin-bottom: 24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height: 40px; width: auto; display: inline-block;" />
+      ${brandHeader}
     </div>
 
     <!-- Card -->
     <div style="background: #FFFFFF; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
 
       <!-- Header -->
-      <div style="background: linear-gradient(135deg, #C8522A 0%, #A8421F 100%); padding: 32px; text-align: center;">
+      <div style="background: linear-gradient(135deg, ${brandColor} 0%, ${brandDark} 100%); padding: 32px; text-align: center;">
         <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.15); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 26px; line-height: 1;">🎉</div>
         <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.3px;">Je aanmelding is bevestigd!</h1>
         <p style="color: rgba(255,255,255,0.82); font-size: 14px; margin: 0; font-weight: 500;">${eventTitle}</p>
@@ -578,7 +613,7 @@ function buildConfirmationHtml({
             Gebruik deze QR-code voor snelle toegang op de dag zelf. Laat hem scannen bij de ingang.
           </p>
           <a href="${ticketUrl}"
-             style="display: inline-block; background: #C8522A; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 14px; padding: 13px 28px; border-radius: 10px; letter-spacing: -0.2px;">
+             style="display: inline-block; background: ${brandColor}; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 14px; padding: 13px 28px; border-radius: 10px; letter-spacing: -0.2px;">
             Bekijk mijn QR-ticket →
           </a>
         </div>
@@ -603,6 +638,8 @@ function buildConfirmationHtml({
       <p style="color: #B8B3AC; font-size: 12px; line-height: 1.6; margin: 0;">
         Verstuurd via <strong style="color: #9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector<br>
         <a href="${ticketUrl}" style="color: #B8B3AC; text-decoration: underline;">Bekijk je ticket</a>
+        &nbsp;·&nbsp;
+        <a href="${appUrl}/api/unsubscribe?id=${attendeeId ?? ""}" style="color: #B8B3AC; text-decoration: underline;">Uitschrijven</a>
       </p>
     </div>
 
@@ -628,6 +665,51 @@ export async function sendCustomBroadcast(props: {
     to,
     subject,
     html: buildBroadcastHtml({ attendeeName, eventTitle, message }),
+  });
+}
+
+// ─── Team uitnodiging ─────────────────────────────────────────────────────────
+
+export async function sendTeamInviteEmail(props: {
+  to: string;
+  orgName: string;
+  inviteUrl: string;
+  invitedBy: string;
+}) {
+  if (!resend) return;
+  const { to, orgName, inviteUrl, invitedBy } = props;
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `${invitedBy} heeft je uitgenodigd voor ${orgName} op Bijeen`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <div style="max-width:480px;margin:0 auto;padding:32px 16px;text-align:center;">
+    <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" height="32" style="height:32px;width:auto;margin-bottom:24px;" />
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#12100E 0%,#2A2520 100%);padding:36px 32px;text-align:center;">
+        <div style="font-size:36px;margin-bottom:12px;">👥</div>
+        <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0 0 6px;">Je bent uitgenodigd!</h1>
+        <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;">${invitedBy} nodigt je uit bij <strong style="color:#fff;">${orgName}</strong></p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          Je hebt een uitnodiging ontvangen om deel te nemen aan het team van <strong>${orgName}</strong> op Bijeen. Accepteer de uitnodiging om toegang te krijgen tot het dashboard.
+        </p>
+        <a href="${inviteUrl}" style="display:block;background:#C8522A;color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;">
+          Uitnodiging accepteren →
+        </a>
+        <p style="color:#9E9890;font-size:11px;margin:16px 0 0;">
+          Link is 7 dagen geldig. Als je deze uitnodiging niet verwacht, kun je dit bericht negeren.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`,
   });
 }
 

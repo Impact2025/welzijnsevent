@@ -5,6 +5,7 @@ import { ArrowLeft, Mail, Building2, Briefcase, QrCode } from "lucide-react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { formatDate, getInitials, avatarColor, cn } from "@/lib/utils";
+import { AttendeeActions } from "@/components/attendees/attendee-actions";
 
 export default async function AttendeeDetailPage({
   params,
@@ -101,18 +102,13 @@ export default async function AttendeeDetailPage({
                 className="w-48 h-48 rounded-xl"
               />
             </div>
-            <div className="flex gap-3">
-              <a
-                href={qrDataUrl}
-                download={`qr-${attendee.name.replace(/\s+/g, "-").toLowerCase()}.png`}
-                className="flex-1 bg-terra-500 hover:bg-terra-600 text-white text-sm font-bold py-2.5 rounded-xl text-center transition-colors"
-              >
-                Download QR
-              </a>
-              <button className="flex-1 bg-sand hover:bg-sand/70 text-ink text-sm font-bold py-2.5 rounded-xl transition-colors">
-                Stuur per e-mail
-              </button>
-            </div>
+            <a
+              href={qrDataUrl}
+              download={`qr-${attendee.name.replace(/\s+/g, "-").toLowerCase()}.png`}
+              className="w-full block bg-terra-500 hover:bg-terra-600 text-white text-sm font-bold py-2.5 rounded-xl text-center transition-colors"
+            >
+              Download QR
+            </a>
           </div>
         ) : (
           <div className="card-base p-5 text-center text-ink-muted">
@@ -120,22 +116,14 @@ export default async function AttendeeDetailPage({
           </div>
         )}
 
-        {/* Check-in action */}
-        {attendee.status !== "ingecheckt" && (
-          <div className="card-base p-4">
-            <p className="text-xs text-ink-muted mb-3">Handmatig inchecken</p>
-            <form action={`/api/checkin`} method="POST">
-              <input type="hidden" name="attendeeId" value={attendee.id} />
-              <input type="hidden" name="eventId" value={params.id} />
-              <button
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl text-sm transition-colors"
-              >
-                Inchecken
-              </button>
-            </form>
-          </div>
-        )}
+        {/* Interactive actions */}
+        <AttendeeActions
+          attendeeId={attendee.id}
+          eventId={params.id}
+          initialNotes={attendee.notes ?? null}
+          hasQrCode={!!attendee.qrCode}
+          status={attendee.status ?? "aangemeld"}
+        />
       </div>
     </div>
   );

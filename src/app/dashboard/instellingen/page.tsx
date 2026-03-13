@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Upload, X, LogOut } from "lucide-react";
+import { Building2, Palette, CreditCard, Bell, Check, ExternalLink, Loader2, Globe, Upload, X, LogOut, Users, Mail, Trash2, UserPlus, Crown, Shield, User } from "lucide-react";
 import { signOutAction } from "@/actions/auth";
 import { PLAN_FEATURES, PLAN_LIMITS, PLAN_PRICES_CENTS } from "@/lib/plans";
 import { formatDate } from "@/lib/utils";
@@ -24,6 +24,21 @@ interface Subscription {
   amountPaid: number | null;
 }
 
+interface Member {
+  id: string;
+  userId: string;
+  role: string;
+  name: string | null;
+  email: string | null;
+}
+
+interface Invite {
+  id: string;
+  email: string;
+  role: string;
+  expiresAt: string;
+}
+
 export default function InstellingenPage() {
   const [orgId, setOrgId]           = useState<string | null>(null);
   const [name, setName]             = useState("");
@@ -41,11 +56,21 @@ export default function InstellingenPage() {
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const fileInputRef                = useRef<HTMLInputElement>(null);
 
+  // Team state
+  const [members, setMembers]         = useState<Member[]>([]);
+  const [invites, setInvites]         = useState<Invite[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole]   = useState("member");
+  const [inviting, setInviting]       = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSent, setInviteSent]   = useState(false);
+
   useEffect(() => {
     Promise.all([
       fetch("/api/organizations").then(r => r.json()),
       fetch("/api/subscriptions").then(r => r.json()),
-    ]).then(([orgData, subData]) => {
+      fetch("/api/organizations/members").then(r => r.json()),
+    ]).then(([orgData, subData, teamData]) => {
       if (orgData.organization) {
         setOrgId(orgData.organization.id);
         setName(orgData.organization.name ?? "");
@@ -56,9 +81,57 @@ export default function InstellingenPage() {
       if (subData.subscription) {
         setSubscription(subData.subscription);
       }
+      if (teamData.members) setMembers(teamData.members);
+      if (teamData.invites) setInvites(teamData.invites);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  const handleInvite = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    setInviteError(null);
+    setInviteSent(false);
+    try {
+      const res = await fetch("/api/organizations/members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail.trim(), role: inviteRole }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setInviteError(data.error ?? "Uitnodiging mislukt");
+      } else {
+        setInviteSent(true);
+        setInviteEmail("");
+        setInvites(prev => [...prev, data.invite]);
+        setTimeout(() => setInviteSent(false), 3000);
+      }
+    } catch {
+      setInviteError("Netwerkfout — probeer opnieuw");
+    } finally {
+      setInviting(false);
+    }
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    if (!confirm("Teamlid verwijderen?")) return;
+    await fetch("/api/organizations/members", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ memberId }),
+    });
+    setMembers(prev => prev.filter(m => m.id !== memberId));
+  };
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    await fetch("/api/organizations/members", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inviteId }),
+    });
+    setInvites(prev => prev.filter(i => i.id !== inviteId));
+  };
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -216,6 +289,111 @@ export default function InstellingenPage() {
               )}
               {logoError && <p className="text-xs text-red-500 mt-1">{logoError}</p>}
             </div>
+          </div>
+        </div>
+
+        {/* Team */}
+        <div className="card-base overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-sand bg-sand/30">
+            <Users size={16} className="text-terra-500" />
+            <h2 className="font-bold text-ink text-sm">Team</h2>
+            <span className="ml-auto text-xs text-ink-muted">{members.length} {members.length === 1 ? "lid" : "leden"}</span>
+          </div>
+
+          {/* Member list */}
+          {members.length > 0 && (
+            <div className="divide-y divide-sand">
+              {members.map((m) => {
+                const RoleIcon = m.role === "owner" ? Crown : m.role === "admin" ? Shield : User;
+                const roleColor = m.role === "owner" ? "text-amber-500" : m.role === "admin" ? "text-blue-500" : "text-ink-muted";
+                return (
+                  <div key={m.id} className="flex items-center gap-3 px-5 py-3">
+                    <div className="w-8 h-8 rounded-full bg-terra-100 flex items-center justify-center text-terra-600 font-bold text-xs flex-shrink-0">
+                      {(m.name ?? m.email ?? "?").charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-ink truncate">{m.name ?? m.email}</p>
+                      {m.name && <p className="text-xs text-ink-muted truncate">{m.email}</p>}
+                    </div>
+                    <div className={`flex items-center gap-1 ${roleColor}`}>
+                      <RoleIcon size={12} />
+                      <span className="text-[11px] font-semibold capitalize">{m.role}</span>
+                    </div>
+                    {m.role !== "owner" && (
+                      <button
+                        onClick={() => handleRemoveMember(m.id)}
+                        className="p-1.5 text-ink-muted hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                        title="Verwijderen"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Pending invites */}
+          {invites.length > 0 && (
+            <div className="px-5 py-3 border-t border-sand">
+              <p className="text-[10px] font-black uppercase tracking-widest text-ink-muted mb-2">Openstaande uitnodigingen</p>
+              <div className="space-y-2">
+                {invites.map((inv) => (
+                  <div key={inv.id} className="flex items-center gap-2 bg-sand/50 rounded-xl px-3 py-2">
+                    <Mail size={12} className="text-ink-muted flex-shrink-0" />
+                    <span className="text-xs text-ink flex-1 truncate">{inv.email}</span>
+                    <span className="text-[10px] text-ink-muted capitalize">{inv.role}</span>
+                    <button
+                      onClick={() => handleRevokeInvite(inv.id)}
+                      className="p-1 text-ink-muted hover:text-red-500 transition-colors"
+                      title="Intrekken"
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Invite form */}
+          <div className="p-5 border-t border-sand space-y-3">
+            <p className="text-xs font-bold text-ink-muted uppercase tracking-wider">Teamlid uitnodigen</p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={e => setInviteEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleInvite()}
+                placeholder="naam@organisatie.nl"
+                className="flex-1 bg-sand rounded-xl px-4 py-2.5 text-sm text-ink outline-none placeholder-ink-muted/50 focus:ring-2 focus:ring-terra-500/30 transition"
+              />
+              <select
+                value={inviteRole}
+                onChange={e => setInviteRole(e.target.value)}
+                className="bg-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:ring-2 focus:ring-terra-500/30 transition"
+              >
+                <option value="member">Lid</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            {inviteError && <p className="text-xs text-red-500">{inviteError}</p>}
+            <button
+              onClick={handleInvite}
+              disabled={inviting || !inviteEmail.trim()}
+              className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-colors disabled:opacity-60 ${
+                inviteSent ? "bg-green-500 text-white" : "bg-terra-500 hover:bg-terra-600 text-white"
+              }`}
+            >
+              {inviting ? (
+                <><Loader2 size={14} className="animate-spin" /> Versturen...</>
+              ) : inviteSent ? (
+                <><Check size={14} /> Uitnodiging verstuurd!</>
+              ) : (
+                <><UserPlus size={14} /> Uitnodigen per e-mail</>
+              )}
+            </button>
           </div>
         </div>
 

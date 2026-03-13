@@ -130,6 +130,8 @@ export const attendees = pgTable("attendees", {
   // GDPR opt-in for AI matching
   customResponses: jsonb("custom_responses").default({}).$type<Record<string, string | string[]>>(),
   // Answers to custom form fields
+  notes:           text("notes"),
+  // Private organizer notes (not visible to attendee)
   registeredAt:    timestamp("registered_at").defaultNow(),
 });
 
@@ -379,6 +381,31 @@ export const sponsors = pgTable("sponsors", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ── TEAM MEMBERS ───────────────────────────────────────────
+export const orgMembers = pgTable("org_members", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  userId:         text("user_id").references(() => authUsers.id, { onDelete: "cascade" }).notNull(),
+  role:           text("role").default("member"),
+  // owner | admin | member
+  invitedBy:      text("invited_by"),
+  createdAt:      timestamp("created_at").defaultNow(),
+});
+
+// ── TEAM INVITES ────────────────────────────────────────────
+export const orgInvites = pgTable("org_invites", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  email:          text("email").notNull(),
+  role:           text("role").default("member"),
+  token:          text("token").unique().notNull(),
+  invitedBy:      text("invited_by"),
+  // email of inviter
+  expiresAt:      timestamp("expires_at").notNull(),
+  acceptedAt:     timestamp("accepted_at"),
+  createdAt:      timestamp("created_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -402,3 +429,5 @@ export type AttendeeBadge      = typeof attendeeBadges.$inferSelect;
 export type PushSubscription   = typeof pushSubscriptions.$inferSelect;
 export type Speaker            = typeof speakers.$inferSelect;
 export type Sponsor            = typeof sponsors.$inferSelect;
+export type OrgMember          = typeof orgMembers.$inferSelect;
+export type OrgInvite          = typeof orgInvites.$inferSelect;

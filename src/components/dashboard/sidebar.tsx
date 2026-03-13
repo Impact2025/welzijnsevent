@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { LogOut,
-  LayoutDashboard, Calendar, Settings, Plus,
+  LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink,
 } from "lucide-react";
 
 import { cn, getInitials, avatarColor } from "@/lib/utils";
@@ -50,6 +50,19 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
         Nieuw evenement
       </Link>
 
+      {/* Search / Command palette trigger */}
+      <button
+        onClick={() => {
+          const e = new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true });
+          window.dispatchEvent(e);
+        }}
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-white/35 hover:text-white/60 hover:bg-white/5 text-xs mb-2 transition-colors border border-white/8"
+      >
+        <Search size={13} />
+        <span className="flex-1 text-left">Zoeken…</span>
+        <kbd className="text-[9px] bg-white/8 px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
+      </button>
+
       {/* Navigation */}
       <nav data-tour="nav" className="flex flex-col gap-0.5 flex-1">
         {navItems.map(({ href, icon: Icon, label }) => {
@@ -74,6 +87,16 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
             </Link>
           );
         })}
+        {/* Ontdek link */}
+        <a
+          href="/ontdek"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/35 hover:text-white/60 hover:bg-white/5 transition-all duration-150 mt-auto"
+        >
+          <ExternalLink size={17} strokeWidth={2} />
+          Ontdek
+        </a>
       </nav>
 
       {/* User / Org footer */}

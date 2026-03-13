@@ -133,6 +133,10 @@ export async function POST(req: Request) {
         eventLocation: event.location,
         qrCode: attendee.qrCode!,
         appUrl,
+        attendeeId: attendee.id,
+        orgName:  eventOrg?.name,
+        orgLogo:  eventOrg?.logo,
+        orgColor: eventOrg?.primaryColor,
       }).catch((err) => console.error("[email] Bevestigingsmail mislukt:", err));
     }
 
