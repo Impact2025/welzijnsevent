@@ -8,8 +8,19 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Functies — Bijeen",
-  description: "Alles wat je nodig hebt voor wereldklasse evenementen in de welzijnssector.",
+  title: "Functies",
+  description: "Alles wat je nodig hebt voor wereldklasse evenementen in de welzijnssector. QR check-in, AI-netwerkkoppeling, live Q&A, polls en WMO-rapportage.",
+  alternates: { canonical: "/functies" },
+  openGraph: {
+    title: "Functies — Bijeen",
+    description: "Alles wat je nodig hebt voor wereldklasse evenementen in de welzijnssector.",
+    url: "/functies",
+    type: "website",
+  },
+  twitter: {
+    title: "Functies — Bijeen",
+    description: "QR check-in, AI-netwerkkoppeling, WMO-rapportage en meer — gebouwd voor welzijn.",
+  },
 };
 
 /* ─── Mockup: Event card preview ──────────────────────────────── */

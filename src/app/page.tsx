@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   ArrowRight, Zap, BarChart3, QrCode,
@@ -6,6 +7,22 @@ import {
 import { MarketingNav } from "@/components/marketing/nav";
 import { MarketingFooter } from "@/components/marketing/footer";
 import { AiAssistant } from "@/components/marketing/ai-assistant";
+
+export const metadata: Metadata = {
+  title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
+  description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO-rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
+    description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO-rapportage — Bijeen regelt het.",
+    url: "/",
+    type: "website",
+  },
+  twitter: {
+    title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
+    description: "Het eerste eventplatform gebouwd voor de welzijnssector.",
+  },
+};
 
 const features = [
   {

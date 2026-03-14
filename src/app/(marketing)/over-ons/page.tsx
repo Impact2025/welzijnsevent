@@ -7,8 +7,19 @@ import {
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Over ons — Bijeen",
+  title: "Over ons",
   description: "Bijeen is gebouwd door Vincent van Munster — iemand die 15+ jaar sociale events organiseerde en precies weet wat een organisator nodig heeft.",
+  alternates: { canonical: "/over-ons" },
+  openGraph: {
+    title: "Over ons — Bijeen",
+    description: "Bijeen is gebouwd door Vincent van Munster — iemand die 15+ jaar sociale events organiseerde en precies weet wat een organisator nodig heeft.",
+    url: "/over-ons",
+    type: "website",
+  },
+  twitter: {
+    title: "Over ons — Bijeen",
+    description: "Bijeen is gebouwd door iemand die de welzijnssector van binnenuit kent.",
+  },
 };
 
 const stats = [
