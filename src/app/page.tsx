@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight, Zap, BarChart3, QrCode,
   MessageSquare, Star, Network, FileText, Smartphone,
@@ -102,11 +103,12 @@ export default function HomePage() {
       <MarketingNav />
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <section className="relative pt-36 pb-24 sm:pt-48 sm:pb-36 overflow-hidden">
+      <section className="relative pt-36 pb-0 sm:pt-48 overflow-hidden">
+        {/* Top ambient glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-terra-500/6 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center">
+        {/* Hero text */}
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 text-center pb-14 sm:pb-20">
           <div className="inline-flex items-center gap-2 bg-white/6 border border-white/10 rounded-full px-3.5 py-1.5 mb-8">
             <div className="w-1.5 h-1.5 bg-terra-400 rounded-full animate-pulse" />
             <span className="text-white/70 text-xs font-semibold tracking-wide">
@@ -145,6 +147,73 @@ export default function HomePage() {
           <p className="text-white/40 text-sm">
             Geen creditcard nodig · Eerste event gratis · Klaar in 10 minuten
           </p>
+        </div>
+
+        {/* ── Phone showcase ────────────────────────────────── */}
+        <div className="relative">
+          {/* Terra glow achter de phones */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-terra-500/18 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Phones */}
+          <div className="relative flex items-end justify-center gap-3 sm:gap-5 px-4 max-w-3xl mx-auto">
+
+            {/* Links — event pagina */}
+            <div
+              className="hidden sm:block shrink-0 relative z-0"
+              style={{ width: 175, transform: "rotate(-5deg) translateY(28px)", opacity: 0.72 }}
+            >
+              <div className="rounded-[2rem] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border-[5px] border-white/10 bg-[#1C1814]">
+                <Image
+                  src="/screenshots/event_pagina.png"
+                  alt="Evenement programma"
+                  width={335}
+                  height={730}
+                  className="w-full h-auto block"
+                  unoptimized
+                />
+              </div>
+            </div>
+
+            {/* Midden — dashboard (hoofdrol) */}
+            <div
+              className="shrink-0 relative z-10"
+              style={{ width: 220 }}
+            >
+              {/* Extra ring-glow om het center phone */}
+              <div className="absolute -inset-4 bg-terra-500/20 rounded-[3rem] blur-2xl pointer-events-none" />
+              <div className="relative rounded-[2rem] overflow-hidden shadow-[0_40px_80px_rgba(200,82,42,0.35)] border-[5px] border-terra-500/30 bg-[#1C1814]">
+                <Image
+                  src="/screenshots/Dashboard.png"
+                  alt="Bijeen dashboard overzicht"
+                  width={335}
+                  height={730}
+                  className="w-full h-auto block"
+                  unoptimized
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Rechts — deelnemersbeheer */}
+            <div
+              className="hidden sm:block shrink-0 relative z-0"
+              style={{ width: 175, transform: "rotate(5deg) translateY(28px)", opacity: 0.72 }}
+            >
+              <div className="rounded-[2rem] overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border-[5px] border-white/10 bg-[#1C1814]">
+                <Image
+                  src="/screenshots/deelnemersbeheer.png"
+                  alt="Deelnemersbeheer"
+                  width={335}
+                  height={730}
+                  className="w-full h-auto block"
+                  unoptimized
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Gradient fade: dark → cream */}
+          <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-b from-transparent via-[#12100E]/80 to-cream pointer-events-none" />
         </div>
       </section>
 
