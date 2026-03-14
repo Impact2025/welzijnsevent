@@ -4,8 +4,7 @@ import { getCurrentOrg } from "@/lib/auth";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  Mail, Building2, Briefcase, Calendar, CheckSquare, Star, MessageSquare,
-  ArrowLeft, ExternalLink, Zap, Clock,
+  Mail, Calendar, CheckSquare, Star, ExternalLink, Zap, Clock,
 } from "lucide-react";
 import { getInitials, avatarColor, formatDate, formatRelative, cn } from "@/lib/utils";
 import { LifecycleBadge } from "@/components/crm/LifecycleBadge";
@@ -13,6 +12,7 @@ import { LifecycleEditor } from "@/components/crm/LifecycleEditor";
 import { TagEditor } from "@/components/crm/TagEditor";
 import { NoteForm } from "@/components/crm/NoteForm";
 import { ActivityTimeline } from "@/components/crm/ActivityTimeline";
+import { ContactInfoEditor } from "@/components/crm/ContactInfoEditor";
 
 export default async function ContactDetailPage({
   params,
@@ -77,6 +77,12 @@ export default async function ContactDetailPage({
   const tags = (profile?.tags ?? []) as string[];
   const crmNotes = profile?.crmNotes ?? null;
 
+  // Profile overrides take precedence over attendee data
+  const displayName = profile?.overrideName ?? latest.name;
+  const displayOrganization = profile?.overrideOrganization ?? latest.organization ?? null;
+  const displayRole = profile?.overrideRole ?? latest.role ?? null;
+  const displayPhone = profile?.phone ?? null;
+
   const scoreLevel = engagementScore >= 50 ? "Hoog" : engagementScore >= 25 ? "Gemiddeld" : "Laag";
   const scoreColor = engagementScore >= 50 ? "text-amber-500" : engagementScore >= 25 ? "text-green-600" : "text-ink-muted";
 
@@ -93,7 +99,7 @@ export default async function ContactDetailPage({
         <span className="text-ink-muted/40">›</span>
         <Link href="/dashboard/crm/contacten" className="hover:text-terra-500 transition-colors">Contacten</Link>
         <span className="text-ink-muted/40">›</span>
-        <span className="text-ink truncate max-w-[200px]">{latest.name}</span>
+        <span className="text-ink truncate max-w-[200px]">{displayName}</span>
       </div>
 
       <div className="grid md:grid-cols-[1fr_320px] gap-6">
@@ -102,13 +108,13 @@ export default async function ContactDetailPage({
           {/* Contact header card */}
           <div className="card-base p-6">
             <div className="flex items-start gap-4">
-              <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-white text-xl font-bold", avatarColor(latest.name))}>
-                {getInitials(latest.name)}
+              <div className={cn("w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 text-white text-xl font-bold", avatarColor(displayName))}>
+                {getInitials(displayName)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3 flex-wrap">
                   <div>
-                    <h1 className="text-2xl font-extrabold text-ink tracking-tight">{latest.name}</h1>
+                    <h1 className="text-2xl font-extrabold text-ink tracking-tight">{displayName}</h1>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <LifecycleBadge stage={lifecycleStage} />
                     </div>
@@ -119,27 +125,17 @@ export default async function ContactDetailPage({
                   </div>
                 </div>
 
-                <div className="mt-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-sm text-ink-muted">
-                    <Mail size={13} className="shrink-0" />
-                    <a href={`mailto:${email}`} className="hover:text-terra-500 transition-colors font-medium">{email}</a>
-                  </div>
-                  {latest.organization && (
-                    <div className="flex items-center gap-2 text-sm text-ink-muted">
-                      <Building2 size={13} className="shrink-0" />
-                      <span className="font-medium">{latest.organization}</span>
-                    </div>
-                  )}
-                  {latest.role && (
-                    <div className="flex items-center gap-2 text-sm text-ink-muted">
-                      <Briefcase size={13} className="shrink-0" />
-                      <span className="font-medium">{latest.role}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-sm text-ink-muted">
-                    <Clock size={13} className="shrink-0" />
-                    <span>Eerste contact {firstSeen ? formatDate(firstSeen) : "—"}</span>
-                  </div>
+                <ContactInfoEditor
+                  email={email}
+                  name={displayName}
+                  organization={displayOrganization}
+                  role={displayRole}
+                  phone={displayPhone}
+                />
+
+                <div className="mt-3 flex items-center gap-2 text-sm text-ink-muted">
+                  <Clock size={13} className="shrink-0" />
+                  <span>Eerste contact {firstSeen ? formatDate(firstSeen) : "—"}</span>
                 </div>
               </div>
             </div>

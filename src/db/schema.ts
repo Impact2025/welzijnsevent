@@ -421,6 +421,11 @@ export const contactProfiles = pgTable("contact_profiles", {
   // contact | betrokken | actief | vip | inactief
   tags:           jsonb("tags").default([]).$type<string[]>(),
   crmNotes:       text("crm_notes"),
+  // Manually overridden contact info
+  overrideName:         text("override_name"),
+  overrideOrganization: text("override_organization"),
+  overrideRole:         text("override_role"),
+  phone:                text("phone"),
   lastContactedAt: timestamp("last_contacted_at"),
   createdAt:      timestamp("created_at").defaultNow(),
   updatedAt:      timestamp("updated_at").defaultNow(),
