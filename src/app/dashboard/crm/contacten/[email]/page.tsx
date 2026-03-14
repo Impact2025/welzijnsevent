@@ -93,17 +93,17 @@ export default async function ContactDetailPage({
     .sort((a, b) => new Date(b.registeredAt!).getTime() - new Date(a.registeredAt!).getTime());
 
   return (
-    <div className="p-7 max-w-5xl mx-auto animate-fade-in">
+    <div className="px-4 py-5 md:px-7 md:py-7 max-w-5xl mx-auto animate-fade-in">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 mb-6 text-[11px] font-bold text-ink-muted uppercase tracking-widest">
+      <div className="flex items-center gap-2 mb-5 text-[11px] font-bold text-ink-muted uppercase tracking-widest">
         <Link href="/dashboard/crm" className="hover:text-terra-500 transition-colors">CRM</Link>
         <span className="text-ink-muted/40">›</span>
-        <Link href="/dashboard/crm/contacten" className="hover:text-terra-500 transition-colors">Contacten</Link>
-        <span className="text-ink-muted/40">›</span>
-        <span className="text-ink truncate max-w-[200px]">{displayName}</span>
+        <Link href="/dashboard/crm/contacten" className="hover:text-terra-500 transition-colors hidden sm:inline">Contacten</Link>
+        <span className="text-ink-muted/40 hidden sm:inline">›</span>
+        <span className="text-ink truncate max-w-[160px] sm:max-w-[240px]">{displayName}</span>
       </div>
 
-      <div className="grid md:grid-cols-[1fr_320px] gap-6">
+      <div className="grid md:grid-cols-[1fr_300px] gap-5 md:gap-6">
         {/* LEFT COLUMN */}
         <div className="space-y-5">
           {/* Contact header card */}

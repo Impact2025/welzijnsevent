@@ -3,7 +3,7 @@ import { eq, inArray, sql } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Users, Download } from "lucide-react";
+import { Users, Download, ChevronRight } from "lucide-react";
 import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
 import { LifecycleBadge } from "@/components/crm/LifecycleBadge";
 import { ContactFilters } from "@/components/crm/ContactFilters";
@@ -80,7 +80,6 @@ export default async function ContactenPage({
     });
   }
 
-  // Filter
   if (q) {
     const lower = q.toLowerCase();
     contacts = contacts.filter(c =>
@@ -92,7 +91,6 @@ export default async function ContactenPage({
   if (lifecycle) contacts = contacts.filter(c => c.lifecycleStage === lifecycle);
   if (tagFilter) contacts = contacts.filter(c => c.tags.includes(tagFilter));
 
-  // Sort
   if (sort === "name") contacts.sort((a, b) => a.name.localeCompare(b.name));
   else if (sort === "events") contacts.sort((a, b) => b.eventsCount - a.eventsCount);
   else if (sort === "score") contacts.sort((a, b) => b.engagementScore - a.engagementScore);
@@ -109,45 +107,46 @@ export default async function ContactenPage({
   };
 
   return (
-    <div className="p-7 max-w-5xl mx-auto animate-fade-in">
+    <div className="px-4 py-5 md:px-7 md:py-7 max-w-5xl mx-auto animate-fade-in">
+
       {/* Header */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Link href="/dashboard/crm" className="text-[11px] font-bold text-ink-muted uppercase tracking-widest hover:text-terra-500 transition-colors">
-              CRM
-            </Link>
-            <span className="text-ink-muted/40">›</span>
-            <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Contacten</p>
-          </div>
-          <h1 className="text-3xl font-extrabold text-ink tracking-tight">Alle Contacten</h1>
-          <p className="text-sm text-ink-muted mt-1 font-medium">{total} unieke contacten over alle evenementen</p>
+      <div className="mb-5 md:mb-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Link href="/dashboard/crm" className="text-[11px] font-bold text-ink-muted uppercase tracking-widest hover:text-terra-500 transition-colors">
+            CRM
+          </Link>
+          <span className="text-ink-muted/40">›</span>
+          <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Contacten</p>
         </div>
-        <div className="flex items-center gap-2">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Alle contacten</h1>
+        <p className="text-sm text-ink-muted mt-0.5">{total} unieke contacten</p>
+
+        {/* Actions row */}
+        <div className="flex items-center gap-2 mt-3">
           <BulkEmailModal
             recipientCount={total}
             filters={{ q, lifecycle, tag: tagFilter }}
           />
           <a
             href={`/api/crm/export?orgId=${org.id}`}
-            className="flex items-center gap-2 bg-white border border-sand text-ink-muted text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-sand transition-colors"
+            className="flex items-center gap-1.5 bg-white border border-sand text-ink-muted text-xs font-semibold px-3 py-2 rounded-xl hover:bg-sand transition-colors"
           >
-            <Download size={14} />
-            Exporteren
+            <Download size={13} />
+            Export
           </a>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="mb-5">
+      <div className="mb-4">
         <ContactFilters />
       </div>
 
       {/* List */}
       <div className="card-base overflow-hidden">
-        {/* Table header */}
+        {/* Desktop table header */}
         <div className="hidden md:grid grid-cols-[2fr_1.5fr_80px_80px_120px_80px] gap-4 px-5 py-3 border-b border-sand bg-cream/50">
-          {["Contact", "Organisatie", "Events", "Score", "Lifecycle", "Laatste activiteit"].map(h => (
+          {["Contact", "Organisatie", "Events", "Score", "Lifecycle", "Laatste"].map(h => (
             <p key={h} className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">{h}</p>
           ))}
         </div>
@@ -164,51 +163,52 @@ export default async function ContactenPage({
               <Link
                 key={contact.email}
                 href={`/dashboard/crm/contacten/${encodeURIComponent(contact.email)}`}
-                className="flex md:grid md:grid-cols-[2fr_1.5fr_80px_80px_120px_80px] gap-4 items-center px-5 py-3.5 hover:bg-cream/60 transition-colors border-b border-sand/40 last:border-0 group"
+                className="flex md:grid md:grid-cols-[2fr_1.5fr_80px_80px_120px_80px] gap-3 md:gap-4 items-center px-4 md:px-5 py-3 md:py-3.5 hover:bg-cream/60 transition-colors border-b border-sand/40 last:border-0 group"
               >
-                {/* Contact */}
-                <div className="flex items-center gap-3 min-w-0">
+                {/* Avatar + name */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className={cn("w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold", avatarColor(contact.name))}>
                     {getInitials(contact.name)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-ink truncate group-hover:text-terra-500 transition-colors">
+                    <p className="text-sm font-semibold text-ink truncate group-hover:text-terra-500 transition-colors leading-tight">
                       {contact.name}
                     </p>
-                    <p className="text-[11px] text-ink-muted truncate">{contact.email}</p>
+                    {/* Mobile: org + score on second line */}
+                    <p className="text-[11px] text-ink-muted truncate md:hidden">
+                      {contact.organization ?? contact.email}
+                      {" · "}
+                      <span className={cn("font-semibold", contact.engagementScore >= 50 ? "text-amber-500" : contact.engagementScore >= 25 ? "text-green-600" : "")}>
+                        {contact.engagementScore} pt
+                      </span>
+                      {" · "}
+                      {contact.eventsCount} event{contact.eventsCount !== 1 ? "s" : ""}
+                    </p>
+                    {/* Desktop: just email */}
+                    <p className="text-[11px] text-ink-muted truncate hidden md:block">{contact.email}</p>
                   </div>
                 </div>
 
-                {/* Org */}
+                {/* Desktop columns */}
                 <p className="text-sm text-ink-muted truncate hidden md:block">{contact.organization ?? "—"}</p>
-
-                {/* Events */}
-                <div className="hidden md:flex items-center gap-1.5">
+                <div className="hidden md:flex items-center gap-1">
                   <span className="text-sm font-semibold text-ink">{contact.eventsCount}</span>
                   <span className="text-[10px] text-ink-muted">({contact.checkins}✓)</span>
                 </div>
-
-                {/* Score */}
                 <p className={cn("text-sm hidden md:block", scoreColor(contact.engagementScore))}>
                   {contact.engagementScore}
                 </p>
-
-                {/* Lifecycle */}
                 <div className="hidden md:block">
                   <LifecycleBadge stage={contact.lifecycleStage} size="sm" />
                 </div>
-
-                {/* Last seen */}
                 <p className="text-[11px] text-ink-muted hidden md:block shrink-0">
                   {contact.lastSeen ? formatRelative(contact.lastSeen) : "—"}
                 </p>
 
-                {/* Mobile: compact info */}
-                <div className="flex items-center gap-2 shrink-0 md:hidden ml-auto">
+                {/* Mobile: lifecycle badge + chevron */}
+                <div className="flex items-center gap-2 shrink-0 md:hidden">
                   <LifecycleBadge stage={contact.lifecycleStage} size="sm" />
-                  <svg className="w-3.5 h-3.5 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+                  <ChevronRight size={14} className="text-ink-muted/40" />
                 </div>
               </Link>
             ))}
