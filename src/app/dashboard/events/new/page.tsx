@@ -12,7 +12,7 @@ const YEAR = new Date().getFullYear();
 const TEMPLATES: {
   id: string; icon: LucideIcon; label: string;
   color: string; iconColor: string; iconBg: string; description: string;
-  prefill: Record<string, string | number>;
+  prefill: Record<string, string>;
 }[] = [
   {
     id: "vrijwilligersdag",
