@@ -10,6 +10,7 @@ const PatchSchema = z.object({
   tags: z.array(z.string().max(40)).max(20).optional(),
   crmNotes: z.string().max(5000).nullable().optional(),
   overrideName: z.string().max(200).nullable().optional(),
+  overrideEmail: z.string().email().nullable().optional(),
   overrideOrganization: z.string().max(200).nullable().optional(),
   overrideRole: z.string().max(200).nullable().optional(),
   phone: z.string().max(50).nullable().optional(),

@@ -5,27 +5,35 @@ import { Pencil, X, Check, Loader2, User, Mail, Building2, Briefcase, Phone } fr
 import { useRouter } from "next/navigation";
 
 interface Props {
-  email: string;
+  routeEmail: string;   // original email used in URL/DB lookup
+  displayEmail: string; // override email or same as routeEmail
   name: string;
   organization: string | null;
   role: string | null;
   phone: string | null;
 }
 
-export function ContactInfoEditor({ email, name, organization, role, phone }: Props) {
+export function ContactInfoEditor({ routeEmail, displayEmail, name, organization, role, phone }: Props) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [values, setValues] = useState({ name, organization: organization ?? "", role: role ?? "", phone: phone ?? "" });
+  const [values, setValues] = useState({
+    name,
+    email: displayEmail,
+    organization: organization ?? "",
+    role: role ?? "",
+    phone: phone ?? "",
+  });
   const router = useRouter();
 
   async function save() {
     setSaving(true);
     try {
-      await fetch(`/api/crm/contacts/${encodeURIComponent(email)}`, {
+      await fetch(`/api/crm/contacts/${encodeURIComponent(routeEmail)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           overrideName: values.name || null,
+          overrideEmail: values.email !== routeEmail ? values.email || null : null,
           overrideOrganization: values.organization || null,
           overrideRole: values.role || null,
           phone: values.phone || null,
@@ -38,6 +46,11 @@ export function ContactInfoEditor({ email, name, organization, role, phone }: Pr
     }
   }
 
+  function cancel() {
+    setEditing(false);
+    setValues({ name, email: displayEmail, organization: organization ?? "", role: role ?? "", phone: phone ?? "" });
+  }
+
   if (!editing) {
     return (
       <div className="mt-4 space-y-1.5 group/info">
@@ -45,7 +58,7 @@ export function ContactInfoEditor({ email, name, organization, role, phone }: Pr
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2 text-sm text-ink-muted">
               <Mail size={13} className="shrink-0" />
-              <a href={`mailto:${email}`} className="hover:text-terra-500 transition-colors font-medium">{email}</a>
+              <a href={`mailto:${displayEmail}`} className="hover:text-terra-500 transition-colors font-medium">{displayEmail}</a>
             </div>
             {organization && (
               <div className="flex items-center gap-2 text-sm text-ink-muted">
@@ -83,14 +96,16 @@ export function ContactInfoEditor({ email, name, organization, role, phone }: Pr
       <p className="text-[10px] font-bold text-ink-muted uppercase tracking-widest mb-3">Contactgegevens bewerken</p>
 
       {[
-        { key: "name" as const, label: "Naam", icon: User, placeholder: "Volledige naam" },
-        { key: "organization" as const, label: "Organisatie", icon: Building2, placeholder: "Organisatienaam" },
-        { key: "role" as const, label: "Functie", icon: Briefcase, placeholder: "Functietitel" },
-        { key: "phone" as const, label: "Telefoon", icon: Phone, placeholder: "+31 6 00000000" },
-      ].map(({ key, label, icon: Icon, placeholder }) => (
+        { key: "name" as const, label: "Naam", icon: User, placeholder: "Volledige naam", type: "text" },
+        { key: "email" as const, label: "E-mailadres", icon: Mail, placeholder: "naam@organisatie.nl", type: "email" },
+        { key: "organization" as const, label: "Organisatie", icon: Building2, placeholder: "Organisatienaam", type: "text" },
+        { key: "role" as const, label: "Functie", icon: Briefcase, placeholder: "Functietitel", type: "text" },
+        { key: "phone" as const, label: "Telefoon", icon: Phone, placeholder: "+31 6 00000000", type: "tel" },
+      ].map(({ key, label, icon: Icon, placeholder, type }) => (
         <div key={key} className="flex items-center gap-2">
           <Icon size={13} className="shrink-0 text-ink-muted" />
           <input
+            type={type}
             value={values[key]}
             onChange={e => setValues(v => ({ ...v, [key]: e.target.value }))}
             placeholder={placeholder}
@@ -99,9 +114,15 @@ export function ContactInfoEditor({ email, name, organization, role, phone }: Pr
         </div>
       ))}
 
+      {values.email !== routeEmail && values.email && (
+        <p className="text-[11px] text-amber-600 pl-5">
+          Het originele registratie-adres ({routeEmail}) blijft bewaard in de database.
+        </p>
+      )}
+
       <div className="flex items-center justify-end gap-2 pt-1">
         <button
-          onClick={() => { setEditing(false); setValues({ name, organization: organization ?? "", role: role ?? "", phone: phone ?? "" }); }}
+          onClick={cancel}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-ink-muted hover:bg-sand transition-colors"
         >
           <X size={12} />

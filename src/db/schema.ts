@@ -423,6 +423,7 @@ export const contactProfiles = pgTable("contact_profiles", {
   crmNotes:       text("crm_notes"),
   // Manually overridden contact info
   overrideName:         text("override_name"),
+  overrideEmail:        text("override_email"),
   overrideOrganization: text("override_organization"),
   overrideRole:         text("override_role"),
   phone:                text("phone"),

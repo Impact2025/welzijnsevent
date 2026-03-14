@@ -79,6 +79,7 @@ export default async function ContactDetailPage({
 
   // Profile overrides take precedence over attendee data
   const displayName = profile?.overrideName ?? latest.name;
+  const displayEmail = profile?.overrideEmail ?? email;
   const displayOrganization = profile?.overrideOrganization ?? latest.organization ?? null;
   const displayRole = profile?.overrideRole ?? latest.role ?? null;
   const displayPhone = profile?.phone ?? null;
@@ -126,7 +127,8 @@ export default async function ContactDetailPage({
                 </div>
 
                 <ContactInfoEditor
-                  email={email}
+                  routeEmail={email}
+                  displayEmail={displayEmail}
                   name={displayName}
                   organization={displayOrganization}
                   role={displayRole}
@@ -267,7 +269,7 @@ export default async function ContactDetailPage({
 
           {/* Send email quick action */}
           <a
-            href={`mailto:${email}`}
+            href={`mailto:${displayEmail}`}
             className="flex items-center justify-center gap-2 w-full bg-white border border-sand hover:bg-sand rounded-xl px-4 py-3 text-sm font-semibold text-ink-muted transition-colors"
           >
             <Mail size={14} />
