@@ -14,9 +14,9 @@ interface BijeenWordmarkProps {
 }
 
 const SIZES = {
-  sm: { height: 24, iconSize: 22, fontSize: 15, gap: 8  },
-  md: { height: 30, iconSize: 28, fontSize: 18, gap: 9  },
-  lg: { height: 36, iconSize: 34, fontSize: 22, gap: 11 },
+  sm: { height: 28, iconSize: 28, fontSize: 15, gap: 8  },
+  md: { height: 42, iconSize: 42, fontSize: 18, gap: 10 },
+  lg: { height: 52, iconSize: 52, fontSize: 22, gap: 12 },
 };
 
 export function BijeenWordmark({
