@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   LayoutDashboard, Building2, Sparkles, ArrowLeft, Shield, Menu, X,
+  Euro, BarChart2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
@@ -12,6 +13,8 @@ import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 const navItems = [
   { href: "/admin",              icon: LayoutDashboard, label: "Overzicht",    exact: true },
   { href: "/admin/organisaties", icon: Building2,       label: "Organisaties"              },
+  { href: "/admin/revenue",      icon: Euro,            label: "Revenue"                   },
+  { href: "/admin/platform",     icon: BarChart2,       label: "Platform stats"            },
   { href: "/admin/ai-inzichten", icon: Sparkles,        label: "AI Inzichten"              },
   { href: "/admin/audit-log",    icon: Shield,          label: "Audit Log"                 },
 ];

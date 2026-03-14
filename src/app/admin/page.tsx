@@ -291,7 +291,7 @@ export default async function AdminOverviewPage() {
               {churnRiskDetails.map(org => (
                 <Link
                   key={org.id}
-                  href="/admin/organisaties"
+                  href={`/admin/organisaties/${org.id}`}
                   className="flex items-center gap-3 p-3 rounded-xl bg-red-50/60 hover:bg-red-50 border border-red-100 hover:border-red-200 transition-all group"
                 >
                   <div
@@ -331,7 +331,7 @@ export default async function AdminOverviewPage() {
           ) : (
             <div className="space-y-2.5">
               {recentOrgs.map(org => (
-                <div key={org.id} className="flex items-center gap-3">
+                <Link key={org.id} href={`/admin/organisaties/${org.id}`} className="flex items-center gap-3 hover:bg-black/[0.02] -mx-2 px-2 py-1 rounded-lg transition-colors">
                   <div
                     className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold text-white"
                     style={{ backgroundColor: adminAvatarColor(org.name) }}
@@ -347,7 +347,7 @@ export default async function AdminOverviewPage() {
                   {org.subscription && (
                     <PlanBadge plan={org.subscription.plan} status={org.subscription.status} />
                   )}
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -373,43 +373,26 @@ export default async function AdminOverviewPage() {
       </div>
 
       {/* Quick nav */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link
-          href="/admin/organisaties"
-          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
-        >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-            <Building2 size={18} className="text-blue-600" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-[#1C1814]">Organisaties</p>
-            <p className="text-xs text-[#9E9890] mt-0.5">Plans, subscripties, CSV export</p>
-          </div>
-        </Link>
-        <Link
-          href="/admin/ai-inzichten"
-          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
-        >
-          <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center group-hover:bg-purple-100 transition-colors">
-            <TrendingUp size={18} className="text-purple-600" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-[#1C1814]">AI Inzichten</p>
-            <p className="text-xs text-[#9E9890] mt-0.5">Churn risico's, kansen, aanbevelingen</p>
-          </div>
-        </Link>
-        <Link
-          href="/admin/audit-log"
-          className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
-        >
-          <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-red-100 transition-colors">
-            <Shield size={18} className="text-red-500" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-[#1C1814]">Audit Log</p>
-            <p className="text-xs text-[#9E9890] mt-0.5">Wie wijzigde wat, wanneer</p>
-          </div>
-        </Link>
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {[
+          { href: "/admin/organisaties", icon: Building2,  bg: "bg-blue-50",   hover: "group-hover:bg-blue-100",   color: "text-blue-600",   label: "Organisaties",   sub: "Plans, subscripties, mail"        },
+          { href: "/admin/revenue",      icon: TrendingUp, bg: "bg-emerald-50",hover: "group-hover:bg-emerald-100",color: "text-emerald-600", label: "Revenue",        sub: "MRR, ARR, ARPU, churn"            },
+          { href: "/admin/platform",     icon: Activity,   bg: "bg-amber-50",  hover: "group-hover:bg-amber-100",  color: "text-amber-600",  label: "Platform stats", sub: "Events, deelnemers, activiteit"   },
+          { href: "/admin/ai-inzichten", icon: TrendingUp, bg: "bg-purple-50", hover: "group-hover:bg-purple-100", color: "text-purple-600", label: "AI Inzichten",   sub: "Churn risico's, kansen"           },
+          { href: "/admin/audit-log",    icon: Shield,     bg: "bg-red-50",    hover: "group-hover:bg-red-100",    color: "text-red-500",    label: "Audit Log",      sub: "Wie wijzigde wat, wanneer"        },
+        ].map(item => (
+          <Link key={item.href} href={item.href}
+            className="bg-white border border-black/8 rounded-2xl p-5 flex items-center gap-4 hover:border-black/15 hover:shadow-md transition-all group shadow-sm"
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.bg} ${item.hover} transition-colors shrink-0`}>
+              <item.icon size={18} className={item.color} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-[#1C1814]">{item.label}</p>
+              <p className="text-xs text-[#9E9890] mt-0.5 truncate">{item.sub}</p>
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

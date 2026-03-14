@@ -3,8 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   Building2, Search, ChevronDown, ChevronUp, RefreshCw,
-  Download, Mail, Send, X, Check,
+  Download, Mail, Send, X, Check, ExternalLink,
 } from "lucide-react";
+import Link from "next/link";
 import { OrgPlanEditor } from "@/components/admin/org-plan-editor";
 import { formatDate } from "@/lib/utils";
 
@@ -326,20 +327,23 @@ export default function AdminOrganisatiesPage() {
               return (
                 <div key={org.id}>
                   <div className="grid grid-cols-[1fr_100px_70px_70px_100px_36px_36px] gap-3 px-5 py-4 hover:bg-black/2 transition-colors">
-                    {/* Org name — click to expand */}
-                    <div
-                      className="flex items-center gap-3 min-w-0 cursor-pointer"
-                      onClick={() => setExpandedId(isExpanded ? null : org.id)}
-                    >
+                    {/* Org name */}
+                    <div className="flex items-center gap-3 min-w-0">
                       <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold text-white"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold text-white cursor-pointer"
                         style={{ backgroundColor: adminAvatarColor(org.name) }}
+                        onClick={() => setExpandedId(isExpanded ? null : org.id)}
                       >
                         {getInitials(org.name)}
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1C1814] truncate">{org.name}</p>
-                        <p className="text-[10px] text-[#9E9890] truncate">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-sm font-semibold text-[#1C1814] truncate cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : org.id)}>{org.name}</p>
+                          <Link href={`/admin/organisaties/${org.id}`} className="text-[#9E9890] hover:text-[#C8522A] transition-colors shrink-0" title="Detail pagina">
+                            <ExternalLink size={11} />
+                          </Link>
+                        </div>
+                        <p className="text-[10px] text-[#9E9890] truncate cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : org.id)}>
                           {org.slug ?? org.id.slice(0, 8)}
                           {org.customDomain && ` · ${org.customDomain}`}
                         </p>
