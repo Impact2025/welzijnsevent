@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Providers } from "./providers";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </Providers>
       </body>
+      <GoogleAnalytics gaId="G-W1RTS0R3G1" />
     </html>
   );
 }
