@@ -14,6 +14,10 @@ type OrgRow = {
   slug: string | null;
   logo: string | null;
   customDomain: string | null;
+  phone: string | null;
+  orgType: string | null;
+  eventsPerYear: string | null;
+  contactRole: string | null;
   userId: string | null;
   createdAt: string | null;
   subscription: {
@@ -410,6 +414,24 @@ export default function AdminOrganisatiesPage() {
                           <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-1">User ID</p>
                           <p className="text-[10px] text-[#9E9890] font-mono truncate">{org.userId ?? "—"}</p>
                         </div>
+                        {org.phone && (
+                          <div>
+                            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-1">Telefoon</p>
+                            <p className="text-xs text-[#1C1814] font-medium">{org.phone}</p>
+                          </div>
+                        )}
+                        {org.orgType && (
+                          <div>
+                            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-1">Type org.</p>
+                            <p className="text-xs text-[#1C1814] font-medium capitalize">{org.orgType}</p>
+                          </div>
+                        )}
+                        {org.eventsPerYear && (
+                          <div>
+                            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-wider mb-1">Events/jaar</p>
+                            <p className="text-xs text-[#1C1814] font-medium">{org.eventsPerYear}</p>
+                          </div>
+                        )}
                       </div>
 
                       {sub ? (

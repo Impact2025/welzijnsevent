@@ -50,6 +50,10 @@ export const organizations = pgTable("organizations", {
   logo:         text("logo"),
   primaryColor: text("primary_color").default("#C8522A"),
   customDomain: text("custom_domain"),
+  phone:         text("phone"),
+  orgType:       text("org_type"),
+  eventsPerYear: text("events_per_year"),
+  contactRole:   text("contact_role"),
   userId:       text("user_id").references(() => authUsers.id, { onDelete: "cascade" }).unique(),
   createdAt:    timestamp("created_at").defaultNow(),
 });
@@ -406,6 +410,36 @@ export const orgInvites = pgTable("org_invites", {
   createdAt:      timestamp("created_at").defaultNow(),
 });
 
+// ── CRM: CONTACT PROFILES ──────────────────────────────────
+// Stores org-specific CRM data per unique contact email
+export const contactProfiles = pgTable("contact_profiles", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  email:          text("email").notNull(),
+  // CRM fields
+  lifecycleStage: text("lifecycle_stage").default("contact"),
+  // contact | betrokken | actief | vip | inactief
+  tags:           jsonb("tags").default([]).$type<string[]>(),
+  crmNotes:       text("crm_notes"),
+  lastContactedAt: timestamp("last_contacted_at"),
+  createdAt:      timestamp("created_at").defaultNow(),
+  updatedAt:      timestamp("updated_at").defaultNow(),
+});
+
+// ── CRM: ACTIVITY LOG ──────────────────────────────────────
+export const crmActivities = pgTable("crm_activities", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  contactEmail:   text("contact_email").notNull(),
+  type:           text("type").notNull(),
+  // event_registration | check_in | feedback | note | email_sent | tag_added
+  description:    text("description").notNull(),
+  metadata:       jsonb("metadata").default({}).$type<Record<string, unknown>>(),
+  eventId:        uuid("event_id").references(() => events.id),
+  createdAt:      timestamp("created_at").defaultNow(),
+  createdBy:      text("created_by"),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -431,3 +465,5 @@ export type Speaker            = typeof speakers.$inferSelect;
 export type Sponsor            = typeof sponsors.$inferSelect;
 export type OrgMember          = typeof orgMembers.$inferSelect;
 export type OrgInvite          = typeof orgInvites.$inferSelect;
+export type ContactProfile     = typeof contactProfiles.$inferSelect;
+export type CrmActivity        = typeof crmActivities.$inferSelect;

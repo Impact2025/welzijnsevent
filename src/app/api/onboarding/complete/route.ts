@@ -4,7 +4,7 @@ import { db, organizations, subscriptions, authUsers } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { PLAN_PRICES_CENTS, FREE_PLANS } from "@/lib/plans";
-import { sendWelcomeTrialEmail } from "@/lib/email";
+import { sendWelcomeTrialEmail, sendWelcomeCommunityEmail } from "@/lib/email";
 
 const MSP_API_BASE =
   process.env.MULTISAFEPAY_ENV === "live"
@@ -20,11 +20,18 @@ export async function POST(req: Request) {
   const userId = session.user.id;
 
   const body = await req.json();
-  const { name, logo, plan } = body;
+  const { name, logo, plan, phone, orgType, eventsPerYear, contactRole } = body;
 
   if (!name?.trim() || !plan) {
     return NextResponse.json({ error: "Naam en plan zijn verplicht" }, { status: 400 });
   }
+
+  const qualificationData = {
+    phone: phone?.trim() || null,
+    orgType: orgType || null,
+    eventsPerYear: eventsPerYear || null,
+    contactRole: contactRole || null,
+  };
 
   // Check for existing organisation
   const [existing] = await db
@@ -35,7 +42,6 @@ export async function POST(req: Request) {
   let org = existing;
 
   if (existing) {
-    // If org exists, check if it has an active/trial subscription
     const [existingSub] = await db
       .select()
       .from(subscriptions)
@@ -44,16 +50,13 @@ export async function POST(req: Request) {
       .limit(1);
 
     if (existingSub && existingSub.status === "active") {
-      // Already fully onboarded — redirect to dashboard
       return NextResponse.json({ redirect: "/dashboard" });
     }
 
-    // Pending/failed payment: clean up old subscriptions and retry
     await db.delete(subscriptions).where(eq(subscriptions.organizationId, existing.id));
-    // Update org name/logo in case they changed it
     const [updated] = await db
       .update(organizations)
-      .set({ name: name.trim(), logo: logo ?? null })
+      .set({ name: name.trim(), logo: logo ?? null, ...qualificationData })
       .where(eq(organizations.id, existing.id))
       .returning();
     org = updated;
@@ -64,10 +67,14 @@ export async function POST(req: Request) {
 
     const [created] = await db
       .insert(organizations)
-      .values({ name: name.trim(), logo: logo ?? null, slug, userId })
+      .values({ name: name.trim(), logo: logo ?? null, slug, userId, ...qualificationData })
       .returning();
     org = created;
   }
+
+  const [user] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const firstName = user?.name?.split(" ")[0] ?? name.trim().split(" ")[0];
 
   if (FREE_PLANS.has(plan)) {
     const expiresAt = plan === "trial" ? new Date(Date.now() + 14 * 86_400_000) : null;
@@ -79,17 +86,24 @@ export async function POST(req: Request) {
       expiresAt,
     });
 
-    // Stuur welkomstmail
-    const [user] = await db.select().from(authUsers).where(eq(authUsers.id, userId));
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
-    if (user?.email && expiresAt) {
-      sendWelcomeTrialEmail({
-        to: user.email,
-        firstName: user.name?.split(" ")[0] ?? name.trim().split(" ")[0],
-        orgName: name.trim(),
-        trialEndsAt: expiresAt,
-        dashboardUrl: `${baseUrl}/dashboard`,
-      }).catch(() => {});
+    if (user?.email) {
+      if (plan === "trial" && expiresAt) {
+        sendWelcomeTrialEmail({
+          to: user.email,
+          firstName,
+          orgName: name.trim(),
+          trialEndsAt: expiresAt,
+          dashboardUrl: `${baseUrl}/dashboard`,
+        }).catch(() => {});
+      } else if (plan === "community") {
+        sendWelcomeCommunityEmail({
+          to: user.email,
+          firstName,
+          orgName: name.trim(),
+          eventsPerYear: qualificationData.eventsPerYear,
+          dashboardUrl: `${baseUrl}/dashboard`,
+        }).catch(() => {});
+      }
     }
 
     return NextResponse.json({ redirect: "/dashboard" });
@@ -115,8 +129,6 @@ export async function POST(req: Request) {
   if (!apiKey) {
     return NextResponse.json({ error: "Betaalprovider niet geconfigureerd" }, { status: 500 });
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${req.headers.get("host")}`;
 
   const orderId = `sub_${randomUUID()}`;
 

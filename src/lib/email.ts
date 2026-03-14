@@ -102,6 +102,95 @@ function buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardU
 </html>`;
 }
 
+// ─── Organisatie: welkomstmail (community — altijd gratis) ────────────────────
+
+interface WelcomeCommunityEmailProps {
+  to: string;
+  firstName: string;
+  orgName: string;
+  eventsPerYear?: string | null;
+  dashboardUrl: string;
+}
+
+export async function sendWelcomeCommunityEmail(props: WelcomeCommunityEmailProps) {
+  if (!resend) return;
+  const { to, firstName, orgName, eventsPerYear, dashboardUrl } = props;
+
+  const upgradeHint = eventsPerYear && ["11-24", "25+"].includes(eventsPerYear)
+    ? `<div style="background:#FFF4EF;border:1px solid #F5D4C4;border-radius:12px;padding:14px 18px;margin:0 0 24px;">
+        <p style="color:#C8522A;font-size:13px;font-weight:700;margin:0 0 4px;">Groeien? Wij ook.</p>
+        <p style="color:#6B6560;font-size:12px;line-height:1.6;margin:0 0 10px;">Je gaf aan meer dan 10 events per jaar te organiseren. Het Welzijn of Netwerk-plan past beter bij jouw volume.</p>
+        <a href="${dashboardUrl.replace("/dashboard", "/dashboard/instellingen")}" style="color:#C8522A;font-size:12px;font-weight:700;text-decoration:underline;">Bekijk alle plannen →</a>
+      </div>`
+    : "";
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `Welkom bij Bijeen, ${firstName}! Je account staat klaar`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welkom bij Bijeen</title>
+</head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+    </div>
+
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎉</div>
+        <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Welkom bij Bijeen!</h1>
+        <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;font-weight:500;">${orgName} · Community</p>
+      </div>
+
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#6B6560;font-size:15px;line-height:1.7;margin:0 0 28px;">
+          Je account is aangemaakt en je kunt direct aan de slag. Met het gratis Community-plan heb je alles wat je nodig hebt om te starten.
+        </p>
+
+        <p style="color:#1C1814;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 12px;">Wat je kunt doen</p>
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 28px;">
+          ${["2 evenementen per jaar aanmaken", "Tot 75 deelnemers uitnodigen en beheren", "QR-code check-in op de dag zelf", "Deelnemerslijst exporteren naar Excel"].map(f => `
+          <tr>
+            <td style="padding:8px 0;border-bottom:1px solid #F0EBE4;vertical-align:top;">
+              <span style="color:#2D5A3D;font-size:16px;margin-right:10px;">✓</span>
+              <span style="color:#1C1814;font-size:14px;">${f}</span>
+            </td>
+          </tr>`).join("")}
+        </table>
+
+        ${upgradeHint}
+
+        <div style="text-align:center;margin:0 0 8px;">
+          <a href="${dashboardUrl}" style="display:inline-block;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;padding:15px 36px;border-radius:12px;letter-spacing:-0.2px;">
+            Maak je eerste evenement →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;line-height:1.6;margin:0;">
+        Vragen? Stuur een mail naar <a href="mailto:hello@bijeen.app" style="color:#9E9890;">hello@bijeen.app</a><br>
+        <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>`,
+  });
+}
+
 // ─── Organisatie: betalingsbevestiging (abonnement actief) ───────────────────
 
 interface PaymentConfirmationEmailProps {
