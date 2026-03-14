@@ -114,28 +114,11 @@ export default function SignInPage() {
 
         {/* Social proof */}
         <div className="border-t border-white/10 pt-6">
-          <div className="flex items-center gap-3 mb-3">
-            {/* Avatar stack */}
-            <div className="flex -space-x-2">
-              {["#C8522A", "#2D5A3D", "#3B82F6", "#8B5CF6"].map((color, i) => (
-                <div
-                  key={i}
-                  className="w-7 h-7 rounded-full border-2 border-[#1E3D29] flex items-center justify-center text-[10px] font-bold text-white"
-                  style={{ backgroundColor: color }}
-                >
-                  {["H", "W", "S", "M"][i]}
-                </div>
-              ))}
-            </div>
-            <p className="text-green-200 text-xs">
-              <span className="text-white font-bold">200+</span> welzijnsorganisaties gingen je voor
-            </p>
-          </div>
           <div className="bg-white/8 rounded-xl p-4">
             <p className="text-green-100 text-xs leading-relaxed italic mb-2">
-              &ldquo;Bijeen scheelt ons uren werk per event. De WMO-export alleen al is goud waard.&rdquo;
+              &ldquo;Eindelijk een tool die begrijpt hoe wij werken. Alles op één plek — van aanmelding tot rapportage.&rdquo;
             </p>
-            <p className="text-green-400 text-[11px] font-semibold">— Eventcoördinator, Humanitas</p>
+            <p className="text-green-400 text-[11px] font-semibold">— Vincent, oprichter Bijeen</p>
           </div>
         </div>
       </div>
