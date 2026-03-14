@@ -1,9 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  ArrowRight, Zap, ClipboardList, QrCode, Network,
-  MessageSquareMore, BarChart3, Smartphone, Mic,
-  BarChart2, Share2, Download, Calendar, Mail, Globe,
-  Check, X, Users, Clock, TrendingUp, Shield,
+  ArrowRight, Zap, QrCode, Network,
+  MessageSquareMore, BarChart3, Mic,
+  BarChart2, Share2, Download, Mail, Globe,
+  Check, X, Users, Clock, Shield,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -23,194 +24,34 @@ export const metadata: Metadata = {
   },
 };
 
-/* ─── Mockup: Event card preview ──────────────────────────────── */
-function EventCardMockup() {
+/* ─── Phone frame wrapper ─────────────────────────────────────── */
+function PhoneFrame({
+  src,
+  alt,
+  className = "",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
   return (
-    <div className="bg-white rounded-2xl shadow-2xl border border-sand/60 overflow-hidden w-full max-w-sm">
-      <div className="h-2 bg-gradient-to-r from-terra-400 to-terra-600" />
-      <div className="p-5">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="h-3 w-32 bg-ink/10 rounded-full mb-2" />
-            <div className="h-2 w-20 bg-ink/6 rounded-full" />
-          </div>
-          <div className="w-9 h-9 rounded-lg bg-terra-50 flex items-center justify-center">
-            <Calendar size={16} className="text-terra-500" />
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {["48 aangemeld", "3 wachtlijst", "2 sessies"].map((s) => (
-            <div key={s} className="bg-cream rounded-lg p-2 text-center">
-              <div className="h-2 w-full bg-terra-200 rounded mb-1" />
-              <div className="text-[9px] text-ink-muted font-medium">{s}</div>
-            </div>
-          ))}
-        </div>
-        <div className="space-y-2">
-          {["Anna de Vries", "Mohammed El Ouali", "Liselotte Bakker"].map((name, i) => (
-            <div key={name} className="flex items-center gap-2.5">
-              <div
-                className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold text-white shrink-0"
-                style={{ background: ["#C8522A", "#2D5A3D", "#7C6B5A"][i] }}
-              >
-                {name[0]}
-              </div>
-              <div className="flex-1">
-                <div className="h-2 w-24 bg-ink/10 rounded mb-1" />
-                <div className="h-1.5 w-16 bg-ink/6 rounded" />
-              </div>
-              <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                <Check size={9} className="text-green-600" strokeWidth={3} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="border-t border-sand/60 px-5 py-3 flex items-center justify-between bg-cream/50">
-        <span className="text-[10px] text-ink-muted font-medium">Live dashboard</span>
-        <div className="flex items-center gap-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] text-green-600 font-bold">Live</span>
-        </div>
-      </div>
+    <div
+      className={`relative rounded-[2rem] overflow-hidden shadow-2xl border-[6px] border-[#1C1814]/80 bg-[#1C1814] ${className}`}
+      style={{ maxWidth: 220 }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        width={335}
+        height={730}
+        className="w-full h-auto block"
+        unoptimized
+      />
     </div>
   );
 }
 
-/* ─── Mockup: QR Check-in ─────────────────────────────────────── */
-function QrMockup() {
-  return (
-    <div className="bg-[#12100E] rounded-2xl shadow-2xl overflow-hidden w-full max-w-xs border border-white/10">
-      <div className="p-4 border-b border-white/10 flex items-center gap-2">
-        <div className="w-2 h-2 rounded-full bg-terra-400" />
-        <span className="text-white/60 text-xs font-medium">Bijeen · QR Scan</span>
-      </div>
-      <div className="p-6 text-center">
-        <div className="w-32 h-32 mx-auto bg-white rounded-xl mb-5 grid grid-cols-5 grid-rows-5 gap-0.5 p-2">
-          {Array.from({ length: 25 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-sm"
-              style={{
-                background: [0,1,2,3,4,5,9,10,14,15,19,20,21,22,23,24,6,8,16,18,11,13].includes(i)
-                  ? "#12100E"
-                  : "transparent",
-              }}
-            />
-          ))}
-        </div>
-        <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-xs font-bold mb-3">
-          <Check size={12} strokeWidth={3} />
-          Ingecheckt!
-        </div>
-        <p className="text-white/50 text-[11px]">Anna de Vries — Bijeen Netwerkevent</p>
-      </div>
-    </div>
-  );
-}
 
-/* ─── Mockup: Impact rapport ──────────────────────────────────── */
-function ReportMockup() {
-  const bars = [72, 88, 65, 95, 80, 91];
-  return (
-    <div className="bg-white rounded-2xl shadow-2xl border border-sand/60 overflow-hidden w-full max-w-sm">
-      <div className="p-5 border-b border-sand/40">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-bold text-ink">Impactrapport — Mrt 2026</span>
-          <div className="flex items-center gap-1 text-terra-500">
-            <TrendingUp size={12} />
-            <span className="text-[10px] font-bold">+23%</span>
-          </div>
-        </div>
-        <div className="text-[10px] text-ink-muted">Netwerkevent Welzijn Noord-Holland</div>
-      </div>
-      <div className="p-5">
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          {[
-            { label: "Opkomst", val: "94%" },
-            { label: "Tevredenheid", val: "8.7" },
-            { label: "Matches", val: "47" },
-            { label: "Sessies", val: "6" },
-          ].map(({ label, val }) => (
-            <div key={label} className="bg-cream rounded-xl p-3">
-              <div className="text-xl font-extrabold text-terra-500 leading-none mb-0.5">{val}</div>
-              <div className="text-[10px] text-ink-muted">{label}</div>
-            </div>
-          ))}
-        </div>
-        <div className="mb-2">
-          <div className="text-[10px] text-ink-muted font-medium mb-2">Sessie-engagement</div>
-          <div className="flex items-end gap-1 h-14">
-            {bars.map((h, i) => (
-              <div
-                key={i}
-                className="flex-1 rounded-sm"
-                style={{
-                  height: `${h}%`,
-                  background: i === 3 ? "#C8522A" : "#FAF6F0",
-                  border: "1px solid #F0E8DC",
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="border-t border-sand/40 px-5 py-3 flex items-center justify-between">
-        <span className="text-[10px] text-ink-muted">Subsidie-export</span>
-        <div className="flex items-center gap-1 text-terra-500">
-          <Download size={10} />
-          <span className="text-[10px] font-bold">PDF</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Mockup: Live Q&A ────────────────────────────────────────── */
-function QaMockup() {
-  const questions = [
-    { q: "Hoe borg je de AVG bij AI-matching?", votes: 14, approved: true },
-    { q: "Is er ook een app voor de spreker?", votes: 9, approved: true },
-    { q: "Kan ik de wachtlijst handmatig beheren?", votes: 6, approved: false },
-  ];
-  return (
-    <div className="bg-[#12100E] rounded-2xl shadow-2xl border border-white/10 overflow-hidden w-full max-w-sm">
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
-        <span className="text-white/70 text-xs font-bold">Live Q&amp;A · 23 vragen</span>
-        <div className="flex items-center gap-1.5">
-          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          <span className="text-[10px] text-red-400 font-bold">LIVE</span>
-        </div>
-      </div>
-      <div className="p-4 space-y-3">
-        {questions.map(({ q, votes, approved }) => (
-          <div
-            key={q}
-            className={`rounded-xl p-3 border ${
-              approved
-                ? "border-terra-500/30 bg-terra-500/10"
-                : "border-white/10 bg-white/5"
-            }`}
-          >
-            <p className="text-white/80 text-[11px] leading-relaxed mb-2">{q}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-white/40">
-                <span className="text-[10px]">▲ {votes}</span>
-              </div>
-              {approved ? (
-                <span className="text-[9px] font-bold text-terra-400 uppercase tracking-wider">
-                  Goedgekeurd
-                </span>
-              ) : (
-                <span className="text-[9px] text-white/30">In wachtrij</span>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 /* ─── Stats strip ─────────────────────────────────────────────── */
 const stats = [
@@ -318,16 +159,16 @@ export default function FunctiesPage() {
             </div>
           </div>
 
-          {/* Hero visual — floating UI cards */}
-          <div className="flex items-end gap-4 overflow-hidden pb-0">
-            <div className="hidden lg:block translate-y-6 opacity-90">
-              <QrMockup />
+          {/* Hero visual — echte app screenshots */}
+          <div className="flex items-end justify-center lg:justify-start gap-4 overflow-hidden pb-0">
+            <div className="hidden lg:block translate-y-8 opacity-80">
+              <PhoneFrame src="/screenshots/nieuw_event.png" alt="Nieuw evenement aanmaken" />
             </div>
-            <div className="translate-y-6 opacity-95 mx-auto lg:mx-0">
-              <EventCardMockup />
+            <div className="translate-y-4 opacity-100 mx-auto lg:mx-0" style={{ maxWidth: 240 }}>
+              <PhoneFrame src="/screenshots/Dashboard.png" alt="Bijeen dashboard" />
             </div>
-            <div className="hidden lg:block translate-y-6 opacity-90">
-              <ReportMockup />
+            <div className="hidden lg:block translate-y-8 opacity-80">
+              <PhoneFrame src="/screenshots/event_pagina.png" alt="Evenement programma" />
             </div>
           </div>
         </div>
@@ -395,38 +236,7 @@ export default function FunctiesPage() {
                 </ul>
               </div>
               <div className="bg-cream/60 border-l border-sand/40 p-8 sm:p-10 flex items-center justify-center">
-                {/* Registration form mockup */}
-                <div className="w-full max-w-xs">
-                  <div className="bg-white rounded-2xl shadow-lg border border-sand/60 p-5">
-                    <div className="flex items-center gap-2 mb-5">
-                      <div className="w-8 h-8 rounded-lg bg-terra-500 flex items-center justify-center">
-                        <Calendar size={14} className="text-white" />
-                      </div>
-                      <div>
-                        <div className="h-2.5 w-28 bg-ink/15 rounded-full" />
-                        <div className="h-2 w-20 bg-ink/8 rounded-full mt-1" />
-                      </div>
-                    </div>
-                    {["Naam", "Organisatie", "Functie"].map((label) => (
-                      <div key={label} className="mb-3">
-                        <div className="text-[10px] text-ink-muted font-medium mb-1">{label}</div>
-                        <div className="h-8 bg-cream border border-sand rounded-lg" />
-                      </div>
-                    ))}
-                    <div className="mb-4">
-                      <div className="text-[10px] text-ink-muted font-medium mb-1">Sessiekeuze</div>
-                      {["Keynote · 9:00", "Workshop A · 10:30", "Workshop B · 10:30"].map((s, i) => (
-                        <div key={s} className="flex items-center gap-2 mb-1.5">
-                          <div className={`w-3.5 h-3.5 rounded border-2 ${i === 0 || i === 1 ? "border-terra-500 bg-terra-500" : "border-sand"}`} />
-                          <span className="text-[10px] text-ink-muted">{s}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="w-full bg-terra-500 rounded-lg h-9 flex items-center justify-center">
-                      <span className="text-white text-[11px] font-bold">Inschrijven →</span>
-                    </div>
-                  </div>
-                </div>
+                <PhoneFrame src="/screenshots/nieuw_event.png" alt="Sector-templates kiezen" />
               </div>
             </div>
           </div>
@@ -533,7 +343,7 @@ export default function FunctiesPage() {
                 </ul>
               </div>
               <div className="border-l border-white/8 p-8 sm:p-10 flex items-center justify-center bg-white/3 order-1 lg:order-2">
-                <QrMockup />
+                <PhoneFrame src="/screenshots/deelnemersbeheer.png" alt="Deelnemersbeheer met QR scanner" />
               </div>
             </div>
           </div>
@@ -585,7 +395,7 @@ export default function FunctiesPage() {
                 </p>
               </div>
               <div className="flex justify-center lg:justify-end">
-                <QaMockup />
+                <PhoneFrame src="/screenshots/live_control.png" alt="Live control panel sessies" />
               </div>
             </div>
           </div>
@@ -653,57 +463,9 @@ export default function FunctiesPage() {
                 </Link>
               </div>
 
-              {/* Network visualization mockup */}
+              {/* AI matching screenshot */}
               <div className="flex justify-center">
-                <div className="relative w-64 h-64">
-                  {/* Center node */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-terra-500 border-4 border-terra-400/50 flex items-center justify-center z-10 shadow-lg shadow-terra-500/40">
-                    <Network size={22} className="text-white" />
-                  </div>
-                  {/* Surrounding nodes */}
-                  {[
-                    { top: "8%", left: "50%", label: "Fatima", color: "#C8522A" },
-                    { top: "30%", left: "85%", label: "Pieter", color: "#2D5A3D" },
-                    { top: "72%", left: "85%", label: "Nadia", color: "#7C6B5A" },
-                    { top: "90%", left: "50%", label: "Ahmed", color: "#C8522A" },
-                    { top: "72%", left: "15%", label: "Lisa", color: "#2D5A3D" },
-                    { top: "30%", left: "15%", label: "Bart", color: "#7C6B5A" },
-                  ].map(({ top, left, label, color }) => (
-                    <div
-                      key={label}
-                      className="absolute -translate-x-1/2 -translate-y-1/2"
-                      style={{ top, left }}
-                    >
-                      {/* Connection line (simplified via background) */}
-                      <div
-                        className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-md border-2"
-                        style={{ background: color, borderColor: `${color}60` }}
-                      >
-                        {label[0]}
-                      </div>
-                    </div>
-                  ))}
-                  {/* Connecting lines via SVG */}
-                  <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
-                    {[
-                      [128, 128, 128, 21],
-                      [128, 128, 217, 77],
-                      [128, 128, 217, 184],
-                      [128, 128, 128, 230],
-                      [128, 128, 38, 184],
-                      [128, 128, 38, 77],
-                    ].map(([x1, y1, x2, y2], i) => (
-                      <line
-                        key={i}
-                        x1={x1} y1={y1} x2={x2} y2={y2}
-                        stroke="#C8522A"
-                        strokeOpacity="0.25"
-                        strokeWidth="1.5"
-                        strokeDasharray="4 4"
-                      />
-                    ))}
-                  </svg>
-                </div>
+                <PhoneFrame src="/screenshots/ai-matching.png" alt="AI netwerk matches" />
               </div>
             </div>
           </div>
@@ -760,7 +522,7 @@ export default function FunctiesPage() {
                 </ul>
               </div>
               <div className="border-l border-sand/40 p-8 sm:p-10 flex items-center justify-center order-1 lg:order-2">
-                <ReportMockup />
+                <PhoneFrame src="/screenshots/impact_statistieken.png" alt="Impact en statistieken" />
               </div>
             </div>
           </div>
