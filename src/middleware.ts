@@ -50,9 +50,15 @@ export default auth((req: NextRequest & { auth: unknown }) => {
     pathname === "/" ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
+  const session = (req as { auth?: { user?: { id?: string } } }).auth;
+
+  // Ingelogde gebruiker bezoekt sign-in → stuur naar dashboard
+  if (session?.user?.id && (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up"))) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
   if (isPublic) return NextResponse.next();
 
-  const session = (req as { auth?: { user?: { id?: string } } }).auth;
   if (!session?.user?.id) {
     const url = new URL("/sign-in", req.url);
     url.searchParams.set("callbackUrl", pathname);
