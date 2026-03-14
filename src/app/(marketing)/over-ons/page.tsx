@@ -292,7 +292,7 @@ export default function OverOnsPage() {
               </a>
 
               <a
-                href="https://wa.me/31612345678?text=Hoi%20Vincent,%20ik%20wil%20graag%20een%20demo%20van%20Bijeen%20aanvragen."
+                href="https://wa.me/31614470977?text=Hoi%20Vincent,%20ik%20wil%20graag%20een%20demo%20van%20Bijeen%20aanvragen."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-5 bg-white/6 hover:bg-white/10 border border-white/10 hover:border-[#25D366]/40 rounded-2xl p-5 sm:p-6 transition-all"

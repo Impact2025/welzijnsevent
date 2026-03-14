@@ -23,7 +23,7 @@ const perEventTiers = [
     priceLabel: "Gratis",
     desc: "Max 75 deelnemers · max 2 events/jaar",
     cta: "Gratis starten",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: false,
     features: [
       { text: "Eventpagina + inschrijving", included: true },
@@ -42,7 +42,7 @@ const perEventTiers = [
     priceLabel: "€89",
     desc: "Max 300 deelnemers per event",
     cta: "Start gratis proef",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: false,
     features: [
       { text: "Eventpagina + inschrijving", included: true },
@@ -61,7 +61,7 @@ const perEventTiers = [
     priceLabel: "€249",
     desc: "Max 750 deelnemers per event",
     cta: "Start gratis proef",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: true,
     badge: "Populairste keuze",
     features: [
@@ -107,7 +107,7 @@ const jaarTiers = [
     perEvent: null,
     saving: null,
     cta: "Gratis starten",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: false,
     features: [
       { text: "Eventpagina + inschrijving", included: true },
@@ -129,7 +129,7 @@ const jaarTiers = [
     perEvent: "€82 per event",
     saving: "8%",
     cta: "Start gratis proef",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: false,
     features: [
       { text: "6 events per jaar", included: true },
@@ -151,7 +151,7 @@ const jaarTiers = [
     perEvent: "~€54 per event",
     saving: "38%",
     cta: "Start gratis proef",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: true,
     badge: "Beste waarde",
     features: [
@@ -174,7 +174,7 @@ const jaarTiers = [
     perEvent: null,
     saving: null,
     cta: "Start gratis proef",
-    ctaHref: "/sign-up",
+    ctaHref: "/sign-in?new=true",
     highlight: false,
     features: [
       { text: "Onbeperkte events", included: true },
@@ -619,7 +619,7 @@ export default function PrijzenPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/sign-up"
+              href="/sign-in?new=true"
               className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold px-7 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 shadow-xl shadow-terra-500/30"
             >
               <Zap size={16} className="fill-white" />

@@ -300,7 +300,7 @@ export function AiAssistant() {
         {messages.length > 1 && (
           <div className="px-4 py-2 border-t border-sand/30 shrink-0">
             <Link
-              href="/sign-up"
+              href="/sign-in?new=true"
               className="flex items-center justify-center gap-1.5 text-xs font-semibold text-terra-500 hover:text-terra-600 transition-colors py-1"
             >
               <ArrowRight size={12} />

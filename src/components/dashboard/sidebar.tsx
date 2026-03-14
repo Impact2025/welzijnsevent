@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { LogOut,
-  LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink,
+  LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink, Users,
 } from "lucide-react";
 
 import { cn, getInitials, avatarColor } from "@/lib/utils";
@@ -14,6 +14,7 @@ import { PLAN_LIMITS } from "@/lib/plans";
 const navItems = [
   { href: "/dashboard",              icon: LayoutDashboard, label: "Overzicht"    },
   { href: "/dashboard/events",       icon: Calendar,        label: "Evenementen"  },
+  { href: "/dashboard/crm",          icon: Users,           label: "CRM"          },
   { href: "/dashboard/instellingen", icon: Settings,        label: "Instellingen" },
 ];
 

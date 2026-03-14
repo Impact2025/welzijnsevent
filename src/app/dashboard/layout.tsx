@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { Sidebar } from "@/components/dashboard/sidebar";
+import { Sidebar } from "@/components/dashboard/Sidebar";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 import { ProductTour } from "@/components/onboarding/product-tour";
 import { CommandPalette } from "@/components/ui/command-palette";

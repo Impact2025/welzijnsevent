@@ -110,7 +110,7 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
             <Link
-              href="/sign-up"
+              href="/sign-in?new=true"
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all duration-150 shadow-xl shadow-terra-500/30 hover:-translate-y-0.5"
             >
               <Zap size={16} className="fill-white" />
@@ -318,7 +318,7 @@ export default function HomePage() {
                 </ul>
 
                 <Link
-                  href="/sign-up"
+                  href="/sign-in?new=true"
                   className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
                     highlight
                       ? "bg-terra-500 hover:bg-terra-600 text-white shadow-lg shadow-terra-500/25"
@@ -358,7 +358,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/sign-up"
+              href="/sign-in?new=true"
               className="w-full sm:w-auto flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold text-base px-7 py-3.5 rounded-xl transition-all duration-150 shadow-xl shadow-terra-500/30 hover:-translate-y-0.5"
             >
               <Zap size={16} className="fill-white" />
