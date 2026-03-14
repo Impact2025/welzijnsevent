@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Clock, MapPin, Users, Loader2, Video } from "lucide-react";
 import type { Session } from "@/db/schema";
+import { trackEvent } from "@/lib/analytics";
 
 interface Props {
   sessions:       Session[];
@@ -32,6 +33,10 @@ export function SessionAgenda({ sessions, registeredIds: initial, attendeeToken,
       });
 
       if (res.ok || res.status === 204) {
+        trackEvent(isRegistered ? "session_unregister" : "session_register", {
+          session_title: session.title,
+          session_id: session.id,
+        });
         setRegistered(prev => {
           const next = new Set(prev);
           isRegistered ? next.delete(session.id) : next.add(session.id);

@@ -3,9 +3,10 @@ import { eq, and, gte, asc } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Calendar, MapPin, Search, Users, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Users, ArrowRight } from "lucide-react";
 import { formatDate, formatTime } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
+import { OntdekSearchForm } from "@/components/public/ontdek-search-form";
 
 export const metadata: Metadata = {
   title: "Ontdek evenementen | Bijeen",
@@ -87,24 +88,7 @@ export default async function OntdekPage({
         </p>
 
         {/* Search */}
-        <form className="max-w-lg mx-auto flex gap-2">
-          <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-            <input
-              type="text"
-              name="q"
-              defaultValue={q}
-              placeholder="Zoek op naam, locatie of organisatie…"
-              className="w-full pl-9 pr-4 py-3 rounded-xl text-sm text-ink bg-white outline-none focus:ring-2 focus:ring-white/50"
-            />
-          </div>
-          <button
-            type="submit"
-            className="bg-white/15 hover:bg-white/25 text-white font-semibold text-sm px-5 py-3 rounded-xl transition-colors border border-white/20"
-          >
-            Zoeken
-          </button>
-        </form>
+        <OntdekSearchForm defaultValue={q} />
 
         {/* Filter tabs */}
         <div className="flex justify-center gap-2 mt-5">

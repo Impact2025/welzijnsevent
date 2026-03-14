@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
+import { trackEvent } from "@/lib/analytics";
 import Link from "next/link";
 import { ArrowLeft, QrCode, CheckCircle2, AlertCircle, UserCheck, Loader2 } from "lucide-react";
 
@@ -49,6 +50,7 @@ export default function ScanPage() {
         setResult({ type: "duplicate", name: data.attendee?.name ?? "Onbekend" });
       } else if (data.attendee) {
         setResult({ type: "success", name: data.attendee.name, organization: data.attendee.organization });
+        trackEvent("checkin_success", { event_id: params.id });
         setTotal(n => n + 1);
       } else {
         setResult({ type: "error", message: data.error ?? "Onbekende fout" });

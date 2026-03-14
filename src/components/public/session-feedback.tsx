@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Star, CheckCircle2, Loader2 } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface Session {
   id: string;
@@ -77,6 +78,12 @@ export function SessionFeedback({ sessions, attendeeToken, primaryColor }: Props
         }),
       });
       if (!res.ok) throw new Error((await res.json()).error);
+      const session = sessions.find(s => s.id === sessionId);
+      trackEvent("feedback_submit", {
+        session_id: sessionId,
+        session_title: session?.title ?? "",
+        rating,
+      });
       setSubmitted((p) => ({ ...p, [sessionId]: true }));
     } catch (e) {
       setErrors((p) => ({

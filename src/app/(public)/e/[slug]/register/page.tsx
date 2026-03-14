@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2, Clock } from "lucide-react";
 import nlDict from "@/i18n/nl.json";
 import enDict from "@/i18n/en.json";
+import { trackEvent } from "@/lib/analytics";
 
 type Dict = typeof nlDict;
 
@@ -131,6 +132,7 @@ export default function RegisterPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Wachtlijst mislukt");
+        trackEvent("waitlist_signup", { event_title: event.title, event_id: event.id });
         router.push(`/e/${params.slug}/register/waitlist-success?position=${data.position}${langParam ? `&lang=${lang}` : ""}`);
         return;
       }
@@ -147,6 +149,7 @@ export default function RegisterPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Betaling mislukt");
         if (data.paymentUrl) {
+          trackEvent("begin_checkout", { event_title: event.title, event_id: event.id, ticket_name: selectedTicket.name, value: selectedTicket.price / 100, currency: selectedTicket.currency ?? "EUR" });
           window.location.href = data.paymentUrl;
           return;
         }
@@ -168,6 +171,7 @@ export default function RegisterPage() {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error ?? "Registratie mislukt");
+        trackEvent("event_registration", { event_title: event.title, event_id: event.id });
         const token = data.attendee?.qrCode;
         const tokenParam = token ? `&token=${token}` : "";
         router.push(`/e/${params.slug}/register/success${langParam ? langParam : "?"}${tokenParam}`);
