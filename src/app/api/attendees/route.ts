@@ -3,7 +3,7 @@ import { auth } from "@/auth";
 import { db, attendees, events, waitlist, organizations } from "@/db";
 import { eq, and, count } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { sendRegistrationConfirmation } from "@/lib/email";
+import { sendRegistrationConfirmation, sendAdminNewAttendeeNotification } from "@/lib/email";
 import { formatDateTime } from "@/lib/utils";
 import { AttendeeSchema, validationError } from "@/lib/validation";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
@@ -122,9 +122,9 @@ export async function POST(req: Request) {
         .catch(err => console.error("[waitlist] Token markering mislukt:", err));
     }
 
-    // Stuur bevestigingsmail (non-blocking — laat registratie niet mislukken als mail faalt)
+    // Stuur e-mails (non-blocking — laat registratie niet mislukken als mail faalt)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
     if (attendee.email) {
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
       sendRegistrationConfirmation({
         to: attendee.email,
         name: attendee.name,
@@ -139,6 +139,18 @@ export async function POST(req: Request) {
         orgColor: eventOrg?.primaryColor,
       }).catch((err) => console.error("[email] Bevestigingsmail mislukt:", err));
     }
+
+    // Stuur admin-notificatie (non-blocking)
+    sendAdminNewAttendeeNotification({
+      attendeeName:  attendee.name,
+      attendeeEmail: attendee.email,
+      attendeeOrg:   attendee.organization,
+      attendeeRole:  attendee.role,
+      eventTitle:    event.title,
+      eventDate:     formatDateTime(event.startsAt),
+      eventId:       event.id,
+      appUrl,
+    }).catch((err) => console.error("[email] Admin-notificatie mislukt:", err));
 
     return NextResponse.json({ attendee }, { status: 201 });
   } catch (err) {

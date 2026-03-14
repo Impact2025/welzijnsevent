@@ -737,6 +737,80 @@ function buildConfirmationHtml({
 </html>`;
 }
 
+// ─── Admin: nieuwe aanmelding notificatie ─────────────────────────────────────
+
+const ADMIN_NOTIFICATION_EMAIL = "v.munster@weareimpact.nl";
+
+export async function sendAdminNewAttendeeNotification(props: {
+  attendeeName: string;
+  attendeeEmail: string;
+  attendeeOrg?: string | null;
+  attendeeRole?: string | null;
+  eventTitle: string;
+  eventDate: string;
+  eventId: string;
+  appUrl: string;
+}) {
+  if (!resend) return;
+  const { attendeeName, attendeeEmail, attendeeOrg, attendeeRole, eventTitle, eventDate, eventId, appUrl } = props;
+  const dashboardUrl = `${appUrl}/dashboard/events/${eventId}/deelnemers`;
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to: ADMIN_NOTIFICATION_EMAIL,
+    subject: `Nieuwe aanmelding: ${attendeeName} → ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:520px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="100" height="32" style="height:32px;width:auto;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:28px 32px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:8px;">👤</div>
+        <h1 style="color:#FFFFFF;font-size:18px;font-weight:800;margin:0 0 4px;">Nieuwe aanmelding</h1>
+        <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:28px 32px;">
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:24px;">
+          <tr><td style="padding:8px 0;border-bottom:1px solid #F0EBE4;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Naam</span>
+            <span style="color:#1C1814;font-size:14px;font-weight:600;">${attendeeName}</span>
+          </td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #F0EBE4;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">E-mail</span>
+            <span style="color:#1C1814;font-size:14px;">${attendeeEmail}</span>
+          </td></tr>
+          ${attendeeOrg ? `<tr><td style="padding:8px 0;border-bottom:1px solid #F0EBE4;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Organisatie</span>
+            <span style="color:#1C1814;font-size:14px;">${attendeeOrg}</span>
+          </td></tr>` : ""}
+          ${attendeeRole ? `<tr><td style="padding:8px 0;border-bottom:1px solid #F0EBE4;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Functie</span>
+            <span style="color:#1C1814;font-size:14px;">${attendeeRole}</span>
+          </td></tr>` : ""}
+          <tr><td style="padding:8px 0;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Evenement</span>
+            <span style="color:#1C1814;font-size:14px;">${eventTitle} · ${eventDate}</span>
+          </td></tr>
+        </table>
+        <a href="${dashboardUrl}" style="display:block;text-align:center;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
+          Bekijk deelnemerslijst →
+        </a>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:11px;margin-top:20px;">
+      Automatisch bericht van <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 // ─── Custom broadcast ────────────────────────────────────────────────────────
 
 export async function sendCustomBroadcast(props: {
