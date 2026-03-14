@@ -58,7 +58,7 @@ export function MarketingNav() {
                 Inloggen
               </Link>
               <Link
-                href="/sign-in"
+                href="/sign-in?new=true"
                 className="flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors shadow-lg shadow-terra-500/25"
               >
                 Gratis starten
@@ -129,7 +129,7 @@ export function MarketingNav() {
                   Inloggen
                 </Link>
                 <Link
-                  href="/sign-in"
+                  href="/sign-in?new=true"
                   onClick={() => setOpen(false)}
                   className="block bg-terra-500 hover:bg-terra-600 text-white text-sm font-semibold px-4 py-3 rounded-xl text-center transition-colors"
                 >

@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, sessions } from "@/db";
-import { eq } from "drizzle-orm";
+import { db, sessions, events } from "@/db";
+import { eq, and } from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import { sendEventPush } from "@/lib/push";
 import { SessionSchema, SessionPatchSchema, validationError } from "@/lib/validation";
+import { getCurrentOrg } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
@@ -25,8 +26,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authSession = await auth();
+  if (!authSession?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const org = await getCurrentOrg();
+  if (!org) return NextResponse.json({ error: "Geen organisatie" }, { status: 403 });
 
   try {
     const body = await req.json();
@@ -34,6 +38,12 @@ export async function POST(req: Request) {
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 422 });
     }
+
+    // Verify the event belongs to this org
+    const [event] = await db.select({ id: events.id }).from(events).where(
+      and(eq(events.id, parsed.data.eventId), eq(events.organizationId, org.id))
+    );
+    if (!event) return NextResponse.json({ error: "Evenement niet gevonden of geen toegang" }, { status: 403 });
 
     const data = parsed.data;
     const [session] = await db.insert(sessions).values({
@@ -58,8 +68,11 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const session = await auth();
-  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authSession = await auth();
+  if (!authSession?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const org = await getCurrentOrg();
+  if (!org) return NextResponse.json({ error: "Geen organisatie" }, { status: 403 });
 
   try {
     const body = await req.json();
@@ -70,6 +83,17 @@ export async function PATCH(req: Request) {
 
     const { id, isLive, streamUrl, eventId } = parsed.data;
 
+    // Verify the event (if provided) belongs to this org
+    if (eventId) {
+      const [event] = await db.select({ id: events.id }).from(events).where(
+        and(eq(events.id, eventId), eq(events.organizationId, org.id))
+      );
+      if (!event) return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
+    } else {
+      // Without eventId we can't verify ownership — require it
+      return NextResponse.json({ error: "eventId vereist" }, { status: 422 });
+    }
+
     const patch: Record<string, unknown> = {};
     if (isLive    !== undefined) patch.isLive    = isLive;
     if (streamUrl !== undefined) patch.streamUrl = streamUrl;
@@ -77,10 +101,10 @@ export async function PATCH(req: Request) {
     const [updated] = await db
       .update(sessions)
       .set(patch)
-      .where(eq(sessions.id, id))
+      .where(and(eq(sessions.id, id), eq(sessions.eventId, eventId)))
       .returning();
 
-    if (eventId && isLive !== undefined) {
+    if (isLive !== undefined) {
       await pusherServer.trigger(
         getLiveChannel(eventId),
         isLive ? PUSHER_EVENTS.SESSION_STARTED : PUSHER_EVENTS.SESSION_ENDED,
@@ -88,7 +112,6 @@ export async function PATCH(req: Request) {
       );
 
       if (isLive) {
-        // Fire-and-forget: don't block the response
         sendEventPush(eventId, {
           title: "🎤 Nu live",
           body:  updated.title + (updated.streamUrl ? " · Online meekijken beschikbaar" : ""),

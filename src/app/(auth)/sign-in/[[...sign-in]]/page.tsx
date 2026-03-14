@@ -16,6 +16,7 @@ export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+  const isNew = searchParams.get("new") === "true";
 
   const isAdmin = email.trim().toLowerCase() === ADMIN_EMAIL;
 
@@ -91,7 +92,9 @@ export default function SignInPage() {
               : <Mail size={22} className="text-terra-600" />
             }
           </div>
-          <h1 className="text-2xl font-bold text-ink mb-1">Welkom terug</h1>
+          <h1 className="text-2xl font-bold text-ink mb-1">
+            {isNew ? "Welkom bij Bijeen" : "Welkom terug"}
+          </h1>
           <p className="text-sm text-ink-muted">
             {isAdmin
               ? "Admin account — vul je wachtwoord in."

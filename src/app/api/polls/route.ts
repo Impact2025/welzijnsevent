@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, polls } from "@/db";
-import { eq } from "drizzle-orm";
+import { db, polls, events } from "@/db";
+import { eq, and } from "drizzle-orm";
 import { pusherServer, getLiveChannel, PUSHER_EVENTS } from "@/lib/pusher";
 import { sendEventPush } from "@/lib/push";
 import { PollSchema, PollPatchSchema, validationError } from "@/lib/validation";
+import { getCurrentOrg } from "@/lib/auth";
 
 export async function GET(req: Request) {
   try {
@@ -62,6 +63,9 @@ export async function PATCH(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const org = await getCurrentOrg();
+  if (!org) return NextResponse.json({ error: "Geen organisatie" }, { status: 403 });
+
   try {
     const body = await req.json();
     const parsed = PollPatchSchema.safeParse(body);
@@ -70,6 +74,14 @@ export async function PATCH(req: Request) {
     }
 
     const { id, isActive, options, eventId } = parsed.data;
+
+    // Verify the event belongs to this org
+    if (eventId) {
+      const [event] = await db.select({ id: events.id }).from(events).where(
+        and(eq(events.id, eventId), eq(events.organizationId, org.id))
+      );
+      if (!event) return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
+    }
 
     const updateData: Record<string, unknown> = {};
     if (isActive !== undefined) updateData.isActive = isActive;

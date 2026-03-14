@@ -93,7 +93,7 @@ export default function HomePage() {
           <div className="inline-flex items-center gap-2 bg-white/6 border border-white/10 rounded-full px-3.5 py-1.5 mb-8">
             <div className="w-1.5 h-1.5 bg-terra-400 rounded-full animate-pulse" />
             <span className="text-white/70 text-xs font-semibold tracking-wide">
-              Vertrouwd door 120+ welzijnsorganisaties in Nederland
+              Gebouwd samen en door welzijnsprofessionals
             </span>
           </div>
 
@@ -201,8 +201,8 @@ export default function HomePage() {
                 key={title}
                 className="group bg-cream rounded-2xl border border-sand/60 p-6 hover:border-terra-200 hover:shadow-md transition-all duration-200"
               >
-                <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
-                  <Icon size={18} strokeWidth={2} />
+                <div className="w-12 h-12 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
+                  <Icon size={24} strokeWidth={2} />
                 </div>
                 <h3 className="font-bold text-ink mb-2">{title}</h3>
                 <p className="text-sm text-ink-muted leading-relaxed">{desc}</p>
