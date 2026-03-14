@@ -83,33 +83,36 @@ export default async function CommunityPage({ params }: { params: { slug: string
                 const score = match.score ? Math.round(match.score * 100) : null;
                 return (
                   <div key={match.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarColor(a.name))}>
-                        {getInitials(a.name)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900">{a.name}</p>
-                        {a.organization && <p className="text-[11px] text-gray-500 truncate">{a.organization}</p>}
-                      </div>
-                      {score && (
+                    {/* Score badge centered at top */}
+                    {score && (
+                      <div className="flex justify-center mb-3">
                         <div
-                          className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold"
+                          className="flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-extrabold"
                           style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
                         >
-                          <Sparkles size={9} />
-                          {score}%
+                          <Sparkles size={10} />
+                          {score}% match
                         </div>
-                      )}
-                      <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0", avatarColor(b.name))}>
-                        {getInitials(b.name)}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-900">{b.name}</p>
-                        {b.organization && <p className="text-[11px] text-gray-500 truncate">{b.organization}</p>}
-                      </div>
+                    )}
+                    {/* Two people side by side */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {[a, b].map((person) => (
+                        <div key={person.id} className="flex flex-col items-center text-center gap-1.5">
+                          <div className={cn("w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0", avatarColor(person.name))}>
+                            {getInitials(person.name)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900 leading-tight">{person.name}</p>
+                            {person.organization && (
+                              <p className="text-[11px] text-gray-500 mt-0.5 leading-tight line-clamp-2">{person.organization}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                     {match.reason && (
-                      <p className="text-[11px] text-gray-400 mt-2.5 pt-2.5 border-t border-gray-50 leading-relaxed">
+                      <p className="text-[11px] text-gray-400 mt-3 pt-3 border-t border-gray-50 leading-relaxed text-center">
                         {match.reason}
                       </p>
                     )}

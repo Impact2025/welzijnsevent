@@ -25,12 +25,13 @@ export function EventNav({
   return (
     <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="max-w-2xl mx-auto">
-        <div className="px-4 pt-2.5 pb-0">
+        <div className="px-4 pt-2 pb-0">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest truncate">
             {eventTitle}
           </p>
         </div>
-        <div className="flex mt-1">
+        {/* Scrollable tabs — no clipping on small screens */}
+        <div className="flex overflow-x-auto scrollbar-hide -mb-px">
           {tabs.map((tab) => {
             const href = tab.href(slug);
             const isActive = tab.exact
@@ -40,10 +41,10 @@ export function EventNav({
               <Link
                 key={tab.label}
                 href={href}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold transition-colors relative"
+                className="flex-shrink-0 flex items-center justify-center gap-1.5 px-4 py-3 text-[12px] font-bold transition-colors relative whitespace-nowrap"
                 style={{ color: isActive ? primaryColor : "#9ca3af" }}
               >
-                <tab.icon size={12} />
+                <tab.icon size={13} />
                 {tab.label}
                 {isActive && (
                   <span
