@@ -39,7 +39,12 @@ export function BijeenWordmark({
         alt=""
         width={iconSize}
         height={iconSize}
-        style={{ width: iconSize, height: iconSize, objectFit: "contain" }}
+        style={{
+          width: iconSize,
+          height: iconSize,
+          objectFit: "contain",
+          filter: variant === "light" ? "brightness(0) invert(1)" : undefined,
+        }}
       />
       <span
         style={{
