@@ -8,6 +8,7 @@ import { getInitials, avatarColor, formatRelative, cn } from "@/lib/utils";
 import { LifecycleBadge } from "@/components/crm/LifecycleBadge";
 import { ContactFilters } from "@/components/crm/ContactFilters";
 import { Pagination } from "@/components/ui/pagination";
+import { BulkEmailModal } from "@/components/crm/BulkEmailModal";
 
 const PAGE_SIZE = 30;
 
@@ -122,13 +123,19 @@ export default async function ContactenPage({
           <h1 className="text-3xl font-extrabold text-ink tracking-tight">Alle Contacten</h1>
           <p className="text-sm text-ink-muted mt-1 font-medium">{total} unieke contacten over alle evenementen</p>
         </div>
-        <a
-          href={`/api/crm/export?orgId=${org.id}`}
-          className="flex items-center gap-2 bg-white border border-sand text-ink-muted text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-sand transition-colors"
-        >
-          <Download size={14} />
-          Exporteren
-        </a>
+        <div className="flex items-center gap-2">
+          <BulkEmailModal
+            recipientCount={total}
+            filters={{ q, lifecycle, tag: tagFilter }}
+          />
+          <a
+            href={`/api/crm/export?orgId=${org.id}`}
+            className="flex items-center gap-2 bg-white border border-sand text-ink-muted text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-sand transition-colors"
+          >
+            <Download size={14} />
+            Exporteren
+          </a>
+        </div>
       </div>
 
       {/* Filters */}
