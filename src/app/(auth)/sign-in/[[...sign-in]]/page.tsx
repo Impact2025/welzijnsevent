@@ -78,7 +78,7 @@ export default function SignInPage() {
     <div className="min-h-screen flex">
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#1E3D29] flex-col justify-between px-12 py-10">
+      <div className="hidden lg:flex lg:w-[45%] bg-[#1C1814] flex-col justify-between px-12 py-10">
 
         {/* Logo */}
         <div>
@@ -87,25 +87,25 @@ export default function SignInPage() {
 
         {/* Center content */}
         <div>
-          <p className="text-[11px] font-bold text-green-400 uppercase tracking-widest mb-4">
+          <p className="text-[11px] font-bold text-[#C8522A] uppercase tracking-widest mb-4">
             Evenementenplatform voor de welzijnssector
           </p>
           <h2 className="text-[2.1rem] font-extrabold text-white leading-tight tracking-tight mb-4">
             Meer impact,<br />minder werk.
           </h2>
-          <p className="text-green-200 text-base leading-relaxed mb-10 max-w-xs">
+          <p className="text-[#9E9890] text-base leading-relaxed mb-10 max-w-xs">
             Van aanmelding tot WMO-rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.
           </p>
 
           <div className="space-y-5">
             {BENEFITS.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="flex items-start gap-4">
-                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                  <Icon size={17} className="text-green-300" />
+                <div className="w-9 h-9 rounded-xl bg-[#C8522A]/15 flex items-center justify-center shrink-0">
+                  <Icon size={17} className="text-[#C8522A]" />
                 </div>
                 <div>
                   <p className="text-white font-semibold text-sm mb-0.5">{title}</p>
-                  <p className="text-green-300 text-xs leading-relaxed">{desc}</p>
+                  <p className="text-[#9E9890] text-xs leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -113,12 +113,12 @@ export default function SignInPage() {
         </div>
 
         {/* Social proof */}
-        <div className="border-t border-white/10 pt-6">
-          <div className="bg-white/8 rounded-xl p-4">
-            <p className="text-green-100 text-xs leading-relaxed italic mb-2">
+        <div className="border-t border-white/8 pt-6">
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-white/70 text-xs leading-relaxed italic mb-2">
               &ldquo;Eindelijk een tool die begrijpt hoe wij werken. Alles op één plek — van aanmelding tot rapportage.&rdquo;
             </p>
-            <p className="text-green-400 text-[11px] font-semibold">— Vincent, oprichter Bijeen</p>
+            <p className="text-[#C8522A] text-[11px] font-semibold">— Vincent, oprichter Bijeen</p>
           </div>
         </div>
       </div>
