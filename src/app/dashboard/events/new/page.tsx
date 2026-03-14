@@ -2,20 +2,25 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Users, Clock, Globe, Link2, ChevronRight } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Clock, Globe, Link2, ChevronRight, Heart, BookOpen, Network, Home, Mic2, FileText, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { AiGenButton } from "@/components/ui/ai-gen-button";
 import { ImageUpload } from "@/components/ui/image-upload";
 
 const YEAR = new Date().getFullYear();
 
-const TEMPLATES = [
+const TEMPLATES: {
+  id: string; icon: LucideIcon; label: string;
+  color: string; iconColor: string; iconBg: string; description: string;
+  prefill: Record<string, string | number>;
+}[] = [
   {
     id: "vrijwilligersdag",
-    emoji: "🤝",
+    icon: Heart,
     label: "Vrijwilligersdag",
     color: "bg-terra-50 border-terra-200",
     iconColor: "text-terra-600",
+    iconBg: "bg-terra-100",
     description: "Jaarlijkse bijeenkomst voor en door vrijwilligers",
     prefill: {
       title: `Vrijwilligersdag ${YEAR}`,
@@ -26,10 +31,11 @@ const TEMPLATES = [
   },
   {
     id: "kennisdag",
-    emoji: "🧠",
+    icon: BookOpen,
     label: "Kennisdag",
     color: "bg-blue-50 border-blue-200",
     iconColor: "text-blue-600",
+    iconBg: "bg-blue-100",
     description: "Expertlezingen, workshops en kennisuitwisseling",
     prefill: {
       title: `Kennisdag Welzijn ${YEAR}`,
@@ -40,10 +46,11 @@ const TEMPLATES = [
   },
   {
     id: "netwerkbijeenkomst",
-    emoji: "🔗",
+    icon: Network,
     label: "Netwerkbijeenkomst",
     color: "bg-green-50 border-green-200",
     iconColor: "text-green-600",
+    iconBg: "bg-green-100",
     description: "Nieuwe verbindingen leggen in de sector",
     prefill: {
       title: `Netwerkbijeenkomst ${YEAR}`,
@@ -54,10 +61,11 @@ const TEMPLATES = [
   },
   {
     id: "buurtbijeenkomst",
-    emoji: "🏘️",
+    icon: Home,
     label: "Buurtbijeenkomst",
     color: "bg-amber-50 border-amber-200",
     iconColor: "text-amber-600",
+    iconBg: "bg-amber-100",
     description: "Bewoners samenbrengen rondom een thema",
     prefill: {
       title: `Buurtbijeenkomst ${YEAR}`,
@@ -68,10 +76,11 @@ const TEMPLATES = [
   },
   {
     id: "congres",
-    emoji: "🎤",
+    icon: Mic2,
     label: "Congres",
     color: "bg-purple-50 border-purple-200",
     iconColor: "text-purple-600",
+    iconBg: "bg-purple-100",
     description: "Groot evenement met meerdere sprekers & tracks",
     prefill: {
       title: `Congres Welzijn & Zorg ${YEAR}`,
@@ -82,10 +91,11 @@ const TEMPLATES = [
   },
   {
     id: "leeg",
-    emoji: "✏️",
+    icon: FileText,
     label: "Leeg evenement",
     color: "bg-gray-50 border-gray-200",
-    iconColor: "text-gray-500",
+    iconColor: "text-gray-400",
+    iconBg: "bg-gray-100",
     description: "Begin met een leeg formulier",
     prefill: {
       title: "",
@@ -197,8 +207,8 @@ export default function NewEventPage() {
               onClick={() => applyTemplate(t.id)}
               className={`flex items-center gap-4 p-4 rounded-2xl border-2 text-left hover:scale-[1.01] active:scale-[0.99] transition-all ${t.color}`}
             >
-              <div className={`text-3xl w-12 h-12 flex items-center justify-center rounded-xl bg-white/60`}>
-                {t.emoji}
+              <div className={`w-10 h-10 flex items-center justify-center rounded-xl shrink-0 ${t.iconBg}`}>
+                <t.icon size={18} className={t.iconColor} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-ink text-sm">{t.label}</p>
