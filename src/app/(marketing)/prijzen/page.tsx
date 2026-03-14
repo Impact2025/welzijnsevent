@@ -258,12 +258,12 @@ export default function PrijzenPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-terra-400" />
             Prijzen
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight mb-5">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05] mb-6">
             Transparant. Eerlijk.
             <br />
             <span className="text-terra-400">Subsidie-compatible.</span>
           </h1>
-          <p className="text-white/65 text-lg leading-relaxed max-w-xl mx-auto mb-6">
+          <p className="text-white/65 text-lg sm:text-xl leading-relaxed max-w-xl mx-auto mb-8">
             Betaal per evenement als je incidenteel organiseert, of kies een jaarabonnement
             dat aansluit op uw subsidiecyclus.
           </p>

@@ -225,15 +225,16 @@ export default function FaqPage() {
       <section className="bg-[#12100E] pt-16 pb-20 sm:pt-20 sm:pb-24 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-terra-500/6 rounded-full blur-3xl pointer-events-none" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-[11px] font-bold text-terra-400 uppercase tracking-widest mb-3">
+          <div className="inline-flex items-center gap-2 bg-terra-500/15 border border-terra-500/25 text-terra-400 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-terra-400" />
             Veelgestelde vragen
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-5">
+          </div>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05] mb-6">
             Alles wat je wilt weten
             <br />
             <span className="text-terra-400">over Bijeen</span>
           </h1>
-          <p className="text-white/65 text-lg leading-relaxed max-w-xl mx-auto">
+          <p className="text-white/65 text-lg sm:text-xl leading-relaxed max-w-xl mx-auto mb-8">
             Vind snel antwoord op je vraag. Staat het er niet bij?
             Mail ons op{" "}
             <a href="mailto:hallo@bijeen.nl" className="text-terra-400 hover:text-terra-300 underline underline-offset-2 transition-colors">

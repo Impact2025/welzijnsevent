@@ -277,15 +277,16 @@ export default function FunctiesPage() {
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14">
           <div className="max-w-2xl mb-10 sm:mb-14">
-            <p className="text-[11px] font-bold text-terra-400 uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 bg-terra-500/15 border border-terra-500/25 text-terra-400 text-[11px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-terra-400" />
               Functies
-            </p>
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.05] mb-6">
               Alles wat je nodig hebt.
               <br />
               <span className="text-terra-400">Niets wat je niet nodig hebt.</span>
             </h1>
-            <p className="text-white/60 text-lg sm:text-xl leading-relaxed mb-8 max-w-xl">
+            <p className="text-white/65 text-lg sm:text-xl leading-relaxed mb-8 max-w-xl">
               Bijeen is gebouwd voor welzijnsorganisaties die grote impact maken met kleine teams.
               Geen feature-fabriek — wél de tools die het verschil maken.
             </p>
