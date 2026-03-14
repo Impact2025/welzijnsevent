@@ -3,25 +3,58 @@
   "short_name": "Bijeen",
   "description": "Organiseer en beheer verbindende evenementen voor de welzijnssector",
   "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#FAF6F0",
   "theme_color": "#C8522A",
   "lang": "nl",
+  "dir": "ltr",
+  "id": "/dashboard",
   "icons": [
     {
       "src": "/Bijeen-logo-icon.png",
-      "sizes": "any",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Bijeen-logo-icon.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
       "src": "/Bijeen-logo.png",
-      "sizes": "any",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
+  "shortcuts": [
+    {
+      "name": "Nieuw evenement",
+      "short_name": "Nieuw",
+      "description": "Maak snel een nieuw evenement aan",
+      "url": "/dashboard/events/new",
+      "icons": [{ "src": "/Bijeen-logo-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Mijn evenementen",
+      "short_name": "Evenementen",
+      "description": "Bekijk al je evenementen",
+      "url": "/dashboard/events",
+      "icons": [{ "src": "/Bijeen-logo-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "CRM Contacten",
+      "short_name": "CRM",
+      "description": "Beheer je contacten",
+      "url": "/dashboard/crm",
+      "icons": [{ "src": "/Bijeen-logo-icon.png", "sizes": "96x96" }]
+    }
+  ],
   "screenshots": [],
-  "categories": ["productivity", "business"]
+  "categories": ["productivity", "business"],
+  "prefer_related_applications": false
 }

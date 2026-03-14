@@ -9,6 +9,15 @@ export function PwaRegister() {
         .register("/sw.js")
         .catch((err) => console.error("[SW] Registration failed:", err));
     }
+
+    // Capture Android/Chrome install prompt and re-dispatch for the install banner
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handler = (e: any) => {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent("pwa:installprompt", { detail: e }));
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   return null;

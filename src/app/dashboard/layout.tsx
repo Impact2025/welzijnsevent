@@ -4,6 +4,7 @@ import { Sidebar } from "@/components/dashboard/sidebar";
 import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 import { ProductTour } from "@/components/onboarding/product-tour";
 import { CommandPalette } from "@/components/ui/command-palette";
+import { PwaInstallBanner } from "@/components/pwa-install-banner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -47,6 +48,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Command palette — ⌘K / Ctrl+K */}
       <CommandPalette />
+
+      {/* PWA install banner — shown to users who haven't installed the app */}
+      <PwaInstallBanner />
     </div>
   );
 }

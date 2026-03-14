@@ -138,32 +138,41 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarP
     </aside>
 
     {/* Mobile bottom navigation */}
-    <nav data-tour="nav-mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E] border-t border-white/10 flex items-center justify-around px-2 pb-safe">
+    <nav data-tour="nav-mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E]/95 backdrop-blur-xl border-t border-white/8 flex items-center justify-around px-1 pb-safe">
       {navItems.map(({ href, icon: Icon, label }) => {
         const active = path === href || (href !== "/dashboard" && path.startsWith(href));
         return (
           <Link
             key={href}
             href={href}
+            onClick={() => { if (navigator.vibrate) navigator.vibrate(8); }}
             className={cn(
-              "flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-150",
+              "flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-200 active:scale-90",
               active ? "text-terra-400" : "text-white/40"
             )}
           >
-            <Icon size={22} strokeWidth={active ? 2.5 : 2} />
-            <span className="text-[11px] font-semibold">{label}</span>
+            <div className={cn(
+              "w-10 h-6 rounded-full flex items-center justify-center transition-all duration-200",
+              active ? "bg-terra-500/15" : ""
+            )}>
+              <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+            </div>
+            <span className={cn("text-[10px] font-semibold tracking-tight", active ? "text-terra-400" : "text-white/35")}>
+              {label}
+            </span>
           </Link>
         );
       })}
       <Link
         href="/dashboard/events/new"
         data-tour="new-event-mobile"
-        className="flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-150"
+        onClick={() => { if (navigator.vibrate) navigator.vibrate(10); }}
+        className="flex flex-col items-center gap-1 flex-1 py-2 min-h-[56px] justify-center rounded-xl transition-all duration-200 active:scale-90"
       >
-        <div className="w-10 h-10 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/30">
+        <div className="w-10 h-10 rounded-xl bg-terra-500 flex items-center justify-center shadow-lg shadow-terra-500/40 transition-transform">
           <Plus size={18} className="text-white" />
         </div>
-        <span className="text-[11px] font-semibold text-white/40">Nieuw</span>
+        <span className="text-[10px] font-semibold text-white/35 tracking-tight">Nieuw</span>
       </Link>
     </nav>
     </>

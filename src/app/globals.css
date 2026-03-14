@@ -127,6 +127,30 @@ nav a, .tab-link, .badge-ingecheckt, .badge-aangemeld,
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
+  /* Prevent rubber-band overscroll on iOS causing visual glitches in PWA */
+  overscroll-behavior: none;
+}
+
+/* Touch press feedback on interactive cards */
+a.group:active,
+[data-interactive]:active {
+  transform: scale(0.98);
+  transition: transform 80ms ease;
+}
+
+/* PWA standalone mode: hide iOS status bar duplicate area */
+@media (display-mode: standalone) {
+  body {
+    /* Ensure content doesn't bleed under notch */
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Improve touch scrolling performance */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ── PRINT ──────────────────────────────────────────────────── */
