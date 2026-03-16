@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, ArrowRight, Loader2, Lock, Shield, Check, CalendarDays, Users, BarChart3 } from "lucide-react";
@@ -38,6 +38,11 @@ export default function SignInPage() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
   const isNew = searchParams.get("new") === "true";
 
+  useEffect(() => {
+    const saved = localStorage.getItem("bijeen_last_email");
+    if (saved) setEmail(saved);
+  }, []);
+
   const isAdmin = email.trim().toLowerCase() === ADMIN_EMAIL;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,6 +74,7 @@ export default function SignInPage() {
       if (result?.error) {
         setError("Er ging iets mis. Probeer het opnieuw.");
       } else {
+        localStorage.setItem("bijeen_last_email", email.trim());
         setSent(true);
       }
     }
