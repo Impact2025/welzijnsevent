@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     });
 
     // Return a proxied URL so private blobs are accessible via our own domain
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? new URL(req.url).origin;
     const proxyUrl = `${baseUrl}/api/blob?url=${encodeURIComponent(blob.url)}`;
     return NextResponse.json({ url: proxyUrl });
   } catch (err) {
