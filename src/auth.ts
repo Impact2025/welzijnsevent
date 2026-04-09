@@ -105,6 +105,36 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return created;
       },
     }),
+    Credentials({
+      id: "demo-code",
+      name: "Demo",
+      credentials: {
+        code: { label: "Demo code", type: "text" },
+      },
+      async authorize(credentials) {
+        const demoCode    = process.env.DEMO_CODE;
+        const demoExpires = process.env.DEMO_EXPIRES;
+        if (!demoCode || !demoExpires) return null;
+        if (!credentials?.code) return null;
+
+        const inputCode = (credentials.code as string).trim().toUpperCase();
+        if (inputCode !== demoCode.toUpperCase()) return null;
+
+        if (new Date() > new Date(demoExpires)) return null;
+
+        const DEMO_EMAIL = "v.munster@weareimpact.nl";
+        const existing = await db.select().from(authUsers)
+          .where(eq(authUsers.email, DEMO_EMAIL)).limit(1);
+
+        if (existing[0]) return existing[0];
+
+        const [created] = await db.insert(authUsers).values({
+          email: DEMO_EMAIL,
+          name:  "V. Munster",
+        }).returning();
+        return created;
+      },
+    }),
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: "Bijeen <hello@bijeen.app>",
