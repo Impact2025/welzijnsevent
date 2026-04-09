@@ -28,6 +28,8 @@ export default function DemoLoginPage() {
     if (result?.error || !result?.ok) {
       setError("Ongeldige of verlopen code. Neem contact op met de afzender.");
     } else {
+      // Reset tour zodat tooltips altijd opnieuw starten bij demo-inloggen
+      localStorage.removeItem("bijeen_tour_v1");
       router.push("/dashboard");
     }
   };
