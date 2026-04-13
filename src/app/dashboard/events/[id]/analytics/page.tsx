@@ -143,7 +143,7 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
         </p>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       <div className="p-4 space-y-4">
 

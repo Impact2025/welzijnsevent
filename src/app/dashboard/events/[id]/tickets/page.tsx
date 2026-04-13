@@ -54,7 +54,7 @@ export default async function TicketsPage({ params }: { params: { id: string } }
         <p className="text-white/70 text-xs">Ticketbeheer &amp; bestellingen</p>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       <div className="p-4 space-y-5">
 

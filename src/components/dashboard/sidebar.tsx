@@ -11,10 +11,12 @@ import { cn, getInitials, avatarColor } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { PLAN_LIMITS } from "@/lib/plans";
 
-const navItems = [
+const BASE_NAV = [
   { href: "/dashboard",              icon: LayoutDashboard, label: "Overzicht"    },
   { href: "/dashboard/events",       icon: Calendar,        label: "Evenementen"  },
-  { href: "/dashboard/crm",          icon: Users,           label: "CRM"          },
+];
+
+const SETTINGS_NAV = [
   { href: "/dashboard/instellingen", icon: Settings,        label: "Instellingen" },
 ];
 
@@ -23,9 +25,15 @@ interface SidebarProps {
   orgLogo: string | null;
   plan: string | null;
   subscriptionActive: boolean;
+  showCrm?: boolean;
 }
 
-export function Sidebar({ orgName, orgLogo, plan, subscriptionActive }: SidebarProps) {
+export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = false }: SidebarProps) {
+  const navItems = [
+    ...BASE_NAV,
+    ...(showCrm ? [{ href: "/dashboard/crm", icon: Users, label: "CRM" }] : []),
+    ...SETTINGS_NAV,
+  ];
   const path = usePathname();
   const initials = getInitials(orgName);
   const color = avatarColor(orgName);

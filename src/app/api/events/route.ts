@@ -94,6 +94,7 @@ export async function POST(req: Request) {
       isPublic:       data.isPublic ?? false,
       tagline:        data.tagline ?? null,
       coverImage:     data.coverImage ?? null,
+      eventType:      data.eventType ?? "programma",
     }).returning();
 
     return NextResponse.json({ event }, { status: 201 });

@@ -2,115 +2,71 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Users, Clock, Globe, Link2, ChevronRight, Heart, BookOpen, Network, Home, Mic2, FileText, type LucideIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Clock, Globe, Link2, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { AiGenButton } from "@/components/ui/ai-gen-button";
 import { ImageUpload } from "@/components/ui/image-upload";
 
-const YEAR = new Date().getFullYear();
+type EventType = "klein" | "programma" | "netwerk" | "conferentie";
 
-const TEMPLATES: {
-  id: string; icon: LucideIcon; label: string;
-  color: string; iconColor: string; iconBg: string; description: string;
-  prefill: Record<string, string>;
-}[] = [
-  {
-    id: "vrijwilligersdag",
-    icon: Heart,
-    label: "Vrijwilligersdag",
-    color: "bg-terra-50 border-terra-200",
-    iconColor: "text-terra-600",
-    iconBg: "bg-terra-100",
-    description: "Jaarlijkse bijeenkomst voor en door vrijwilligers",
-    prefill: {
-      title: `Vrijwilligersdag ${YEAR}`,
-      tagline: "Samen sterk voor de buurt",
-      description: `Onze jaarlijkse vrijwilligersdag staat in het teken van ontmoeting, waardering en inspiratie. We kijken terug op een mooi jaar en blikken vooruit op nieuwe initiatieven. Er zijn workshops, een lunch en uiteraard volop ruimte om bij te praten met andere vrijwilligers.`,
-      maxAttendees: "150",
-    },
-  },
-  {
-    id: "kennisdag",
-    icon: BookOpen,
-    label: "Kennisdag",
-    color: "bg-blue-50 border-blue-200",
-    iconColor: "text-blue-600",
-    iconBg: "bg-blue-100",
-    description: "Expertlezingen, workshops en kennisuitwisseling",
-    prefill: {
-      title: `Kennisdag Welzijn ${YEAR}`,
-      tagline: "Kennis delen, samen groeien",
-      description: `Een dag vol inspirerende sprekers, interactieve workshops en diepgaande gesprekken over de toekomst van de welzijnssector. Professionals, beleidsmakers en onderzoekers komen samen om kennis te delen en nieuwe inzichten op te doen.`,
-      maxAttendees: "200",
-    },
-  },
-  {
-    id: "netwerkbijeenkomst",
-    icon: Network,
-    label: "Netwerkbijeenkomst",
-    color: "bg-green-50 border-green-200",
-    iconColor: "text-green-600",
-    iconBg: "bg-green-100",
-    description: "Nieuwe verbindingen leggen in de sector",
-    prefill: {
-      title: `Netwerkbijeenkomst ${YEAR}`,
-      tagline: "Nieuwe verbindingen voor betere zorg",
-      description: `Een informele bijeenkomst voor professionals in de welzijns- en zorgsector. Via ons AI-matchingssysteem worden je op basis van je profiel gekoppeld aan de meest relevante gesprekspartners. Kom met een open vizier en ga naar huis met waardevolle nieuwe contacten.`,
-      maxAttendees: "80",
-    },
-  },
-  {
-    id: "buurtbijeenkomst",
-    icon: Home,
-    label: "Buurtbijeenkomst",
-    color: "bg-amber-50 border-amber-200",
-    iconColor: "text-amber-600",
-    iconBg: "bg-amber-100",
-    description: "Bewoners samenbrengen rondom een thema",
-    prefill: {
-      title: `Buurtbijeenkomst ${YEAR}`,
-      tagline: "Samen bouwen aan een sterkere buurt",
-      description: `Een open bijeenkomst voor bewoners, organisaties en gemeente om samen te praten over de toekomst van de buurt. Wat gaat goed? Wat kan beter? Iedereen heeft een stem en elke bijdrage telt.`,
-      maxAttendees: "100",
-    },
-  },
-  {
-    id: "congres",
-    icon: Mic2,
-    label: "Congres",
-    color: "bg-purple-50 border-purple-200",
-    iconColor: "text-purple-600",
-    iconBg: "bg-purple-100",
-    description: "Groot evenement met meerdere sprekers & tracks",
-    prefill: {
-      title: `Congres Welzijn & Zorg ${YEAR}`,
-      tagline: "Het jaarlijkse congres voor de welzijnssector",
-      description: `Het toonaangevende congres van het jaar voor iedereen die werkt in welzijn, zorg en sociaal domein. Met keynotes van landelijke experts, parallelle sessies per thema en een bruisend netwerkprogramma. Schrijf je in en zorg dat je erbij bent.`,
-      maxAttendees: "500",
-    },
-  },
-  {
-    id: "leeg",
-    icon: FileText,
-    label: "Leeg evenement",
-    color: "bg-gray-50 border-gray-200",
-    iconColor: "text-gray-400",
-    iconBg: "bg-gray-100",
-    description: "Begin met een leeg formulier",
-    prefill: {
-      title: "",
-      tagline: "",
-      description: "",
-      maxAttendees: "",
-    },
-  },
-] as const;
+interface EventTypeConfig {
+  id: EventType;
+  label: string;
+  examples: string;
+  pitch: string;
+  features: string[];
+  accentColor: string;
+  dotColor: string;
+  maxAttendees: string;
+}
 
-type TemplateId = (typeof TEMPLATES)[number]["id"];
+const EVENT_TYPES: EventTypeConfig[] = [
+  {
+    id: "klein",
+    label: "Kleine bijeenkomst",
+    examples: "Buurtlunch · Vergadering · Workshop · Vrijwilligersavond",
+    pitch: "Simpele inschrijving en QR check-in. Geen overbodige functies.",
+    features: ["Inschrijvingen", "QR check-in", "Deelnemerslijst"],
+    accentColor: "border-l-amber-400",
+    dotColor: "bg-amber-400",
+    maxAttendees: "50",
+  },
+  {
+    id: "programma",
+    label: "Evenement met programma",
+    examples: "Kennisdag · Lezing · Training · Vrijwilligersdag",
+    pitch: "Sessies, sprekers en live interactie voor je deelnemers.",
+    features: ["Dagschema & sessies", "Sprekers", "Live Q&A & polls"],
+    accentColor: "border-l-blue-400",
+    dotColor: "bg-blue-400",
+    maxAttendees: "150",
+  },
+  {
+    id: "netwerk",
+    label: "Netwerkevenement",
+    examples: "Speed-networking · Community building · Koppelsessie",
+    pitch: "Deelnemers ontmoeten elkaar via slimme AI-koppeling.",
+    features: ["AI-koppeling", "Deelnemerprofielen", "Netwerkoverzicht"],
+    accentColor: "border-l-green-500",
+    dotColor: "bg-green-500",
+    maxAttendees: "100",
+  },
+  {
+    id: "conferentie",
+    label: "Conferentie",
+    examples: "Congres · Symposium · Groot evenement",
+    pitch: "De volledige toolset: tickets, sponsors, website en meer.",
+    features: ["Betaalde tickets", "Sponsoring", "Website builder", "+4 meer"],
+    accentColor: "border-l-purple-400",
+    dotColor: "bg-purple-400",
+    maxAttendees: "500",
+  },
+];
 
 export default function NewEventPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"template" | "form">("template");
+  const [step, setStep] = useState<"type" | "form">("type");
+  const [eventType, setEventType] = useState<EventType>("programma");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
@@ -131,16 +87,10 @@ export default function NewEventPage() {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "") || "jouw-evenement";
 
-  function applyTemplate(id: TemplateId) {
-    const t = TEMPLATES.find((t) => t.id === id);
-    if (!t) return;
-    setForm((f) => ({
-      ...f,
-      title: t.prefill.title,
-      description: t.prefill.description,
-      tagline: t.prefill.tagline,
-      maxAttendees: t.prefill.maxAttendees,
-    }));
+  function selectType(type: EventType) {
+    const config = EVENT_TYPES.find((t) => t.id === type)!;
+    setEventType(type);
+    setForm((f) => ({ ...f, maxAttendees: config.maxAttendees }));
     setStep("form");
   }
 
@@ -162,6 +112,7 @@ export default function NewEventPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          eventType,
           startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : undefined,
           endsAt:   form.endsAt   ? new Date(form.endsAt).toISOString()   : undefined,
           maxAttendees: form.maxAttendees ? parseInt(form.maxAttendees) : undefined,
@@ -183,38 +134,51 @@ export default function NewEventPage() {
     }
   };
 
-  if (step === "template") {
+  /* ── Step 1: Type selectie ─────────────────────────────────────────────── */
+  if (step === "type") {
     return (
-      <div className="p-6 max-w-2xl mx-auto animate-fade-in">
-        <div className="flex items-center gap-3 mb-2">
-          <Link href="/dashboard/events" className="text-ink-muted hover:text-ink transition-colors">
+      <div className="p-6 max-w-xl mx-auto animate-fade-in">
+        <div className="flex items-center gap-3 mb-8">
+          <Link href="/dashboard/events" className="text-ink-muted hover:text-ink transition-colors p-1 -ml-1">
             <ArrowLeft size={20} />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-ink">Nieuw evenement</h1>
-            <p className="text-ink-muted text-sm">Kies een template of begin leeg</p>
+            <p className="text-ink-muted text-sm mt-0.5">Wat voor bijeenkomst organiseer je?</p>
           </div>
         </div>
 
-        <p className="text-xs font-bold text-ink-muted uppercase tracking-wider mb-4 mt-6">
-          Sector-templates
-        </p>
-
-        <div className="grid grid-cols-1 gap-3">
-          {TEMPLATES.map((t) => (
+        <div className="flex flex-col gap-3">
+          {EVENT_TYPES.map((type) => (
             <button
-              key={t.id}
-              onClick={() => applyTemplate(t.id)}
-              className={`flex items-center gap-4 p-4 rounded-2xl border-2 text-left hover:scale-[1.01] active:scale-[0.99] transition-all ${t.color}`}
+              key={type.id}
+              onClick={() => selectType(type.id)}
+              className={`group relative flex items-start gap-5 p-5 bg-white rounded-2xl border border-sand border-l-4 ${type.accentColor} text-left hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-150`}
             >
-              <div className={`w-10 h-10 flex items-center justify-center rounded-xl shrink-0 ${t.iconBg}`}>
-                <t.icon size={18} className={t.iconColor} />
-              </div>
+              {/* Content */}
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-ink text-sm">{t.label}</p>
-                <p className="text-ink-muted text-xs mt-0.5">{t.description}</p>
+                <p className="font-bold text-ink text-[15px] leading-tight mb-0.5">{type.label}</p>
+                <p className="text-ink-muted text-xs mb-3">{type.examples}</p>
+                <p className="text-ink text-sm mb-3 font-medium">{type.pitch}</p>
+
+                {/* Feature pills */}
+                <div className="flex flex-wrap gap-1.5">
+                  {type.features.map((f) => (
+                    <span
+                      key={f}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-ink-muted bg-sand/80 px-2 py-0.5 rounded-full"
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${type.dotColor}`} />
+                      {f}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <ChevronRight size={16} className="text-ink-muted shrink-0" />
+
+              <ChevronRight
+                size={18}
+                className="text-ink-muted/50 group-hover:text-ink-muted mt-0.5 shrink-0 transition-colors"
+              />
             </button>
           ))}
         </div>
@@ -222,18 +186,24 @@ export default function NewEventPage() {
     );
   }
 
+  /* ── Step 2: Event details ─────────────────────────────────────────────── */
+  const selectedType = EVENT_TYPES.find((t) => t.id === eventType)!;
+
   return (
     <div className="p-6 max-w-2xl mx-auto animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => setStep("template")}
-          className="text-ink-muted hover:text-ink transition-colors"
+          onClick={() => setStep("type")}
+          className="text-ink-muted hover:text-ink transition-colors p-1 -ml-1"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-ink">Nieuw evenement</h1>
-          <p className="text-ink-muted text-sm">Vul de details in</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className={`w-2 h-2 rounded-full ${selectedType.dotColor}`} />
+            <p className="text-ink-muted text-sm">{selectedType.label}</p>
+          </div>
         </div>
       </div>
 
@@ -251,7 +221,7 @@ export default function NewEventPage() {
           </label>
           <input
             type="text"
-            placeholder="bijv. Vrijwilligersdag 2025"
+            placeholder="bijv. Vrijwilligersdag 2026"
             value={form.title}
             onChange={set("title")}
             className="w-full text-ink text-base outline-none placeholder-ink-muted/50 bg-transparent"
@@ -302,7 +272,7 @@ export default function NewEventPage() {
             </label>
             <AiGenButton
               type="description"
-              context={{ title: form.title, type: "evenement" }}
+              context={{ title: form.title, type: eventType }}
               onResult={(text) => setForm((f) => ({ ...f, description: text }))}
               disabled={!form.title}
             />
@@ -325,7 +295,7 @@ export default function NewEventPage() {
           </label>
           <input
             type="text"
-            placeholder="bijv. De Jaarbeurs, Utrecht"
+            placeholder="bijv. Buurthuis De Klinker, Amsterdam"
             value={form.location}
             onChange={set("location")}
             className="w-full text-ink text-sm outline-none placeholder-ink-muted/50 bg-transparent"
@@ -370,7 +340,7 @@ export default function NewEventPage() {
           </label>
           <input
             type="number"
-            placeholder="bijv. 250"
+            placeholder="bijv. 50"
             value={form.maxAttendees}
             onChange={set("maxAttendees")}
             min="1"

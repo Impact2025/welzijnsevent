@@ -35,7 +35,7 @@ export default async function SpeakersPage({ params }: { params: { id: string } 
         </p>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       <div className="px-4 py-6 pb-24">
         <SpeakersManager eventId={params.id} initialSpeakers={eventSpeakers} />

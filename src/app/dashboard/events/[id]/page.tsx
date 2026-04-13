@@ -60,7 +60,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </div>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       {/* Status beheer */}
       <EventStatusPanel eventId={event.id} initialStatus={event.status as "draft" | "published" | "live" | "ended"} />

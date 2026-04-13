@@ -22,6 +22,7 @@ export const EventSchema = z.object({
   tagline:      z.string().max(300).optional().nullable(),
   slug:         z.string().max(100).regex(/^[a-z0-9-]*$/, "Slug mag alleen kleine letters, cijfers en koppeltekens bevatten").optional(),
   coverImage:   z.string().url().max(1000).optional().nullable(),
+  eventType:    z.enum(["klein", "programma", "netwerk", "conferentie"]).optional().default("programma"),
 });
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ type Event = {
   startsAt: string;
   endsAt: string;
   location: string | null;
+  eventType: string | null;
 };
 
 type TicketType = {
@@ -150,7 +151,7 @@ export default function WebsiteTab() {
         <p className="text-white/70 text-xs mt-1">Publieke website</p>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event?.eventType} />
 
       <div className="px-4 pt-5 space-y-6">
         {/* Public URL preview */}

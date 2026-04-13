@@ -133,7 +133,7 @@ export default async function AttendeesPage({
         </div>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       {/* Deelnemers / Wachtlijst sub-tabs */}
       <div className="flex gap-4 px-4 border-b border-sand/50">

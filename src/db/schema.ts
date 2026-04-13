@@ -78,6 +78,9 @@ export const events = pgTable("events", {
   isPublic:       boolean("is_public").default(false),
   tagline:        text("tagline"),
   websiteColor:   text("website_color"),
+  // Event type — determines which features/tabs are shown
+  // "klein" | "programma" | "netwerk" | "conferentie"
+  eventType:      text("event_type").default("programma"),
   // Survey / tevredenheidsonderzoek
   surveyEnabled:  boolean("survey_enabled").default(false),
   surveyQuestions: jsonb("survey_questions").default([]).$type<SurveyQuestion[]>(),

@@ -18,9 +18,14 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
   const [newCount, setNewCount]   = useState(0);
   const [newWallCount, setNewWallCount] = useState(0);
   const [toast, setToast]         = useState<string | null>(null);
+  const [eventType, setEventType] = useState<string>("programma");
 
   // Fetch initial data
   useEffect(() => {
+    fetch(`/api/events/${params.id}`)
+      .then(r => r.json())
+      .then(d => setEventType(d.event?.eventType ?? "programma"));
+
     fetch(`/api/sessions?eventId=${params.id}`)
       .then(r => r.json())
       .then(d => setSessions(d.sessions ?? []));
@@ -188,7 +193,7 @@ export default function LiveControlPage({ params }: { params: { id: string } }) 
         </div>
       )}
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={eventType} />
 
       {/* Dark header */}
       <div className="bg-[#1C1814] text-white px-4 py-3">

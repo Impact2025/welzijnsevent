@@ -9,43 +9,64 @@ import {
   Radio, Network, BarChart3, Globe, MoreHorizontal, X,
 } from "lucide-react";
 
-const PRIMARY_TABS = [
+// ── Tab definitions ────────────────────────────────────────────────────────
+const ALL_TABS = [
   { label: "Programma",    segment: "",           icon: Calendar  },
   { label: "Deelnemers",   segment: "deelnemers", icon: Users     },
   { label: "Live",         segment: "live",       icon: Radio     },
   { label: "Statistieken", segment: "analytics",  icon: BarChart3 },
-];
+  { label: "Sprekers",     segment: "sprekers",   icon: Mic2      },
+  { label: "Sponsors",     segment: "sponsors",   icon: Building2 },
+  { label: "Tickets",      segment: "tickets",    icon: Ticket    },
+  { label: "Netwerk",      segment: "netwerk",    icon: Network   },
+  { label: "Website",      segment: "website",    icon: Globe     },
+] as const;
 
-const MORE_TABS = [
-  { label: "Sprekers", segment: "sprekers", icon: Mic2      },
-  { label: "Sponsors", segment: "sponsors", icon: Building2 },
-  { label: "Tickets",  segment: "tickets",  icon: Ticket    },
-  { label: "Netwerk",  segment: "netwerk",  icon: Network   },
-  { label: "Website",  segment: "website",  icon: Globe     },
-];
+// ── Which tabs are visible per event type ─────────────────────────────────
+const TABS_BY_TYPE: Record<string, string[]> = {
+  klein:       ["", "deelnemers", "analytics"],
+  programma:   ["", "deelnemers", "live", "sprekers", "analytics"],
+  netwerk:     ["", "deelnemers", "live", "netwerk", "analytics"],
+  conferentie: ["", "deelnemers", "live", "analytics", "sprekers", "sponsors", "tickets", "netwerk", "website"],
+};
 
-const ALL_TABS = [...PRIMARY_TABS, ...MORE_TABS];
+// On mobile, show this many tabs before collapsing the rest into "Meer"
+const MOBILE_MAX_PRIMARY = 3;
 
-export function EventTabs({ eventId }: { eventId: string }) {
+// ── Component ─────────────────────────────────────────────────────────────
+export function EventTabs({
+  eventId,
+  eventType = "programma",
+}: {
+  eventId: string;
+  eventType?: string | null;
+}) {
   const pathname = usePathname();
   const base = `/dashboard/events/${eventId}`;
   const [meerOpen, setMeerOpen] = useState(false);
+
+  const allowedSegments = TABS_BY_TYPE[eventType ?? "programma"] ?? TABS_BY_TYPE.programma;
+  const visibleTabs = ALL_TABS.filter((t) => allowedSegments.includes(t.segment));
+
+  const mobilePrimary = visibleTabs.slice(0, MOBILE_MAX_PRIMARY);
+  const mobileMore    = visibleTabs.slice(MOBILE_MAX_PRIMARY);
+  const hasMobileMore = mobileMore.length > 0;
 
   function isActive(segment: string) {
     if (segment === "") return pathname === base;
     return pathname.startsWith(`${base}/${segment}`);
   }
 
-  const anyMoreActive = MORE_TABS.some(t => isActive(t.segment));
+  const anyMoreActive = mobileMore.some((t) => isActive(t.segment));
 
   return (
     <>
       <div className="border-b border-sand relative">
 
-        {/* Desktop: alle 9 tabs in één rij met icoon + label */}
+        {/* Desktop: all visible tabs in one row */}
         <div className="hidden md:flex overflow-x-auto scrollbar-hide px-6">
-          {ALL_TABS.map(({ label, segment, icon: Icon }) => {
-            const href = segment ? `${base}/${segment}` : base;
+          {visibleTabs.map(({ label, segment, icon: Icon }) => {
+            const href   = segment ? `${base}/${segment}` : base;
             const active = isActive(segment);
             return (
               <Link
@@ -65,10 +86,10 @@ export function EventTabs({ eventId }: { eventId: string }) {
           })}
         </div>
 
-        {/* Mobiel: 4 primaire tabs + "Meer"-knop */}
+        {/* Mobile: primary tabs + optional "Meer" */}
         <div className="md:hidden flex overflow-x-auto scrollbar-hide px-4 pr-10">
-          {PRIMARY_TABS.map(({ label, segment, icon: Icon }) => {
-            const href = segment ? `${base}/${segment}` : base;
+          {mobilePrimary.map(({ label, segment, icon: Icon }) => {
+            const href   = segment ? `${base}/${segment}` : base;
             const active = isActive(segment);
             return (
               <Link
@@ -86,31 +107,34 @@ export function EventTabs({ eventId }: { eventId: string }) {
               </Link>
             );
           })}
-          <button
-            onClick={() => setMeerOpen(true)}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors shrink-0",
-              anyMoreActive
-                ? "text-terra-500 border-terra-500"
-                : "text-ink-muted border-transparent hover:text-ink"
-            )}
-          >
-            <MoreHorizontal size={14} />
-            Meer
-          </button>
+
+          {hasMobileMore && (
+            <button
+              onClick={() => setMeerOpen(true)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors shrink-0",
+                anyMoreActive
+                  ? "text-terra-500 border-terra-500"
+                  : "text-ink-muted border-transparent hover:text-ink"
+              )}
+            >
+              <MoreHorizontal size={14} />
+              Meer
+            </button>
+          )}
         </div>
 
-        {/* Fade rechts als scroll-hint (mobiel) */}
+        {/* Fade right as scroll hint (mobile) */}
         <div className="md:hidden absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
       </div>
 
-      {/* "Meer" bottom sheet — mobiel */}
-      {meerOpen && (
+      {/* "Meer" bottom sheet — mobile only */}
+      {meerOpen && hasMobileMore && (
         <div className="fixed inset-0 z-50 md:hidden" onClick={() => setMeerOpen(false)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
             className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl pb-safe"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-sand">
               <p className="text-sm font-bold text-ink">Meer</p>
@@ -122,8 +146,8 @@ export function EventTabs({ eventId }: { eventId: string }) {
               </button>
             </div>
             <div className="p-3 space-y-1">
-              {MORE_TABS.map(({ label, segment, icon: Icon }) => {
-                const href = `${base}/${segment}`;
+              {mobileMore.map(({ label, segment, icon: Icon }) => {
+                const href   = `${base}/${segment}`;
                 const active = isActive(segment);
                 return (
                   <Link

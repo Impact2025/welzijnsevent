@@ -90,7 +90,7 @@ export default async function NetwerkPage({ params }: { params: { id: string } }
         </p>
       </div>
 
-      <EventTabs eventId={params.id} />
+      <EventTabs eventId={params.id} eventType={event.eventType} />
 
       <div className="p-4 pb-28 space-y-5">
         {/* AI Match Generator */}
