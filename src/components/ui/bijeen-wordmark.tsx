@@ -1,5 +1,5 @@
 /**
- * BijeenWordmark — logo met PNG icoon + tekstwoordmerk.
+ * BijeenWordmark — inline SVG icoon + tekstwoordmerk.
  *
  * variant="light"  → wit woordmerk  (donkere sidebar / dark backgrounds)
  * variant="dark"   → ink woordmerk  (lichte backgrounds)
@@ -14,9 +14,9 @@ interface BijeenWordmarkProps {
 }
 
 const SIZES = {
-  sm: { height: 28, iconSize: 28, fontSize: 15, gap: 8  },
-  md: { height: 42, iconSize: 42, fontSize: 18, gap: 10 },
-  lg: { height: 52, iconSize: 52, fontSize: 22, gap: 12 },
+  sm: { height: 28, iconSize: 22, fontSize: 15, gap: 7  },
+  md: { height: 36, iconSize: 28, fontSize: 18, gap: 9  },
+  lg: { height: 44, iconSize: 36, fontSize: 22, gap: 11 },
 };
 
 export function BijeenWordmark({
@@ -25,7 +25,8 @@ export function BijeenWordmark({
   className,
 }: BijeenWordmarkProps) {
   const { height, iconSize, fontSize, gap } = SIZES[size];
-  const textColor = variant === "light" ? "#FFFFFF" : "#1C1814";
+  const color      = variant === "light" ? "#FFFFFF" : "#C8522A";
+  const textColor  = variant === "light" ? "#FFFFFF" : "#1C1814";
 
   return (
     <span
@@ -33,19 +34,30 @@ export function BijeenWordmark({
       style={{ gap, height }}
       aria-label="Bijeen"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/Bijeen-logo-icon.png"
-        alt=""
+      {/* Inline SVG — geen netwerk-request, altijd zichtbaar */}
+      <svg
         width={iconSize}
         height={iconSize}
-        style={{
-          width: iconSize,
-          height: iconSize,
-          objectFit: "contain",
-          filter: variant === "light" ? "brightness(0) invert(1)" : undefined,
-        }}
-      />
+        viewBox="0 0 44 44"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        {/* Linker persoon */}
+        <circle cx="15" cy="16" r="7" stroke={color} strokeWidth="2.8" />
+        {/* Rechter persoon */}
+        <circle cx="29" cy="16" r="7" stroke={color} strokeWidth="2.8" />
+        {/* Verbindingspunt in het midden */}
+        <circle cx="22" cy="16" r="3" fill={color} />
+        {/* Schouders — mensen samen */}
+        <path
+          d="M5 34 Q22 26 39 34"
+          stroke={color}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      </svg>
+
       <span
         style={{
           fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif",
