@@ -75,25 +75,54 @@ const testimonials = [
 
 const plans = [
   {
-    name: "Basis",
-    price: "79",
-    desc: "Per evenement · max. 150 deelnemers",
-    features: ["Eventpagina + inschrijving", "QR check-in", "Basisprogramma", "Deelnemersexport"],
+    key: "community",
+    name: "Community",
+    priceLabel: "Gratis",
+    period: "voor altijd",
+    desc: "Max 75 deelnemers · max 2 events/jaar",
+    saving: null,
+    cta: "Gratis starten",
     highlight: false,
+    features: [
+      "Eventpagina + inschrijving",
+      "QR check-in",
+      "Deelnemersexport",
+    ],
   },
   {
-    name: "Welzijn Pro",
-    price: "249",
-    desc: "Per evenement · max. 600 deelnemers",
-    features: ["Alles uit Basis", "AI netwerkkoppeling", "Live Q&A en polls", "Impactrapportage PDF", "White-label app"],
+    key: "welzijn",
+    name: "Welzijn",
+    priceLabel: "€490",
+    period: "/jaar",
+    desc: "6 events · max 300 deelnemers",
+    saving: "€82 per event gem. · 8% goedkoper",
+    cta: "Start gratis proef",
+    highlight: false,
+    features: [
+      "6 events per jaar",
+      "Eigen branding (white-label)",
+      "AI-netwerkkoppeling",
+      "WMO Impactrapportage PDF",
+      "Live Q&A en polls",
+    ],
+  },
+  {
+    key: "netwerk",
+    name: "Netwerk",
+    priceLabel: "€1.290",
+    period: "/jaar",
+    desc: "24 events · max 750 deelnemers",
+    saving: "~€54 per event gem. · 38% goedkoper",
+    badge: "Beste waarde",
+    cta: "Start gratis proef",
     highlight: true,
-  },
-  {
-    name: "Congres",
-    price: "699",
-    desc: "Per evenement · onbeperkt deelnemers",
-    features: ["Alles uit Welzijn Pro", "Parallelle sessies", "Hybrid/streaming", "Dedicated support"],
-    highlight: false,
+    features: [
+      "24 events per jaar",
+      "Hybride / streaming",
+      "Parallelle sessies",
+      "WMO-verantwoordingsexport",
+      "Alles uit Welzijn",
+    ],
   },
 ];
 
@@ -365,39 +394,47 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 max-w-4xl mx-auto mb-8">
-            {plans.map(({ name, price, desc, features: planFeatures, highlight }) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 max-w-4xl mx-auto mb-5">
+            {plans.map((plan) => (
               <div
-                key={name}
+                key={plan.key}
                 className={`relative rounded-2xl p-6 sm:p-7 flex flex-col ${
-                  highlight
+                  plan.highlight
                     ? "bg-[#12100E] shadow-2xl ring-1 ring-terra-500/30"
                     : "bg-white border border-sand/60 shadow-sm"
                 }`}
               >
-                {highlight && (
+                {"badge" in plan && plan.badge && (
                   <div className="absolute -top-3.5 left-0 right-0 flex justify-center">
-                    <span className="bg-terra-500 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-lg">
-                      Populairste keuze
+                    <span className="bg-terra-500 text-white text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full shadow-lg shadow-terra-500/30">
+                      {plan.badge}
                     </span>
                   </div>
                 )}
                 <div className="mb-5">
-                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${highlight ? "text-terra-400" : "text-terra-500"}`}>
-                    {name}
+                  <p className={`text-[10px] font-bold uppercase tracking-widest mb-3 ${plan.highlight ? "text-terra-400" : "text-terra-500"}`}>
+                    {plan.name}
                   </p>
                   <div className="flex items-baseline gap-1 mb-1.5">
-                    <span className={`text-5xl font-extrabold tracking-tight ${highlight ? "text-white" : "text-ink"}`}>
-                      €{price}
+                    <span className={`text-4xl font-extrabold tracking-tight ${plan.highlight ? "text-white" : "text-ink"}`}>
+                      {plan.priceLabel}
+                    </span>
+                    <span className={`text-sm ${plan.highlight ? "text-white/45" : "text-ink/40"}`}>
+                      {plan.period}
                     </span>
                   </div>
-                  <p className={`text-xs ${highlight ? "text-white/55" : "text-ink-muted"}`}>{desc}</p>
+                  <p className={`text-xs ${plan.highlight ? "text-white/45" : "text-ink/45"}`}>{plan.desc}</p>
+                  {plan.saving && (
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      {plan.saving}
+                    </p>
+                  )}
                 </div>
 
                 <ul className="space-y-2.5 mb-7 flex-1">
-                  {planFeatures.map((f) => (
-                    <li key={f} className={`flex items-start gap-2.5 text-sm ${highlight ? "text-white/80" : "text-ink-muted"}`}>
-                      <span className={`mt-0.5 font-bold text-xs shrink-0 ${highlight ? "text-terra-400" : "text-terra-500"}`}>✓</span>
+                  {plan.features.map((f) => (
+                    <li key={f} className={`flex items-start gap-2.5 text-sm ${plan.highlight ? "text-white/80" : "text-ink/70"}`}>
+                      <span className={`mt-0.5 shrink-0 text-xs font-bold ${plan.highlight ? "text-terra-400" : "text-terra-500"}`}>✓</span>
                       {f}
                     </li>
                   ))}
@@ -405,22 +442,39 @@ export default function HomePage() {
 
                 <Link
                   href="/sign-in?new=true"
-                  className={`block text-center py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${
-                    highlight
-                      ? "bg-terra-500 hover:bg-terra-600 text-white shadow-lg shadow-terra-500/25"
-                      : "bg-sand hover:bg-terra-50 hover:text-terra-700 text-ink border border-sand"
+                  className={`block text-center py-3 rounded-xl text-sm font-bold transition-all duration-150 ${
+                    plan.highlight
+                      ? "bg-terra-500 hover:bg-terra-600 text-white shadow-lg shadow-terra-500/25 hover:-translate-y-0.5"
+                      : plan.key === "community"
+                      ? "bg-terra-50 hover:bg-terra-100 text-terra-700 border border-terra-200"
+                      : "bg-terra-50 hover:bg-terra-100 text-terra-700 border border-terra-200"
                   }`}
                 >
-                  Start gratis
+                  {plan.cta}
                 </Link>
               </div>
             ))}
           </div>
 
+          {/* Organisatie callout */}
+          <div className="max-w-4xl mx-auto mb-8 bg-white border border-sand/60 rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-ink text-sm mb-1">Organisatie — Onbeperkt</p>
+              <p className="text-sm text-ink/55">Onbeperkt events en deelnemers, custom integraties, dedicated accountmanager — €2.890/jaar.</p>
+            </div>
+            <Link
+              href="/prijzen"
+              className="shrink-0 inline-flex items-center gap-2 bg-[#12100E] hover:bg-[#2a2420] text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
+            >
+              Bekijk alle plannen
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
           <p className="text-center text-ink-muted text-sm">
             Regelmatig events?{" "}
             <Link href="/prijzen" className="text-terra-500 hover:text-terra-600 font-semibold transition-colors">
-              Bekijk jaarabonnementen en bespaar tot 45% →
+              Bekijk jaarabonnementen en bespaar tot 38% →
             </Link>
           </p>
         </div>
