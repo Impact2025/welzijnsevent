@@ -6,28 +6,29 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   Calendar, Users, Mic2, Building2, Ticket,
-  Radio, Network, BarChart3, Globe, MoreHorizontal, X,
+  Radio, Network, BarChart3, Globe, MoreHorizontal, X, HandHeart,
 } from "lucide-react";
 
 // ── Tab definitions ────────────────────────────────────────────────────────
 const ALL_TABS = [
-  { label: "Programma",    segment: "",           icon: Calendar  },
-  { label: "Deelnemers",   segment: "deelnemers", icon: Users     },
-  { label: "Live",         segment: "live",       icon: Radio     },
-  { label: "Statistieken", segment: "analytics",  icon: BarChart3 },
-  { label: "Sprekers",     segment: "sprekers",   icon: Mic2      },
-  { label: "Sponsors",     segment: "sponsors",   icon: Building2 },
-  { label: "Tickets",      segment: "tickets",    icon: Ticket    },
-  { label: "Netwerk",      segment: "netwerk",    icon: Network   },
-  { label: "Website",      segment: "website",    icon: Globe     },
+  { label: "Programma",    segment: "",           icon: Calendar   },
+  { label: "Deelnemers",   segment: "deelnemers", icon: Users      },
+  { label: "Live",         segment: "live",       icon: Radio      },
+  { label: "Statistieken", segment: "analytics",  icon: BarChart3  },
+  { label: "Sprekers",     segment: "sprekers",   icon: Mic2       },
+  { label: "Sponsors",     segment: "sponsors",   icon: Building2  },
+  { label: "Tickets",      segment: "tickets",    icon: Ticket     },
+  { label: "Netwerk",      segment: "netwerk",    icon: Network    },
+  { label: "Website",      segment: "website",    icon: Globe      },
+  { label: "Vacatures",    segment: "vacatures",  icon: HandHeart  },
 ] as const;
 
 // ── Which tabs are visible per event type ─────────────────────────────────
 const TABS_BY_TYPE: Record<string, string[]> = {
-  klein:       ["", "deelnemers", "analytics"],
-  programma:   ["", "deelnemers", "live", "sprekers", "analytics"],
-  netwerk:     ["", "deelnemers", "live", "netwerk", "analytics"],
-  conferentie: ["", "deelnemers", "live", "analytics", "sprekers", "sponsors", "tickets", "netwerk", "website"],
+  klein:       ["", "deelnemers", "vacatures", "analytics"],
+  programma:   ["", "deelnemers", "live", "sprekers", "vacatures", "analytics"],
+  netwerk:     ["", "deelnemers", "live", "netwerk", "vacatures", "analytics"],
+  conferentie: ["", "deelnemers", "live", "analytics", "sprekers", "sponsors", "tickets", "netwerk", "website", "vacatures"],
 };
 
 // On mobile, show this many tabs before collapsing the rest into "Meer"

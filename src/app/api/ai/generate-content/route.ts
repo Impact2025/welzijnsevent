@@ -4,7 +4,7 @@ import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 import { z } from "zod";
 
 const Schema = z.object({
-  type:    z.enum(["description", "tagline", "bio", "session", "email_subject"]),
+  type:    z.enum(["description", "tagline", "bio", "session", "email_subject", "vacancy_skills"]),
   context: z.record(z.string()).default({}),
 });
 
@@ -32,6 +32,13 @@ Schrijf wat deelnemers leren of ervaren. Gebruik actieve taal.`,
 
   email_subject: ctx => `Bedenk 3 pakkende e-mailonderwerpregels voor een evenementuitnodiging. Max 8 woorden elk. Geef alleen de onderwerpregels terug, één per regel.
 Evenementtitel: "${ctx.title ?? ""}"`,
+
+  vacancy_skills: ctx => `Bedenk 6-8 concrete vaardigheden of vereisten voor deze vrijwilligersvacature.
+Vacaturetitel: "${ctx.title ?? ""}"
+Categorie: ${ctx.category ?? "overig"}
+
+Geef alleen korte labels (2-5 woorden), één per regel, zonder nummering of bullets.
+Voorbeelden: EHBO-diploma, rijbewijs B, stressbestendig, communicatief sterk, flexibel inzetbaar, teamspeler`,
 };
 
 export async function POST(req: Request) {

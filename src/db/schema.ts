@@ -449,6 +449,96 @@ export const crmActivities = pgTable("crm_activities", {
   createdBy:      text("created_by"),
 });
 
+// ── VOLUNTEER VACANCIES ────────────────────────────────────
+export const volunteerVacancies = pgTable("volunteer_vacancies", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  eventId:        uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  title:          text("title").notNull(),
+  description:    text("description"),
+  // HTML from rich text editor
+  category:       text("category").default("overig"),
+  // begeleiding | registratie | catering | techniek | veiligheid | communicatie | decoratie | vervoer | kinderhoek | overig
+  spotsAvailable: integer("spots_available").default(1),
+  location:       text("location"),
+  shiftDate:      timestamp("shift_date"),
+  shiftStart:     text("shift_start"),
+  // "09:00"
+  shiftEnd:       text("shift_end"),
+  // "17:00"
+  requirements:   jsonb("requirements").default([]).$type<string[]>(),
+  // required skills/tags
+  status:         text("status").default("draft"),
+  // draft | open | closed | cancelled
+  sortOrder:      integer("sort_order").default(0),
+  createdAt:      timestamp("created_at").defaultNow(),
+  updatedAt:      timestamp("updated_at").defaultNow(),
+});
+
+// ── VOLUNTEER PROFILES ─────────────────────────────────────
+export const volunteerProfiles = pgTable("volunteer_profiles", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  eventId:        uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  attendeeId:     uuid("attendee_id").references(() => attendees.id),
+  name:           text("name").notNull(),
+  email:          text("email").notNull(),
+  phone:          text("phone"),
+  skills:         jsonb("skills").default([]).$type<string[]>(),
+  availability:   text("availability"),
+  bio:            text("bio"),
+  status:         text("status").default("actief"),
+  // actief | inactief
+  createdAt:      timestamp("created_at").defaultNow(),
+  updatedAt:      timestamp("updated_at").defaultNow(),
+});
+
+// ── VACANCY APPLICATIONS ────────────────────────────────────
+export const vacancyApplications = pgTable("vacancy_applications", {
+  id:                 uuid("id").defaultRandom().primaryKey(),
+  vacancyId:          uuid("vacancy_id").references(() => volunteerVacancies.id, { onDelete: "cascade" }).notNull(),
+  volunteerProfileId: uuid("volunteer_profile_id").references(() => volunteerProfiles.id, { onDelete: "cascade" }).notNull(),
+  motivation:         text("motivation"),
+  status:             text("status").default("pending"),
+  // pending | accepted | rejected | withdrawn
+  internalNotes:      text("internal_notes"),
+  reviewedBy:         text("reviewed_by"),
+  appliedAt:          timestamp("applied_at").defaultNow(),
+  reviewedAt:         timestamp("reviewed_at"),
+});
+
+// ── VACANCY INVITATIONS ─────────────────────────────────────
+export const vacancyInvitations = pgTable("vacancy_invitations", {
+  id:                 uuid("id").defaultRandom().primaryKey(),
+  vacancyId:          uuid("vacancy_id").references(() => volunteerVacancies.id, { onDelete: "cascade" }).notNull(),
+  volunteerProfileId: uuid("volunteer_profile_id").references(() => volunteerProfiles.id),
+  invitedEmail:       text("invited_email").notNull(),
+  invitedName:        text("invited_name"),
+  invitedBy:          text("invited_by").notNull(),
+  personalMessage:    text("personal_message"),
+  token:              text("token").unique().notNull(),
+  status:             text("status").default("pending"),
+  // pending | accepted | declined | expired
+  expiresAt:          timestamp("expires_at").notNull(),
+  respondedAt:        timestamp("responded_at"),
+  createdAt:          timestamp("created_at").defaultNow(),
+});
+
+// ── VOLUNTEER MESSAGES ──────────────────────────────────────
+export const volunteerMessages = pgTable("volunteer_messages", {
+  id:             uuid("id").defaultRandom().primaryKey(),
+  organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
+  eventId:        uuid("event_id").references(() => events.id),
+  vacancyId:      uuid("vacancy_id").references(() => volunteerVacancies.id),
+  senderId:       text("sender_id").references(() => authUsers.id).notNull(),
+  recipientEmail: text("recipient_email").notNull(),
+  recipientName:  text("recipient_name"),
+  subject:        text("subject").notNull(),
+  body:           text("body").notNull(),
+  readAt:         timestamp("read_at"),
+  createdAt:      timestamp("created_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -474,5 +564,10 @@ export type Speaker            = typeof speakers.$inferSelect;
 export type Sponsor            = typeof sponsors.$inferSelect;
 export type OrgMember          = typeof orgMembers.$inferSelect;
 export type OrgInvite          = typeof orgInvites.$inferSelect;
-export type ContactProfile     = typeof contactProfiles.$inferSelect;
-export type CrmActivity        = typeof crmActivities.$inferSelect;
+export type ContactProfile        = typeof contactProfiles.$inferSelect;
+export type CrmActivity           = typeof crmActivities.$inferSelect;
+export type VolunteerVacancy      = typeof volunteerVacancies.$inferSelect;
+export type VolunteerProfile      = typeof volunteerProfiles.$inferSelect;
+export type VacancyApplication    = typeof vacancyApplications.$inferSelect;
+export type VacancyInvitation     = typeof vacancyInvitations.$inferSelect;
+export type VolunteerMessage      = typeof volunteerMessages.$inferSelect;
