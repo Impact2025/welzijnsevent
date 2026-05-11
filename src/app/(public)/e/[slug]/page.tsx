@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { db, events, sessions, ticketTypes, speakers, sponsors } from "@/db";
-import { eq, asc } from "drizzle-orm";
+import { db, events, sessions, ticketTypes, speakers, sponsors, volunteerVacancies } from "@/db";
+import { eq, asc, and, count } from "drizzle-orm";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Calendar, CalendarPlus, MapPin, ExternalLink, Ticket, Share2, Link2 } from "lucide-react";
 import { SocialShareButtons } from "@/components/public/social-share-buttons";
@@ -75,6 +75,11 @@ export default async function PublicEventPage({
     .from(sponsors)
     .where(eq(sponsors.eventId, event.id))
     .orderBy(asc(sponsors.sortOrder), asc(sponsors.createdAt));
+
+  const [{ value: openVacancyCount }] = await db
+    .select({ value: count() })
+    .from(volunteerVacancies)
+    .where(and(eq(volunteerVacancies.eventId, event.id), eq(volunteerVacancies.status, "open")));
 
   const primaryColor = event.websiteColor ?? "#C8522A";
   const minPrice = tickets.length > 0
@@ -160,7 +165,7 @@ export default async function PublicEventPage({
       </section>
 
       {/* Tab nav */}
-      <EventNav slug={params.slug} eventTitle={event.title} primaryColor={primaryColor} />
+      <EventNav slug={params.slug} eventTitle={event.title} primaryColor={primaryColor} hasVacancies={openVacancyCount > 0} />
 
       {/* Social sharing */}
       <div className="max-w-2xl mx-auto px-4 pt-4">
@@ -398,13 +403,44 @@ export default async function PublicEventPage({
           </a>
         </section>
 
+        {/* Volunteer banner */}
+        {openVacancyCount > 0 && (
+          <section className="animate-fade-in" style={{ animationDelay: "350ms" }}>
+            <Link
+              href={`/e/${params.slug}/vacatures`}
+              className="flex items-center gap-4 w-full rounded-2xl px-5 py-4 transition-opacity hover:opacity-90 active:scale-[0.98]"
+              style={{ backgroundColor: `${primaryColor}12`, border: `1.5px solid ${primaryColor}30` }}
+            >
+              <div
+                className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${primaryColor}20` }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={primaryColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-extrabold" style={{ color: primaryColor }}>Word vrijwilliger</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {openVacancyCount === 1
+                    ? "1 openstaande vacature"
+                    : `${openVacancyCount} openstaande vacatures`}
+                </p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={primaryColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.5 }}>
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </Link>
+          </section>
+        )}
+
         {/* Spacer for floating CTA */}
         <div className="h-4" />
       </div>
 
       {/* Floating register CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-30 pt-4 px-4 pb-safe bg-gradient-to-t from-white via-white/95 to-transparent">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto flex flex-col gap-2">
           <Link
             href={`/e/${params.slug}/register${langParam}`}
             className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white font-extrabold text-sm shadow-lg transition-opacity hover:opacity-90 active:scale-[0.98]"
@@ -421,6 +457,18 @@ export default async function PublicEventPage({
               </span>
             )}
           </Link>
+          {openVacancyCount > 0 && (
+            <Link
+              href={`/e/${params.slug}/vacatures`}
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl text-sm font-bold border transition-colors hover:bg-gray-50 active:scale-[0.98]"
+              style={{ borderColor: `${primaryColor}40`, color: primaryColor }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              Word vrijwilliger
+            </Link>
+          )}
         </div>
       </div>
 

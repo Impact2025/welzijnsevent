@@ -2,25 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Radio, Users, MessageSquare } from "lucide-react";
+import { Calendar, Radio, Users, MessageSquare, HandHeart } from "lucide-react";
 
-const tabs = [
-  { label: "Programma", href: (slug: string) => `/e/${slug}`,           icon: Calendar,      exact: true },
-  { label: "Live",      href: (slug: string) => `/e/${slug}/live`,      icon: Radio          },
-  { label: "Wall",      href: (slug: string) => `/e/${slug}/wall`,      icon: MessageSquare  },
-  { label: "Community", href: (slug: string) => `/e/${slug}/community`, icon: Users          },
+const BASE_TABS = [
+  { label: "Programma",    href: (slug: string) => `/e/${slug}`,            icon: Calendar,   exact: true },
+  { label: "Live",         href: (slug: string) => `/e/${slug}/live`,       icon: Radio       },
+  { label: "Wall",         href: (slug: string) => `/e/${slug}/wall`,       icon: MessageSquare },
+  { label: "Community",    href: (slug: string) => `/e/${slug}/community`,  icon: Users       },
 ];
+
+const VOLUNTEER_TAB = {
+  label: "Vrijwilligers",
+  href:  (slug: string) => `/e/${slug}/vacatures`,
+  icon:  HandHeart,
+  exact: false,
+};
 
 export function EventNav({
   slug,
   eventTitle,
   primaryColor = "#C8522A",
+  hasVacancies = false,
 }: {
   slug: string;
   eventTitle: string;
   primaryColor?: string;
+  hasVacancies?: boolean;
 }) {
   const pathname = usePathname();
+  const tabs = hasVacancies ? [...BASE_TABS, VOLUNTEER_TAB] : BASE_TABS;
 
   return (
     <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
