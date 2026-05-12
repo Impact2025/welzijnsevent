@@ -1,29 +1,16 @@
-import { db, volunteerProfiles, vacancyApplications } from "@/db";
-import { eq, inArray, desc } from "drizzle-orm";
+import { db, volunteerProfiles, vacancyApplications, volunteerVacancies, events } from "@/db";
+import { eq, inArray, desc, and } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  HandHeart, Search, Users, CheckCircle2, Clock, ChevronRight, Sparkles,
+  HandHeart, Users, CheckCircle2, Clock, Sparkles,
 } from "lucide-react";
-import { getInitials, avatarColor, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { VolunteerFilters } from "@/components/vrijwilligers/VolunteerFilters";
+import { VolunteerList } from "@/components/vrijwilligers/VolunteerList";
 
 export const metadata = { title: "Vrijwilligers — Bijeen" };
-
-const SKILL_COLORS = [
-  "bg-blue-50 text-blue-700 border-blue-100",
-  "bg-purple-50 text-purple-700 border-purple-100",
-  "bg-green-50 text-green-700 border-green-100",
-  "bg-orange-50 text-orange-700 border-orange-100",
-  "bg-pink-50 text-pink-700 border-pink-100",
-];
-
-function skillColor(skill: string) {
-  let h = 0;
-  for (let i = 0; i < skill.length; i++) h = (h * 31 + skill.charCodeAt(i)) & 0xffffff;
-  return SKILL_COLORS[h % SKILL_COLORS.length];
-}
 
 export default async function VrijwilligersPage({
   searchParams,
@@ -129,6 +116,20 @@ export default async function VrijwilligersPage({
   const totalPending  = primary.reduce((s, p) => s + (emailStats.get(p.email.toLowerCase())?.pending ?? 0), 0);
   const totalAccepted = primary.reduce((s, p) => s + (emailStats.get(p.email.toLowerCase())?.accepted ?? 0), 0);
 
+  // Open vacancies for bulk invite
+  const openVacs = await db
+    .select({ id: volunteerVacancies.id, title: volunteerVacancies.title, eventId: volunteerVacancies.eventId })
+    .from(volunteerVacancies)
+    .where(and(eq(volunteerVacancies.organizationId, org.id), eq(volunteerVacancies.status, "open")))
+    .orderBy(desc(volunteerVacancies.createdAt));
+
+  const openVacancies = await Promise.all(
+    openVacs.map(async (v) => {
+      const [evt] = await db.select({ title: events.title }).from(events).where(eq(events.id, v.eventId));
+      return { id: v.id, title: v.title, eventTitle: evt?.title ?? "" };
+    })
+  );
+
   return (
     <div className="px-4 py-5 md:px-7 md:py-7 max-w-5xl mx-auto animate-fade-in">
 
@@ -165,117 +166,18 @@ export default async function VrijwilligersPage({
         <VolunteerFilters allSkills={allSkills} />
       </div>
 
-      {/* List */}
-      <div className="card-base overflow-hidden">
-        {/* Desktop header */}
-        <div className="hidden md:grid grid-cols-[2fr_2fr_80px_80px_100px] gap-4 px-5 py-3 border-b border-sand bg-cream/50">
-          {["Vrijwilliger", "Skills", "Aanmeldingen", "Geaccepteerd", "Status"].map((h) => (
-            <p key={h} className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">{h}</p>
-          ))}
+      {/* List with bulk-select */}
+      {primary.length === 0 ? (
+        <div className="card-base py-16 text-center">
+          <HandHeart size={36} className="mx-auto text-ink-muted/25 mb-3" />
+          <p className="text-sm font-semibold text-ink mb-1">Nog geen vrijwilligers</p>
+          <p className="text-xs text-ink-muted">
+            Maak een vacature open — vrijwilligers verschijnen hier zodra ze zich aanmelden
+          </p>
         </div>
-
-        {volunteers.length === 0 ? (
-          <div className="py-16 text-center">
-            <HandHeart size={36} className="mx-auto text-ink-muted/25 mb-3" />
-            <p className="text-sm font-semibold text-ink mb-1">
-              {primary.length === 0 ? "Nog geen vrijwilligers" : "Geen resultaten"}
-            </p>
-            <p className="text-xs text-ink-muted">
-              {primary.length === 0
-                ? "Maak een vacature open — vrijwilligers verschijnen hier zodra ze zich aanmelden"
-                : "Pas de filters aan om meer vrijwilligers te zien"}
-            </p>
-          </div>
-        ) : (
-          volunteers.map((v) => {
-            const initials = getInitials(v.name);
-            const color    = avatarColor(v.name);
-            const hasPending = v.applicationsPending > 0;
-
-            return (
-              <Link
-                key={v.email}
-                href={`/dashboard/vrijwilligers/${encodeURIComponent(v.email)}`}
-                className="flex md:grid md:grid-cols-[2fr_2fr_80px_80px_100px] gap-3 md:gap-4 items-center px-4 md:px-5 py-3.5 hover:bg-cream/60 transition-colors border-b border-sand/40 last:border-0 group"
-              >
-                {/* Avatar + name */}
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
-                    style={{ backgroundColor: color }}
-                  >
-                    {initials}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-ink truncate group-hover:text-terra-500 transition-colors leading-tight">
-                        {v.name}
-                      </p>
-                      {hasPending && (
-                        <span className="shrink-0 w-2 h-2 rounded-full bg-amber-400" title="Wacht op review" />
-                      )}
-                    </div>
-                    <p className="text-[11px] text-ink-muted truncate">{v.email}</p>
-                  </div>
-                </div>
-
-                {/* Skills */}
-                <div className="hidden md:flex flex-wrap gap-1.5 overflow-hidden max-h-6">
-                  {v.skills.length === 0 ? (
-                    <span className="text-xs text-ink-muted/50">—</span>
-                  ) : (
-                    v.skills.slice(0, 3).map((s) => (
-                      <span
-                        key={s}
-                        className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", skillColor(s))}
-                      >
-                        {s}
-                      </span>
-                    ))
-                  )}
-                  {v.skills.length > 3 && (
-                    <span className="text-[10px] text-ink-muted/60">+{v.skills.length - 3}</span>
-                  )}
-                </div>
-
-                {/* Aanmeldingen */}
-                <div className="hidden md:flex items-center gap-1">
-                  <span className="text-sm font-semibold text-ink">{v.applicationsTotal}</span>
-                  {hasPending && (
-                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
-                      {v.applicationsPending} nieuw
-                    </span>
-                  )}
-                </div>
-
-                {/* Accepted */}
-                <p className="text-sm text-green-700 font-semibold hidden md:block">
-                  {v.applicationsAccepted > 0 ? v.applicationsAccepted : "—"}
-                </p>
-
-                {/* Status chip + mobile chevron */}
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border shrink-0",
-                    v.applicationsAccepted > 0
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : hasPending
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-sand text-ink-muted border-sand"
-                  )}>
-                    {v.applicationsAccepted > 0
-                      ? "Actief"
-                      : hasPending
-                      ? "Review"
-                      : "Pool"}
-                  </span>
-                  <ChevronRight size={14} className="text-ink-muted/40 md:hidden" />
-                </div>
-              </Link>
-            );
-          })
-        )}
-      </div>
+      ) : (
+        <VolunteerList volunteers={volunteers} openVacancies={openVacancies} />
+      )}
 
       {/* Empty CTA */}
       {primary.length === 0 && (
