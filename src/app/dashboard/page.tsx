@@ -2,6 +2,8 @@ import { db, events, attendees, sessions, surveyResponses, feedback, subscriptio
 import { desc, count, eq, avg } from "drizzle-orm";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { EventCard } from "@/components/events/event-card";
+import { SmartTodos } from "@/components/dashboard/smart-todos";
+import { AiPanel } from "@/components/dashboard/ai-panel";
 import { Users, Calendar, Star, ArrowRight, Zap, AlertTriangle, Clock } from "lucide-react";
 import Link from "next/link";
 import { getCurrentOrg } from "@/lib/auth";
@@ -164,6 +166,12 @@ export default async function DashboardPage() {
           icon={<Calendar size={14} strokeWidth={2.5} />}
         />
       </div>
+
+      {/* Smart todos — only renders when there are actionable items */}
+      <SmartTodos />
+
+      {/* AI Assistent panel */}
+      <AiPanel />
 
       {/* Events list */}
       <div data-tour="events-list" className="card-base overflow-hidden">
