@@ -81,7 +81,8 @@ export default async function VolunteerDetailPage({
     .orderBy(desc(vacancyApplications.appliedAt));
 
   // Events for context
-  const eventIds = [...new Set(appRows.map((r) => r.vacancy?.eventId).filter(Boolean) as string[])];
+  const uniqueEventIds = new Set(appRows.map((r) => r.vacancy?.eventId).filter(Boolean) as string[]);
+  const eventIds = Array.from(uniqueEventIds);
   const eventRows = eventIds.length > 0
     ? await db.select({ id: events.id, title: events.title }).from(events).where(inArray(events.id, eventIds))
     : [];

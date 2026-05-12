@@ -69,7 +69,7 @@ export default async function VrijwilligersPage({
     : [];
 
   const profileIdToEmail = new Map<string, string>();
-  for (const [email, ids] of emailToIds) for (const id of ids) profileIdToEmail.set(id, email);
+  emailToIds.forEach((ids, email) => ids.forEach((id) => profileIdToEmail.set(id, email)));
 
   const emailStats = new Map<string, { total: number; accepted: number; pending: number; lastApplied: string | null }>();
   for (const row of appRows) {

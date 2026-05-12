@@ -53,9 +53,9 @@ export async function GET(req: Request) {
 
   // Map profile IDs → emails for aggregation
   const profileIdToEmail = new Map<string, string>();
-  for (const [email, ids] of emailToProfileIds) {
-    for (const id of ids) profileIdToEmail.set(id, email);
-  }
+  emailToProfileIds.forEach((ids, email) => {
+    ids.forEach((id) => profileIdToEmail.set(id, email));
+  });
 
   // Aggregate per email
   const emailStats = new Map<string, {
