@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { db, vacancyApplications, volunteerProfiles, volunteerVacancies, events } from "@/db";
+import { db, vacancyApplications, volunteerProfiles, volunteerVacancies, events, organizations, authUsers } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
-import { sendVacancyApplicationConfirmation } from "@/lib/email";
+import { sendVacancyApplicationConfirmation, sendNewVolunteerApplicationNotification } from "@/lib/email";
 
 const CreateSchema = z.object({
   vacancyId:  z.string().uuid(),
@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     .values({ vacancyId, volunteerProfileId: profileId, motivation: motivation ?? null })
     .returning();
 
-  // Send confirmation email (non-blocking)
+  // Send confirmation email to volunteer (non-blocking)
   if (event) {
     sendVacancyApplicationConfirmation({
       to:           email,
@@ -104,6 +104,25 @@ export async function POST(req: Request) {
       vacancyTitle: vacancy.v.title,
       eventTitle:   event.title,
       eventSlug:    event.slug ?? "",
+    }).catch(() => {});
+  }
+
+  // Notify org owner (non-blocking)
+  const [orgOwner] = await db
+    .select({ email: authUsers.email })
+    .from(organizations)
+    .innerJoin(authUsers, eq(organizations.userId, authUsers.id))
+    .where(eq(organizations.id, vacancy.orgId))
+    .limit(1);
+
+  if (orgOwner && event) {
+    sendNewVolunteerApplicationNotification({
+      to:             orgOwner.email,
+      volunteerName:  name,
+      volunteerEmail: email,
+      vacancyTitle:   vacancy.v.title,
+      eventTitle:     event.title,
+      dashboardUrl:   `https://bijeen.app/dashboard/vrijwilligers/${encodeURIComponent(email)}`,
     }).catch(() => {});
   }
 

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, vacancyApplications, volunteerProfiles, volunteerVacancies, organizations, orgMembers } from "@/db";
+import { db, vacancyApplications, volunteerProfiles, volunteerVacancies, organizations, orgMembers, events } from "@/db";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
+import { sendVacancyApplicationAccepted, sendVacancyApplicationRejected } from "@/lib/email";
 
 const PatchSchema = z.object({
   status:        z.enum(["pending", "accepted", "rejected", "withdrawn"]),
@@ -36,16 +37,59 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
   if (!row) return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
 
+  const previousStatus = row.application.status;
+  const newStatus = parsed.data.status;
+
   const [updated] = await db
     .update(vacancyApplications)
     .set({
-      status:        parsed.data.status,
+      status:        newStatus,
       internalNotes: parsed.data.internalNotes ?? null,
       reviewedBy:    session.user.id,
       reviewedAt:    new Date(),
     })
     .where(eq(vacancyApplications.id, params.id))
     .returning();
+
+  // Send status-change email only when transitioning into accepted/rejected
+  if (previousStatus !== newStatus && (newStatus === "accepted" || newStatus === "rejected")) {
+    const profileId = row.application.volunteerProfileId;
+    if (profileId) {
+      const [profile] = await db
+        .select({ name: volunteerProfiles.name, email: volunteerProfiles.email })
+        .from(volunteerProfiles)
+        .where(eq(volunteerProfiles.id, profileId))
+        .limit(1);
+
+      const [event] = await db
+        .select({ title: events.title, slug: events.slug })
+        .from(events)
+        .where(eq(events.id, row.vacancy.eventId))
+        .limit(1);
+
+      if (profile && event) {
+        if (newStatus === "accepted") {
+          sendVacancyApplicationAccepted({
+            to:           profile.email,
+            name:         profile.name,
+            vacancyTitle: row.vacancy.title,
+            eventTitle:   event.title,
+            eventSlug:    event.slug ?? "",
+            shiftStart:   row.vacancy.shiftStart ?? null,
+            shiftEnd:     row.vacancy.shiftEnd ?? null,
+            location:     row.vacancy.location ?? null,
+          }).catch(() => {});
+        } else {
+          sendVacancyApplicationRejected({
+            to:           profile.email,
+            name:         profile.name,
+            vacancyTitle: row.vacancy.title,
+            eventTitle:   event.title,
+          }).catch(() => {});
+        }
+      }
+    }
+  }
 
   return NextResponse.json({ application: updated });
 }

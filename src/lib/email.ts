@@ -973,6 +973,191 @@ export async function sendVacancyApplicationConfirmation(props: VacancyApplicati
   });
 }
 
+// ─── Vrijwilliger: aanmelding geaccepteerd ───────────────────────────────────
+
+interface VacancyApplicationAcceptedProps {
+  to: string;
+  name: string;
+  vacancyTitle: string;
+  eventTitle: string;
+  shiftDate?: string | null;
+  shiftStart?: string | null;
+  shiftEnd?: string | null;
+  location?: string | null;
+  eventSlug: string;
+}
+
+export async function sendVacancyApplicationAccepted(props: VacancyApplicationAcceptedProps) {
+  if (!resend) return;
+  const { to, name, vacancyTitle, eventTitle, shiftDate, shiftStart, shiftEnd, location, eventSlug } = props;
+  const firstName = name.split(" ")[0];
+  const detailsBlock = [
+    shiftDate  ? `<tr><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#6B8F73;font-size:12px;font-weight:700;width:100px;">Datum</td><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#1C1814;font-size:14px;">${shiftDate}</td></tr>` : "",
+    (shiftStart && shiftEnd) ? `<tr><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#6B8F73;font-size:12px;font-weight:700;">Tijd</td><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#1C1814;font-size:14px;">${shiftStart} – ${shiftEnd}</td></tr>` : "",
+    location   ? `<tr><td style="padding:8px 0;color:#6B8F73;font-size:12px;font-weight:700;">Locatie</td><td style="padding:8px 0;color:#1C1814;font-size:14px;">${location}</td></tr>` : "",
+  ].filter(Boolean).join("");
+
+  await resend.emails.send({
+    from:    "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `Geaccepteerd als vrijwilliger: ${vacancyTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎉</div>
+        <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Je bent aangenomen!</h1>
+        <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 24px;">
+          Geweldig nieuws — je bent geaccepteerd als vrijwilliger voor <strong>${vacancyTitle}</strong>. We kijken ernaar uit om samen dit evenement tot een succes te maken!
+        </p>
+        <div style="background:#F0F8F4;border:1px solid #C4E0CC;border-radius:14px;padding:20px 24px;margin:0 0 24px;">
+          <p style="color:#2D5A3D;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Jouw vrijwilligersrol</p>
+          <p style="color:#1C1814;font-size:18px;font-weight:800;margin:0 0 4px;">${vacancyTitle}</p>
+          <p style="color:#5C5248;font-size:13px;margin:0 0 ${detailsBlock ? "16px" : "0"};">${eventTitle}</p>
+          ${detailsBlock ? `<table style="width:100%;border-collapse:collapse;margin-top:12px;">${detailsBlock}</table>` : ""}
+        </div>
+        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          De organisatie neemt binnenkort contact met je op met meer details over de dag. Heb je vragen? Reageer dan op deze e-mail.
+        </p>
+        <p style="color:#9E9890;font-size:13px;margin:24px 0 0;padding-top:20px;border-top:1px solid #F0E8DC;">
+          Vragen? Neem contact op via <a href="mailto:hello@bijeen.app" style="color:#C8522A;text-decoration:none;">hello@bijeen.app</a>
+        </p>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Vrijwilliger: aanmelding afgewezen ──────────────────────────────────────
+
+interface VacancyApplicationRejectedProps {
+  to: string;
+  name: string;
+  vacancyTitle: string;
+  eventTitle: string;
+}
+
+export async function sendVacancyApplicationRejected(props: VacancyApplicationRejectedProps) {
+  if (!resend) return;
+  const { to, name, vacancyTitle, eventTitle } = props;
+  const firstName = name.split(" ")[0];
+
+  await resend.emails.send({
+    from:    "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `Update over je aanmelding: ${vacancyTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#6B6560 0%,#4A4540 100%);padding:40px 32px;text-align:center;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">💙</div>
+        <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Bedankt voor je aanmelding</h1>
+        <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 24px;">
+          Bedankt voor je interesse om te helpen bij <strong>${vacancyTitle}</strong>. Na zorgvuldige overweging hebben we helaas besloten om op dit moment met andere kandidaten verder te gaan.
+        </p>
+        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          We stellen je enthousiasme en de tijd die je hebt gestoken in je aanmelding zeer op prijs. Houd onze toekomstige evenementen in de gaten — we hopen je bij een volgende gelegenheid te mogen verwelkomen!
+        </p>
+        <p style="color:#9E9890;font-size:13px;margin:24px 0 0;padding-top:20px;border-top:1px solid #F0E8DC;">
+          Vragen? Neem contact op via <a href="mailto:hello@bijeen.app" style="color:#C8522A;text-decoration:none;">hello@bijeen.app</a>
+        </p>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Organisatie: nieuwe vrijwilliger aanmelding ─────────────────────────────
+
+interface NewVolunteerApplicationNotificationProps {
+  to: string;
+  volunteerName: string;
+  volunteerEmail: string;
+  vacancyTitle: string;
+  eventTitle: string;
+  dashboardUrl: string;
+}
+
+export async function sendNewVolunteerApplicationNotification(props: NewVolunteerApplicationNotificationProps) {
+  if (!resend) return;
+  const { to, volunteerName, volunteerEmail, vacancyTitle, eventTitle, dashboardUrl } = props;
+
+  await resend.emails.send({
+    from:    "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `Nieuwe vrijwilliger: ${volunteerName} → ${vacancyTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#9E3D1A 100%);padding:32px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:12px;">🙋</div>
+        <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0;letter-spacing:-0.3px;">Nieuwe vrijwilliger aanmelding</h1>
+      </div>
+      <div style="padding:32px;">
+        <div style="background:#FFF8F5;border:1px solid #F5D4C4;border-radius:14px;padding:20px 24px;margin:0 0 24px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Aanmelding details</p>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Vrijwilliger</td><td style="padding:6px 0;color:#1C1814;font-size:14px;font-weight:700;">${volunteerName}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">E-mail</td><td style="padding:6px 0;color:#5C5248;font-size:14px;">${volunteerEmail}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Vacature</td><td style="padding:6px 0;color:#1C1814;font-size:14px;font-weight:600;">${vacancyTitle}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Evenement</td><td style="padding:6px 0;color:#5C5248;font-size:14px;">${eventTitle}</td></tr>
+          </table>
+        </div>
+        <div style="text-align:center;">
+          <a href="${dashboardUrl}" style="display:inline-block;background:#C8522A;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:13px 32px;border-radius:12px;letter-spacing:-0.2px;">
+            Bekijk aanmelding in dashboard →
+          </a>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 // ─── Vrijwilliger: uitnodiging van organisatie ───────────────────────────────
 
 interface VacancyInvitationProps {
