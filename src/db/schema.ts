@@ -478,7 +478,7 @@ export const volunteerVacancies = pgTable("volunteer_vacancies", {
 // ── VOLUNTEER PROFILES ─────────────────────────────────────
 export const volunteerProfiles = pgTable("volunteer_profiles", {
   id:             uuid("id").defaultRandom().primaryKey(),
-  eventId:        uuid("event_id").references(() => events.id, { onDelete: "cascade" }).notNull(),
+  eventId:        uuid("event_id").references(() => events.id, { onDelete: "set null" }),
   organizationId: uuid("organization_id").references(() => organizations.id, { onDelete: "cascade" }).notNull(),
   attendeeId:     uuid("attendee_id").references(() => attendees.id),
   name:           text("name").notNull(),

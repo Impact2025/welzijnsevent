@@ -4,7 +4,7 @@ import { getCurrentOrg } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import {
-  HandHeart, Users, CheckCircle2, Clock, Sparkles,
+  HandHeart, Users, CheckCircle2, Clock, Sparkles, Plus, FileSpreadsheet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VolunteerFilters } from "@/components/vrijwilligers/VolunteerFilters";
@@ -134,14 +134,32 @@ export default async function VrijwilligersPage({
     <div className="px-4 py-5 md:px-7 md:py-7 max-w-5xl mx-auto animate-fade-in">
 
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-2 mb-1">
-          <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Vrijwilligers</p>
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Vrijwilligers</p>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Vrijwilligerspool</h1>
+          <p className="text-sm text-ink-muted mt-0.5">
+            {primary.length} vrijwilliger{primary.length !== 1 ? "s" : ""} in jouw pool
+          </p>
         </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Vrijwilligerspool</h1>
-        <p className="text-sm text-ink-muted mt-0.5">
-          {primary.length} vrijwilliger{primary.length !== 1 ? "s" : ""} in jouw pool
-        </p>
+        <div className="flex items-center gap-2 shrink-0 mt-1">
+          <Link
+            href="/dashboard/vrijwilligers/import"
+            className="flex items-center gap-1.5 text-xs font-bold text-ink-muted bg-white border border-sand px-3 py-2 rounded-xl hover:bg-cream transition-colors shadow-sm"
+          >
+            <FileSpreadsheet size={13} />
+            Importeren
+          </Link>
+          <Link
+            href="/dashboard/vrijwilligers/nieuw"
+            className="flex items-center gap-1.5 text-xs font-bold text-white bg-terra-500 px-3 py-2 rounded-xl hover:bg-terra-600 transition-colors shadow-sm"
+          >
+            <Plus size={13} />
+            Toevoegen
+          </Link>
+        </div>
       </div>
 
       {/* KPI row */}

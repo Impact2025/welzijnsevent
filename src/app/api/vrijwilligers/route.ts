@@ -2,6 +2,61 @@ import { NextResponse } from "next/server";
 import { db, volunteerProfiles, vacancyApplications } from "@/db";
 import { eq, inArray, desc } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
+import { z } from "zod";
+
+const CreateSchema = z.object({
+  name:         z.string().min(1).max(200),
+  email:        z.string().email().max(320),
+  phone:        z.string().max(40).optional().nullable(),
+  skills:       z.array(z.string().max(80)).max(20).optional(),
+  availability: z.string().max(300).optional().nullable(),
+  bio:          z.string().max(1000).optional().nullable(),
+});
+
+export async function POST(req: Request) {
+  const org = await getCurrentOrg();
+  if (!org) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json().catch(() => null);
+  const parsed = CreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Ongeldige invoer", details: parsed.error.flatten() }, { status: 422 });
+  }
+
+  const { name, email, phone, skills, availability, bio } = parsed.data;
+
+  // Check for duplicate email within this org
+  const existing = await db
+    .select({ id: volunteerProfiles.id })
+    .from(volunteerProfiles)
+    .where(eq(volunteerProfiles.organizationId, org.id))
+    .limit(500);
+  const existingEmails = new Set(
+    (await db.select({ email: volunteerProfiles.email })
+      .from(volunteerProfiles)
+      .where(eq(volunteerProfiles.organizationId, org.id)))
+      .map((r) => r.email.toLowerCase())
+  );
+
+  if (existingEmails.has(email.toLowerCase())) {
+    return NextResponse.json({ error: "Er bestaat al een vrijwilliger met dit e-mailadres." }, { status: 409 });
+  }
+
+  void existing; // suppress unused warning
+
+  const [created] = await db.insert(volunteerProfiles).values({
+    organizationId: org.id,
+    name,
+    email,
+    phone:        phone ?? null,
+    skills:       skills ?? [],
+    availability: availability ?? null,
+    bio:          bio ?? null,
+    status:       "actief",
+  }).returning();
+
+  return NextResponse.json(created, { status: 201 });
+}
 
 export async function GET(req: Request) {
   const org = await getCurrentOrg();
