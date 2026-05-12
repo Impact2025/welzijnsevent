@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  ChevronRight, Send, X, Loader2, Check, CheckSquare, Square,
-} from "lucide-react";
+import { ChevronRight, Send, X, Loader2, Check } from "lucide-react";
 import { getInitials, avatarColor, cn } from "@/lib/utils";
 
 const SKILL_COLORS = [
@@ -45,11 +43,7 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
   const allSelected = allEmails.length > 0 && allEmails.every((e) => selected.has(e));
 
   function toggleAll() {
-    if (allSelected) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(allEmails));
-    }
+    setSelected(allSelected ? new Set() : new Set(allEmails));
     setResult(null);
   }
 
@@ -105,29 +99,34 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
   return (
     <>
       <div className="card-base overflow-hidden">
-        {/* Header row with select-all */}
-        <div className="hidden md:grid grid-cols-[32px_2fr_2fr_80px_80px_100px] gap-4 px-5 py-3 border-b border-sand bg-cream/50 items-center">
-          <button
-            onClick={toggleAll}
-            className="text-ink-muted hover:text-terra-500 transition-colors"
-            title={allSelected ? "Deselecteer alles" : "Selecteer alles"}
-          >
-            {allSelected
-              ? <CheckSquare size={15} className="text-terra-500" />
-              : <Square size={15} />
-            }
-          </button>
-          {["Vrijwilliger", "Skills", "Aanmeldingen", "Geaccepteerd", "Status"].map((h) => (
-            <p key={h} className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">{h}</p>
-          ))}
+
+        {/* Desktop header */}
+        <div className="hidden md:flex items-center gap-4 px-5 py-3 border-b border-sand bg-cream/50">
+          <div className="w-10 flex items-center justify-center shrink-0">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleAll}
+              className="w-4 h-4 cursor-pointer accent-[#C8522A]"
+              title={allSelected ? "Deselecteer alles" : "Selecteer alles"}
+            />
+          </div>
+          <div className="flex-1 grid grid-cols-[2fr_2fr_90px_90px_110px] gap-4">
+            {["Vrijwilliger", "Skills", "Aanmeldingen", "Geaccepteerd", "Status"].map((h) => (
+              <p key={h} className="text-[10px] font-bold text-ink-muted uppercase tracking-widest">{h}</p>
+            ))}
+          </div>
         </div>
 
-        {/* Mobile select-all bar */}
+        {/* Mobile select-all */}
         {volunteers.length > 0 && (
-          <div className="md:hidden flex items-center gap-2 px-4 py-2.5 border-b border-sand bg-cream/50">
-            <button onClick={toggleAll} className="text-ink-muted hover:text-terra-500 transition-colors">
-              {allSelected ? <CheckSquare size={15} className="text-terra-500" /> : <Square size={15} />}
-            </button>
+          <div className="md:hidden flex items-center gap-3 px-4 py-2.5 border-b border-sand bg-cream/50">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleAll}
+              className="w-4 h-4 cursor-pointer accent-[#C8522A]"
+            />
             <span className="text-xs text-ink-muted font-semibold">
               {allSelected ? "Alles geselecteerd" : "Selecteer alles"}
             </span>
@@ -150,89 +149,92 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
               <div
                 key={v.email}
                 className={cn(
-                  "flex md:grid md:grid-cols-[32px_2fr_2fr_80px_80px_100px] gap-3 md:gap-4 items-center px-4 md:px-5 py-3.5 border-b border-sand/40 last:border-0 transition-colors group",
+                  "flex items-center gap-3 md:gap-4 px-4 md:px-5 py-3.5 border-b border-sand/40 last:border-0 transition-colors group",
                   isSelected ? "bg-terra-50/60" : "hover:bg-cream/60"
                 )}
               >
                 {/* Checkbox */}
-                <button
-                  onClick={() => toggle(v.email)}
-                  className="shrink-0 text-ink-muted hover:text-terra-500 transition-colors"
-                >
-                  {isSelected
-                    ? <CheckSquare size={15} className="text-terra-500" />
-                    : <Square size={15} className="opacity-30 group-hover:opacity-70" />
-                  }
-                </button>
+                <div className="w-10 flex items-center justify-center shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggle(v.email)}
+                    className="w-4 h-4 cursor-pointer accent-[#C8522A]"
+                  />
+                </div>
 
-                {/* Avatar + name — clicking navigates to detail */}
-                <Link
-                  href={`/dashboard/vrijwilligers/${encodeURIComponent(v.email)}`}
-                  className="flex items-center gap-3 min-w-0 flex-1"
-                >
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
-                    style={{ backgroundColor: color }}
+                {/* Rest of row — desktop grid / mobile flex */}
+                <div className="flex-1 flex md:grid md:grid-cols-[2fr_2fr_90px_90px_110px] gap-3 md:gap-4 items-center min-w-0">
+
+                  {/* Avatar + name */}
+                  <Link
+                    href={`/dashboard/vrijwilligers/${encodeURIComponent(v.email)}`}
+                    className="flex items-center gap-3 min-w-0"
                   >
-                    {initials}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold text-ink truncate group-hover:text-terra-500 transition-colors leading-tight">
-                        {v.name}
-                      </p>
-                      {hasPending && (
-                        <span className="shrink-0 w-2 h-2 rounded-full bg-amber-400" title="Wacht op review" />
-                      )}
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold"
+                      style={{ backgroundColor: color }}
+                    >
+                      {initials}
                     </div>
-                    <p className="text-[11px] text-ink-muted truncate">{v.email}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-ink truncate group-hover:text-terra-500 transition-colors leading-tight">
+                          {v.name}
+                        </p>
+                        {hasPending && (
+                          <span className="shrink-0 w-2 h-2 rounded-full bg-amber-400" title="Wacht op review" />
+                        )}
+                      </div>
+                      <p className="text-[11px] text-ink-muted truncate">{v.email}</p>
+                    </div>
+                  </Link>
+
+                  {/* Skills */}
+                  <div className="hidden md:flex flex-wrap gap-1.5 overflow-hidden max-h-6">
+                    {v.skills.length === 0 ? (
+                      <span className="text-xs text-ink-muted/50">—</span>
+                    ) : (
+                      v.skills.slice(0, 3).map((s) => (
+                        <span key={s} className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", skillColor(s))}>
+                          {s}
+                        </span>
+                      ))
+                    )}
+                    {v.skills.length > 3 && (
+                      <span className="text-[10px] text-ink-muted/60">+{v.skills.length - 3}</span>
+                    )}
                   </div>
-                </Link>
 
-                {/* Skills */}
-                <div className="hidden md:flex flex-wrap gap-1.5 overflow-hidden max-h-6">
-                  {v.skills.length === 0 ? (
-                    <span className="text-xs text-ink-muted/50">—</span>
-                  ) : (
-                    v.skills.slice(0, 3).map((s) => (
-                      <span key={s} className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full border", skillColor(s))}>
-                        {s}
+                  {/* Aanmeldingen */}
+                  <div className="hidden md:flex items-center gap-1">
+                    <span className="text-sm font-semibold text-ink">{v.applicationsTotal}</span>
+                    {hasPending && (
+                      <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
+                        {v.applicationsPending} nieuw
                       </span>
-                    ))
-                  )}
-                  {v.skills.length > 3 && (
-                    <span className="text-[10px] text-ink-muted/60">+{v.skills.length - 3}</span>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                {/* Aanmeldingen */}
-                <div className="hidden md:flex items-center gap-1">
-                  <span className="text-sm font-semibold text-ink">{v.applicationsTotal}</span>
-                  {hasPending && (
-                    <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">
-                      {v.applicationsPending} nieuw
+                  {/* Accepted */}
+                  <p className="text-sm text-green-700 font-semibold hidden md:block">
+                    {v.applicationsAccepted > 0 ? v.applicationsAccepted : "—"}
+                  </p>
+
+                  {/* Status chip */}
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border shrink-0",
+                      v.applicationsAccepted > 0
+                        ? "bg-green-50 text-green-700 border-green-200"
+                        : hasPending
+                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                        : "bg-sand text-ink-muted border-sand"
+                    )}>
+                      {v.applicationsAccepted > 0 ? "Actief" : hasPending ? "Review" : "Pool"}
                     </span>
-                  )}
-                </div>
-
-                {/* Accepted */}
-                <p className="text-sm text-green-700 font-semibold hidden md:block">
-                  {v.applicationsAccepted > 0 ? v.applicationsAccepted : "—"}
-                </p>
-
-                {/* Status chip */}
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border shrink-0",
-                    v.applicationsAccepted > 0
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : hasPending
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
-                      : "bg-sand text-ink-muted border-sand"
-                  )}>
-                    {v.applicationsAccepted > 0 ? "Actief" : hasPending ? "Review" : "Pool"}
-                  </span>
-                  <ChevronRight size={14} className="text-ink-muted/40 md:hidden" />
+                    <ChevronRight size={14} className="text-ink-muted/40 md:hidden" />
+                  </div>
                 </div>
               </div>
             );
@@ -255,7 +257,6 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
       {selectedCount > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-xl px-4">
           <div className="bg-ink rounded-2xl shadow-2xl overflow-hidden">
-            {/* Top bar */}
             <div className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1 flex items-center gap-2">
                 <span className="text-white text-sm font-bold">
@@ -276,7 +277,6 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
               </button>
             </div>
 
-            {/* Optional personal message */}
             {showMsg && (
               <div className="px-4 pb-3">
                 <textarea
@@ -289,7 +289,6 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
               </div>
             )}
 
-            {/* Vacancy picker + send */}
             <div className="flex gap-2 px-4 pb-4">
               <select
                 value={vacancyId}
@@ -308,10 +307,7 @@ export function VolunteerList({ volunteers, openVacancies }: Props) {
                 disabled={busy || !vacancyId}
                 className="flex items-center gap-2 px-4 py-2.5 bg-terra-500 hover:bg-terra-400 disabled:opacity-40 text-white text-sm font-bold rounded-xl transition-colors shrink-0"
               >
-                {busy
-                  ? <Loader2 size={14} className="animate-spin" />
-                  : <Send size={14} />
-                }
+                {busy ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 {busy ? "Bezig…" : "Uitnodigen"}
               </button>
             </div>
