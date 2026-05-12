@@ -47,7 +47,11 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
       {/* Logo */}
       <div className="px-2 mb-7">
         <Link href="/dashboard" className="inline-flex items-center px-1 py-1">
-          <BijeenWordmark variant="light" size="md" />
+          <img
+            src="/bijeen-icon.png"
+            alt="Bijeen"
+            className="w-10 h-10 rounded-xl object-contain"
+          />
         </Link>
       </div>
 
