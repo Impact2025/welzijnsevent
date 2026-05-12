@@ -137,11 +137,11 @@ export default async function VrijwilligersPage({
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Vrijwilligers</p>
+            <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Mensen</p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Vrijwilligerspool</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Vrijwilligers</h1>
           <p className="text-sm text-ink-muted mt-0.5">
-            {primary.length} vrijwilliger{primary.length !== 1 ? "s" : ""} in jouw pool
+            Werving & vacatures · {primary.length} in de pool
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0 mt-1">

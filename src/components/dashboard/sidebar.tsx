@@ -12,12 +12,12 @@ import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { PLAN_LIMITS } from "@/lib/plans";
 
 const BASE_NAV = [
-  { href: "/dashboard",              icon: LayoutDashboard, label: "Overzicht"    },
-  { href: "/dashboard/events",       icon: Calendar,        label: "Evenementen"  },
+  { href: "/dashboard",        icon: LayoutDashboard, label: "Overzicht"   },
+  { href: "/dashboard/events", icon: Calendar,        label: "Evenementen" },
 ];
 
 const SETTINGS_NAV = [
-  { href: "/dashboard/instellingen", icon: Settings,        label: "Instellingen" },
+  { href: "/dashboard/instellingen", icon: Settings, label: "Instellingen" },
 ];
 
 interface SidebarProps {
@@ -30,13 +30,14 @@ interface SidebarProps {
 }
 
 export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = false, showVolunteers = false }: SidebarProps) {
-  const navItems = [
-    ...BASE_NAV,
-    ...(showVolunteers ? [{ href: "/dashboard/vrijwilligers", icon: HandHeart, label: "Vrijwilligers" }] : []),
-    ...(showCrm ? [{ href: "/dashboard/crm", icon: Users, label: "CRM" }] : []),
-    ...SETTINGS_NAV,
-  ];
   const path = usePathname();
+
+  const peopleNav = [
+    ...(showVolunteers ? [{ href: "/dashboard/vrijwilligers", icon: HandHeart, label: "Vrijwilligers" }] : []),
+    ...(showCrm        ? [{ href: "/dashboard/crm",           icon: Users,     label: "Contacten"     }] : []),
+  ];
+
+  const showPeopleSection = peopleNav.length > 0;
   const initials = getInitials(orgName);
   const color = avatarColor(orgName);
   const planLabel = plan ? PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS]?.label ?? plan : null;
@@ -80,34 +81,61 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
 
       {/* Navigation */}
       <nav data-tour="nav" className="flex flex-col gap-0.5 flex-1">
-        {navItems.map(({ href, icon: Icon, label }) => {
+        {/* Hoofdnavigatie */}
+        {BASE_NAV.map(({ href, icon: Icon, label }) => {
           const active = path === href || (href !== "/dashboard" && path.startsWith(href));
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
-                active
-                  ? "bg-white/10 text-white"
-                  : "text-white/45 hover:text-white/75 hover:bg-white/5"
-              )}
-            >
-              <Icon
-                size={17}
-                className={cn(active ? "text-terra-400" : "text-current")}
-                strokeWidth={active ? 2.5 : 2}
-              />
+            <Link key={href} href={href} className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
+              active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75 hover:bg-white/5"
+            )}>
+              <Icon size={17} className={cn(active ? "text-terra-400" : "text-current")} strokeWidth={active ? 2.5 : 2} />
               {label}
             </Link>
           );
         })}
-        {/* Ontdek link */}
+
+        {/* Mensen-sectie */}
+        {showPeopleSection && (
+          <>
+            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest px-3 pt-4 pb-1">
+              Mensen
+            </p>
+            {peopleNav.map(({ href, icon: Icon, label }) => {
+              const active = path === href || path.startsWith(href);
+              return (
+                <Link key={href} href={href} className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
+                  active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75 hover:bg-white/5"
+                )}>
+                  <Icon size={17} className={cn(active ? "text-terra-400" : "text-current")} strokeWidth={active ? 2.5 : 2} />
+                  {label}
+                </Link>
+              );
+            })}
+          </>
+        )}
+
+        {/* Instellingen */}
+        {SETTINGS_NAV.map(({ href, icon: Icon, label }) => {
+          const active = path.startsWith(href);
+          return (
+            <Link key={href} href={href} className={cn(
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mt-auto",
+              active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75 hover:bg-white/5"
+            )}>
+              <Icon size={17} className={cn(active ? "text-terra-400" : "text-current")} strokeWidth={active ? 2.5 : 2} />
+              {label}
+            </Link>
+          );
+        })}
+
+        {/* Ontdek */}
         <a
           href="/ontdek"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/35 hover:text-white/60 hover:bg-white/5 transition-all duration-150 mt-auto"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/35 hover:text-white/60 hover:bg-white/5 transition-all duration-150"
         >
           <ExternalLink size={17} strokeWidth={2} />
           Ontdek
@@ -153,7 +181,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
 
     {/* Mobile bottom navigation */}
     <nav data-tour="nav-mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E]/95 backdrop-blur-xl border-t border-white/8 flex items-center justify-around px-1 pb-safe">
-      {navItems.map(({ href, icon: Icon, label }) => {
+      {[...BASE_NAV, ...peopleNav].map(({ href, icon: Icon, label }) => {
         const active = path === href || (href !== "/dashboard" && path.startsWith(href));
         return (
           <Link

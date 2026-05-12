@@ -19,8 +19,8 @@ export default async function CrmPage() {
     return (
       <div className="px-4 py-6 max-w-4xl mx-auto">
         <div className="mb-6">
-          <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">CRM</p>
-          <h1 className="text-2xl font-extrabold text-ink tracking-tight">Contactbeheer</h1>
+          <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">Mensen</p>
+          <h1 className="text-2xl font-extrabold text-ink tracking-tight">Contacten</h1>
         </div>
         <div className="card-base p-10 text-center">
           <Users size={40} className="mx-auto text-ink-muted/40 mb-4" />
@@ -91,9 +91,9 @@ export default async function CrmPage() {
 
       {/* Header */}
       <div className="mb-5 md:mb-7">
-        <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">CRM</p>
+        <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">Mensen</p>
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Contactbeheer</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-ink tracking-tight">Contacten</h1>
           <Link
             href="/dashboard/crm/contacten"
             className="shrink-0 flex items-center gap-1.5 bg-terra-500 hover:bg-terra-600 text-white text-xs md:text-sm font-semibold px-3 py-2 md:px-4 md:py-2.5 rounded-xl transition-colors shadow-sm"

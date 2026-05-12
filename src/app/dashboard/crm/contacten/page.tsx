@@ -113,7 +113,7 @@ export default async function ContactenPage({
       <div className="mb-5 md:mb-6">
         <div className="flex items-center gap-2 mb-1">
           <Link href="/dashboard/crm" className="text-[11px] font-bold text-ink-muted uppercase tracking-widest hover:text-terra-500 transition-colors">
-            CRM
+            Contacten
           </Link>
           <span className="text-ink-muted/40">›</span>
           <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest">Contacten</p>
