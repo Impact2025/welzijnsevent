@@ -42,7 +42,7 @@ function buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardU
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
 
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -140,7 +140,7 @@ export async function sendWelcomeCommunityEmail(props: WelcomeCommunityEmailProp
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
 
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -235,7 +235,7 @@ function buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features,
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
 
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
@@ -330,7 +330,7 @@ export async function sendWaitlistConfirmation(props: WaitlistConfirmationProps)
 <body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
@@ -387,7 +387,7 @@ export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
 <body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
@@ -524,7 +524,7 @@ export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
 <body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
@@ -766,7 +766,7 @@ export async function sendAdminNewAttendeeNotification(props: {
 <body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
   <div style="max-width:520px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="100" height="32" style="height:32px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="32" height="32" style="height:32px;width:32px;border-radius:6px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:28px 32px;text-align:center;">
@@ -851,7 +851,7 @@ export async function sendTeamInviteEmail(props: {
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:480px;margin:0 auto;padding:32px 16px;text-align:center;">
-    <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" height="32" style="height:32px;width:auto;margin-bottom:24px;" />
+    <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="32" height="32" style="height:32px;width:32px;border-radius:6px;margin-bottom:24px;" />
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#12100E 0%,#2A2520 100%);padding:36px 32px;text-align:center;">
         <div style="font-size:36px;margin-bottom:12px;">👥</div>
@@ -889,7 +889,7 @@ function buildBroadcastHtml({ attendeeName, eventTitle, message }: {
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="100" height="30" style="height:30px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="30" height="30" style="height:30px;width:30px;border-radius:6px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8431F 100%);padding:32px;text-align:center;">
@@ -938,7 +938,7 @@ export async function sendVacancyApplicationConfirmation(props: VacancyApplicati
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
@@ -1008,7 +1008,7 @@ export async function sendVacancyApplicationAccepted(props: VacancyApplicationAc
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
@@ -1069,7 +1069,7 @@ export async function sendVacancyApplicationRejected(props: VacancyApplicationRe
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#6B6560 0%,#4A4540 100%);padding:40px 32px;text-align:center;">
@@ -1125,7 +1125,7 @@ export async function sendNewVolunteerApplicationNotification(props: NewVoluntee
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#9E3D1A 100%);padding:32px;text-align:center;">
@@ -1193,7 +1193,7 @@ export async function sendVacancyInvitation(props: VacancyInvitationProps) {
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#9E3D1A 100%);padding:40px 32px;text-align:center;">

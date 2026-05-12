@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 <body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,sans-serif;">
   <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" width="100" height="30" style="height:30px;width:auto;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="30" height="30" style="height:30px;width:30px;border-radius:6px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8431F 100%);padding:32px;text-align:center;">

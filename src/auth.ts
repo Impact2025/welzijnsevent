@@ -23,7 +23,7 @@ function buildMagicLinkHtml(url: string) {
   <div style="max-width:520px;margin:0 auto;padding:32px 16px;">
 
     <div style="text-align:center;margin-bottom:24px;">
-      <img src="${BASE_URL}/Bijeen-logo.png" alt="Bijeen" width="130" height="40" style="height:40px;width:auto;display:inline-block;" />
+      <img src="${BASE_URL}/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;display:inline-block;" />
     </div>
 
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">

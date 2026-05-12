@@ -25,8 +25,7 @@ export function BijeenWordmark({
   className,
 }: BijeenWordmarkProps) {
   const { height, iconSize, fontSize, gap } = SIZES[size];
-  const color      = variant === "light" ? "#FFFFFF" : "#C8522A";
-  const textColor  = variant === "light" ? "#FFFFFF" : "#1C1814";
+  const textColor = variant === "light" ? "#FFFFFF" : "#1C1814";
 
   return (
     <span
@@ -34,30 +33,15 @@ export function BijeenWordmark({
       style={{ gap, height }}
       aria-label="Bijeen"
     >
-      {/* Inline SVG — geen netwerk-request, altijd zichtbaar */}
-      <svg
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/bijeen-icon.png"
+        alt=""
+        aria-hidden="true"
         width={iconSize}
         height={iconSize}
-        viewBox="0 0 44 44"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        {/* Linker persoon */}
-        <circle cx="15" cy="16" r="7" stroke={color} strokeWidth="2.8" />
-        {/* Rechter persoon */}
-        <circle cx="29" cy="16" r="7" stroke={color} strokeWidth="2.8" />
-        {/* Verbindingspunt in het midden */}
-        <circle cx="22" cy="16" r="3" fill={color} />
-        {/* Schouders — mensen samen */}
-        <path
-          d="M5 34 Q22 26 39 34"
-          stroke={color}
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
-
+        style={{ width: iconSize, height: iconSize, objectFit: "contain", borderRadius: 6 }}
+      />
       <span
         style={{
           fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif",
@@ -85,11 +69,11 @@ export function BijeenIcon({
   // eslint-disable-next-line @next/next/no-img-element
   return (
     <img
-      src="/Bijeen-logo-icon.png"
+      src="/bijeen-icon.png"
       alt="Bijeen"
       width={size}
       height={size}
-      style={{ width: size, height: size, objectFit: "contain" }}
+      style={{ width: size, height: size, objectFit: "contain", borderRadius: 4 }}
       className={className}
     />
   );

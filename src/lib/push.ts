@@ -40,8 +40,8 @@ export async function sendEventPush(eventId: string, payload: PushPayload) {
   const message = JSON.stringify({
     title: payload.title,
     body:  payload.body,
-    icon:  payload.icon ?? "/Bijeen-logo-icon.png",
-    badge: "/Bijeen-logo-icon.png",
+    icon:  payload.icon ?? "/bijeen-icon.png",
+    badge: "/bijeen-icon.png",
     url:   payload.url ?? "/",
   });
 

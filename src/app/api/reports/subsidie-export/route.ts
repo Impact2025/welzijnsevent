@@ -382,7 +382,7 @@ export async function GET(req: Request) {
 
     <!-- Footer -->
     <div class="footer">
-      <img src="https://bijeen.app/Bijeen-logo.png" alt="Bijeen" style="height: 24px; width: auto; opacity: 0.6;" />
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" style="height: 24px; width: 24px; border-radius: 4px; opacity: 0.6;" />
       <p>Rapport gegenereerd op ${rapportDatum}</p>
     </div>
   </div>
