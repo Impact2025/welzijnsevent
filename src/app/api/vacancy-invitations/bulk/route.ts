@@ -21,6 +21,7 @@ async function getOrgForUser(userId: string) {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = session.user.id;
 
   const body = await req.json().catch(() => null);
   const parsed = BulkSchema.safeParse(body);
@@ -65,7 +66,7 @@ export async function POST(req: Request) {
     vacancyId:       parsed.data.vacancyId,
     invitedEmail:    v.email.toLowerCase(),
     invitedName:     v.name,
-    invitedBy:       session.user!.id,
+    invitedBy:       userId,
     personalMessage: parsed.data.personalMessage ?? null,
     token:           crypto.randomUUID(),
     expiresAt,
