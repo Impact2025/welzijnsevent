@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { LogOut,
-  LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink, Users,
+  LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink, Users, HandHeart,
 } from "lucide-react";
 
 import { cn, getInitials, avatarColor } from "@/lib/utils";
@@ -26,11 +26,13 @@ interface SidebarProps {
   plan: string | null;
   subscriptionActive: boolean;
   showCrm?: boolean;
+  showVolunteers?: boolean;
 }
 
-export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = false }: SidebarProps) {
+export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = false, showVolunteers = false }: SidebarProps) {
   const navItems = [
     ...BASE_NAV,
+    ...(showVolunteers ? [{ href: "/dashboard/vrijwilligers", icon: HandHeart, label: "Vrijwilligers" }] : []),
     ...(showCrm ? [{ href: "/dashboard/crm", icon: Users, label: "CRM" }] : []),
     ...SETTINGS_NAV,
   ];

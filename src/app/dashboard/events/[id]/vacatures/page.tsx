@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 import { EventTabs } from "@/components/events/event-tabs";
 import {
   Plus, HandHeart, Users, Clock, MapPin,
-  ChevronRight, ToggleLeft, ToggleRight,
+  ChevronRight, ToggleLeft, ToggleRight, Kanban,
 } from "lucide-react";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -98,13 +98,24 @@ export default async function VacaturesPage({ params }: { params: { id: string }
                 : `${openCount} open · ${totalSpots} plekken beschikbaar`}
             </p>
           </div>
-          <Link
-            href={`/dashboard/events/${params.id}/vacatures/new`}
-            className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold px-3 py-2 rounded-xl transition-colors"
-          >
-            <Plus size={16} />
-            Nieuw
-          </Link>
+          <div className="flex items-center gap-2">
+            {vacancies.length > 0 && (
+              <Link
+                href={`/dashboard/events/${params.id}/vacatures/pipeline`}
+                className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-sm font-semibold px-3 py-2 rounded-xl transition-colors"
+              >
+                <Kanban size={15} />
+                Pipeline
+              </Link>
+            )}
+            <Link
+              href={`/dashboard/events/${params.id}/vacatures/new`}
+              className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-bold px-3 py-2 rounded-xl transition-colors"
+            >
+              <Plus size={16} />
+              Nieuw
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import { ProductTour } from "@/components/onboarding/product-tour";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
 import { db } from "@/db";
-import { events, attendees } from "@/db";
+import { events, attendees, volunteerProfiles } from "@/db";
 import { eq, count } from "drizzle-orm";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -37,6 +37,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
   const showCrm = totalAttendees >= 50;
 
+  const [volResult] = await db
+    .select({ total: count() })
+    .from(volunteerProfiles)
+    .where(eq(volunteerProfiles.organizationId, org.id));
+  const showVolunteers = Number(volResult?.total ?? 0) > 0;
+
   return (
     <div className="flex min-h-screen bg-cream">
       <Sidebar
@@ -45,6 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         plan={subscription?.plan ?? null}
         subscriptionActive={active}
         showCrm={showCrm}
+        showVolunteers={showVolunteers}
       />
       <main className="flex-1 overflow-auto pb-24 md:pb-0">
         {children}
