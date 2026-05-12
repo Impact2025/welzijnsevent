@@ -6,7 +6,7 @@ import { ProductTour } from "@/components/onboarding/product-tour";
 import { CommandPalette } from "@/components/ui/command-palette";
 import { PwaInstallBanner } from "@/components/pwa-install-banner";
 import { db } from "@/db";
-import { events, attendees, volunteerProfiles } from "@/db";
+import { events, attendees, volunteerProfiles, volunteerVacancies } from "@/db";
 import { eq, count } from "drizzle-orm";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const subscription = await getCurrentSubscription(org.id);
   const active = isSubscriptionActive(subscription);
 
-  // CRM is shown once there are 50+ attendees across all events — earned complexity
+  // CRM: toon zodra er minstens 1 deelnemer is
   const orgEvents = await db
     .select({ id: events.id })
     .from(events)
@@ -35,13 +35,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
       .where(inArray(attendees.eventId, eventIds));
     totalAttendees = Number(result?.total ?? 0);
   }
-  const showCrm = totalAttendees >= 50;
+  const showCrm = totalAttendees >= 1;
 
-  const [volResult] = await db
+  // Vrijwilligers: toon zodra er minstens 1 vacature is aangemaakt
+  const [vacResult] = await db
     .select({ total: count() })
-    .from(volunteerProfiles)
-    .where(eq(volunteerProfiles.organizationId, org.id));
-  const showVolunteers = Number(volResult?.total ?? 0) > 0;
+    .from(volunteerVacancies)
+    .where(eq(volunteerVacancies.organizationId, org.id));
+  const showVolunteers = Number(vacResult?.total ?? 0) > 0;
 
   return (
     <div className="flex min-h-screen bg-cream">
