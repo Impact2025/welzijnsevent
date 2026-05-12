@@ -6,7 +6,67 @@ import {
   useEffect,
   useCallback,
   FormEvent,
+  ReactNode,
 } from "react";
+
+// ── Inline Markdown renderer ─────────────────────────────────
+// Handles **bold**, *italic*, bullet lists (* / -), and ## headings.
+function renderInline(text: string): ReactNode[] {
+  const parts: ReactNode[] = [];
+  const re = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[2] !== undefined) parts.push(<strong key={m.index}>{m[2]}</strong>);
+    else if (m[3] !== undefined) parts.push(<em key={m.index}>{m[3]}</em>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+function MarkdownMessage({ content }: { content: string }) {
+  const lines = content.split("\n");
+  const nodes: ReactNode[] = [];
+  let bulletBuffer: string[] = [];
+
+  function flushBullets() {
+    if (bulletBuffer.length === 0) return;
+    nodes.push(
+      <ul key={`ul-${nodes.length}`} className="list-disc list-outside pl-4 space-y-0.5 my-1">
+        {bulletBuffer.map((item, i) => (
+          <li key={i}>{renderInline(item)}</li>
+        ))}
+      </ul>
+    );
+    bulletBuffer = [];
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const bulletMatch = line.match(/^[\*\-]\s+(.+)/);
+    const h2Match     = line.match(/^##\s+(.+)/);
+    const h3Match     = line.match(/^###\s+(.+)/);
+
+    if (bulletMatch) {
+      bulletBuffer.push(bulletMatch[1]);
+    } else {
+      flushBullets();
+      if (h2Match) {
+        nodes.push(<p key={i} className="font-bold text-[11px] uppercase tracking-wider text-ink/60 mt-2 mb-0.5">{h2Match[1]}</p>);
+      } else if (h3Match) {
+        nodes.push(<p key={i} className="font-bold mt-1.5">{renderInline(h3Match[1])}</p>);
+      } else if (line.trim() === "") {
+        if (i > 0 && lines[i - 1].trim() !== "") nodes.push(<br key={i} />);
+      } else {
+        nodes.push(<span key={i}>{renderInline(line)}{i < lines.length - 1 ? "\n" : ""}</span>);
+      }
+    }
+  }
+  flushBullets();
+  return <>{nodes}</>;
+}
 import {
   Sparkles,
   Send,
@@ -253,15 +313,17 @@ export function AiPanel() {
                   )}
                   <div
                     className={cn(
-                      "rounded-2xl px-3 py-2.5 text-xs leading-relaxed max-w-[290px] whitespace-pre-wrap",
+                      "rounded-2xl px-3 py-2.5 text-xs leading-relaxed max-w-[290px]",
                       msg.role === "user"
-                        ? "bg-terra-500 text-white rounded-tr-sm"
+                        ? "bg-terra-500 text-white rounded-tr-sm whitespace-pre-wrap"
                         : "bg-cream text-ink rounded-tl-sm"
                     )}
                   >
                     {msg.content ? (
                       <>
-                        {msg.content}
+                        {msg.role === "assistant"
+                          ? <MarkdownMessage content={msg.content} />
+                          : msg.content}
                         {msg.streaming && (
                           <span className="inline-block w-0.5 h-3 bg-terra-400 animate-pulse ml-0.5 align-middle" />
                         )}
