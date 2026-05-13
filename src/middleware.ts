@@ -18,6 +18,7 @@ const PUBLIC_PREFIXES = [
   "/api/survey",
   "/api/custom-fields",
   "/api/public",
+  "/api/ai/assistant",
 ];
 
 // Interne bijeen.app domeinen — geen custom domain routing
