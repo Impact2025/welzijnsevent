@@ -142,6 +142,13 @@ export function RapportGenerator() {
         }
       }
 
+      // Strip markdown code fences if the model wraps its output
+      html = html
+        .replace(/^```html\s*/i, "")
+        .replace(/^```\s*/i,     "")
+        .replace(/```\s*$/,      "")
+        .trim();
+
       setRapport(html);
       setView("result");
     } catch (err) {
@@ -638,7 +645,7 @@ function ResultScreen({
 
   return (
     <>
-      {/* Print-only styles */}
+      {/* Print-only + rapport typography styles */}
       <style>{`
         @media print {
           body > * { display: none !important; }
@@ -652,18 +659,12 @@ function ResultScreen({
           border-top: 1px solid #F0E8DC;
         }
         .rapport-content h2:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-        .rapport-content h3 {
-          font-size: 0.9375rem; font-weight: 600; color: #5C5248; margin: 1rem 0 0.375rem;
-        }
-        .rapport-content p {
-          color: #5C5248; line-height: 1.8; margin-bottom: 0.75rem; font-size: 0.9375rem;
-        }
-        .rapport-content ul {
-          color: #5C5248; padding-left: 1.25rem; margin-bottom: 1rem; list-style: disc;
-        }
+        .rapport-content h3 { font-size: 0.9375rem; font-weight: 600; color: #5C5248; margin: 1rem 0 0.375rem; }
+        .rapport-content p  { color: #5C5248; line-height: 1.8; margin-bottom: 0.75rem; font-size: 0.9375rem; }
+        .rapport-content ul { color: #5C5248; padding-left: 1.25rem; margin-bottom: 1rem; list-style: disc; }
         .rapport-content li { line-height: 1.75; margin-bottom: 0.25rem; font-size: 0.9375rem; }
         .rapport-content strong { color: #1C1814; font-weight: 600; }
-        .rapport-content em { color: #9E3E1C; font-style: normal; font-weight: 500; }
+        .rapport-content em    { font-style: italic; }
       `}</style>
 
       <div id="rapport-print-area" className="hidden" ref={printRef}>
@@ -676,21 +677,19 @@ function ResultScreen({
           <div className="max-w-4xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
-              <span className="text-sm font-semibold text-ink truncate">
-                {form.evenementNaam}
-              </span>
-              <span className="hidden sm:inline text-xs text-ink/35 shrink-0">
-                · {form.organisatieNaam}
-              </span>
+              <span className="text-sm font-semibold text-ink truncate">{form.evenementNaam}</span>
+              <span className="hidden sm:inline text-xs text-ink/35 shrink-0">· {form.organisatieNaam}</span>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-ink/55 hover:text-ink px-3 py-1.5 rounded-lg border border-ink/10 hover:bg-ink/5 transition-colors"
-              >
-                <Printer size={13} />
-                <span className="hidden sm:inline">Afdrukken / PDF</span>
-              </button>
+              {emailState === "sent" && (
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-terra-600 hover:text-terra-700 bg-terra-50 hover:bg-terra-100 border border-terra-200 px-3 py-1.5 rounded-lg transition-colors"
+                >
+                  <Printer size={13} />
+                  <span className="hidden sm:inline">Afdrukken / PDF</span>
+                </button>
+              )}
               <button
                 onClick={onReset}
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-ink/55 hover:text-ink px-3 py-1.5 rounded-lg border border-ink/10 hover:bg-ink/5 transition-colors"
@@ -703,7 +702,7 @@ function ResultScreen({
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-          <div className="grid lg:grid-cols-[1fr_320px] gap-8 items-start">
+          <div className="grid lg:grid-cols-[1fr_300px] gap-8 items-start">
 
             {/* Rapport document */}
             <div className="bg-white rounded-2xl border border-sand/60 shadow-sm overflow-hidden">
@@ -721,10 +720,10 @@ function ResultScreen({
               {/* Metadata strip */}
               <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-sand/60 divide-x divide-sand/60">
                 {[
-                  { label: "Datum",        val: datumFormatted },
-                  { label: "Gemeente",     val: form.gemeente },
-                  { label: "Deelnemers",   val: String(form.aantalDeelnemers) },
-                  { label: "Kenmerk",      val: ref },
+                  { label: "Datum",      val: datumFormatted },
+                  { label: "Gemeente",   val: form.gemeente },
+                  { label: "Deelnemers", val: String(form.aantalDeelnemers) },
+                  { label: "Kenmerk",    val: ref },
                 ].map(({ label, val }) => (
                   <div key={label} className="px-4 py-3">
                     <p className="text-[9px] font-bold text-ink/30 uppercase tracking-wider mb-0.5">{label}</p>
@@ -733,81 +732,100 @@ function ResultScreen({
                 ))}
               </div>
 
-              {/* Rapport body */}
-              <div className="px-7 py-8 rapport-content"
-                   dangerouslySetInnerHTML={{ __html: rapport }} />
+              {/* Rapport body — gated until email submitted */}
+              <div className={cn("relative", emailState !== "sent" && "max-h-72 overflow-hidden")}>
+                <div className="px-7 py-8 rapport-content"
+                     dangerouslySetInnerHTML={{ __html: rapport }} />
 
-              {/* Document footer */}
-              <div className="border-t border-sand/60 px-7 py-4 flex items-center justify-between">
-                <p className="text-xs text-ink/30">
-                  Gegenereerd via{" "}
-                  <a href="https://bijeen.app" className="text-terra-500 hover:underline">
-                    bijeen.app
-                  </a>{" "}
-                  · {new Date().toLocaleDateString("nl-NL")}
-                </p>
-                <p className="text-[10px] text-ink/20 font-medium uppercase tracking-wider">
-                  AVG-compliant
-                </p>
+                {/* Gradient fade when gated */}
+                {emailState !== "sent" && (
+                  <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-white pointer-events-none" />
+                )}
               </div>
+
+              {/* Email gate — visible until submitted */}
+              {emailState !== "sent" ? (
+                <div className="border-t border-sand/40 px-7 py-7">
+                  <div className="max-w-sm mx-auto text-center">
+                    <div className="w-10 h-10 rounded-xl bg-terra-50 flex items-center justify-center mx-auto mb-3">
+                      <Mail size={18} className="text-terra-500" strokeWidth={2} />
+                    </div>
+                    <p className="font-extrabold text-ink text-base mb-1.5">
+                      Ontvang het volledige rapport
+                    </p>
+                    <p className="text-sm text-ink/50 leading-relaxed mb-5">
+                      Vul uw e-mailadres in. Wij sturen het volledige rapport direct naar uw inbox —
+                      klaar als bijlage bij uw subsidieaanvraag.
+                    </p>
+                    <form onSubmit={onEmailSubmit} className="space-y-2.5">
+                      <input
+                        type="text"
+                        value={emailNaam}
+                        onChange={e => onEmailNaamChange(e.target.value)}
+                        placeholder="Uw naam (optioneel)"
+                        className={cn(inputCls, "text-sm text-center")}
+                      />
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={e => onEmailChange(e.target.value)}
+                        placeholder="E-mailadres"
+                        className={cn(inputCls, "text-sm text-center")}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!email || emailState === "submitting"}
+                        className="w-full inline-flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 disabled:bg-ink/15 disabled:cursor-not-allowed text-white disabled:text-ink/35 font-bold text-sm py-3 rounded-xl transition-colors shadow-lg shadow-terra-500/20"
+                      >
+                        {emailState === "submitting" ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Mail size={14} />
+                        )}
+                        Stuur volledig rapport
+                      </button>
+                    </form>
+                    <p className="text-[10px] text-ink/25 mt-3">
+                      Geen spam. Uw gegevens worden niet gedeeld met derden.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* Document footer after unlock */
+                <div className="border-t border-sand/60 px-7 py-4 flex items-center justify-between">
+                  <p className="text-xs text-ink/30">
+                    Gegenereerd via{" "}
+                    <a href="https://bijeen.app" className="text-terra-500 hover:underline">bijeen.app</a>
+                    {" "}· {new Date().toLocaleDateString("nl-NL")}
+                  </p>
+                  <p className="text-[10px] text-ink/20 font-medium uppercase tracking-wider">AVG-compliant</p>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="space-y-4 lg:sticky lg:top-28">
 
-              {/* Email capture */}
-              <div className="bg-white rounded-2xl border border-sand/60 shadow-sm p-5">
-                {emailState === "sent" ? (
-                  <div className="text-center py-2">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
-                      <Check size={18} className="text-green-600" strokeWidth={2.5} />
-                    </div>
-                    <p className="font-bold text-ink text-sm mb-1">Rapport verstuurd</p>
-                    <p className="text-xs text-ink/45 leading-relaxed">
-                      Controleer uw inbox. Het rapport staat klaar voor indiening.
-                    </p>
+              {/* Unlocked: bevestiging + print */}
+              {emailState === "sent" && (
+                <div className="bg-white rounded-2xl border border-sand/60 shadow-sm p-5 text-center">
+                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                    <Check size={18} className="text-green-600" strokeWidth={2.5} />
                   </div>
-                ) : (
-                  <form onSubmit={onEmailSubmit} className="space-y-3">
-                    <div>
-                      <p className="font-bold text-ink text-sm mb-1">Rapport per e-mail ontvangen</p>
-                      <p className="text-xs text-ink/45 leading-relaxed">
-                        Ontvang het rapport in uw inbox — direct klaar als bijlage bij uw subsidieaanvraag.
-                      </p>
-                    </div>
-                    <input
-                      type="text"
-                      value={emailNaam}
-                      onChange={e => onEmailNaamChange(e.target.value)}
-                      placeholder="Uw naam (optioneel)"
-                      className={cn(inputCls, "text-sm")}
-                    />
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={e => onEmailChange(e.target.value)}
-                      placeholder="E-mailadres"
-                      className={cn(inputCls, "text-sm")}
-                    />
-                    <button
-                      type="submit"
-                      disabled={!email || emailState === "submitting"}
-                      className="w-full inline-flex items-center justify-center gap-2 bg-terra-500 hover:bg-terra-600 disabled:bg-ink/15 disabled:cursor-not-allowed text-white disabled:text-ink/35 font-semibold text-sm py-2.5 rounded-xl transition-colors"
-                    >
-                      {emailState === "submitting" ? (
-                        <Loader2 size={14} className="animate-spin" />
-                      ) : (
-                        <Mail size={14} />
-                      )}
-                      Verstuur rapport
-                    </button>
-                    <p className="text-[10px] text-ink/30 leading-relaxed">
-                      Uw e-mailadres wordt niet gedeeld met derden.
-                    </p>
-                  </form>
-                )}
-              </div>
+                  <p className="font-bold text-ink text-sm mb-1">Rapport verstuurd</p>
+                  <p className="text-xs text-ink/45 leading-relaxed mb-3">
+                    Controleer uw inbox. Het rapport staat klaar voor indiening.
+                  </p>
+                  <button
+                    onClick={() => window.print()}
+                    className="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-ink/60 hover:text-ink border border-ink/10 hover:bg-ink/5 py-2.5 rounded-xl transition-colors"
+                  >
+                    <Printer size={14} />
+                    Afdrukken / PDF
+                  </button>
+                </div>
+              )}
 
               {/* Bijeen CTA */}
               <div className="bg-[#12100E] rounded-2xl p-5">
@@ -843,7 +861,6 @@ function ResultScreen({
                 <p className="text-white/25 text-[10px] text-center mt-2">Geen creditcard</p>
               </div>
 
-              {/* Nieuw rapport */}
               <button
                 onClick={onReset}
                 className="w-full inline-flex items-center justify-center gap-2 text-sm font-medium text-ink/45 hover:text-ink border border-sand/80 hover:border-ink/20 py-2.5 rounded-xl transition-colors bg-white"
