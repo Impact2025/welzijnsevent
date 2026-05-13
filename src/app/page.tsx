@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight, Zap, BarChart3, QrCode,
-  MessageSquare, Star, Network, FileText, Smartphone,
+  MessageSquare, Star, Network, FileText, Smartphone, Check,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/nav";
 import { MarketingFooter } from "@/components/marketing/footer";
@@ -126,6 +126,62 @@ const plans = [
   },
 ];
 
+function RapportPreviewMockup() {
+  return (
+    <div className="w-full max-w-[260px] bg-white rounded-2xl shadow-2xl overflow-hidden text-left border border-white/10">
+      <div className="bg-[#12100E] px-4 py-3.5">
+        <p className="text-[9px] font-bold text-terra-400 uppercase tracking-widest mb-1.5">WMO-impactrapportage</p>
+        <p className="text-xs font-bold text-white leading-snug">Buurtbijeenkomst Zelfredzaamheid</p>
+        <p className="text-[10px] text-white/40 mt-0.5">Welzijn Utrecht · 14 mei 2026</p>
+      </div>
+      <div className="grid grid-cols-3 border-b border-sand/50 divide-x divide-sand/50 bg-cream/60">
+        {[
+          { l: "Deelnemers", v: "120" },
+          { l: "Sessies",    v: "4"   },
+          { l: "Score",      v: "8.4" },
+        ].map(({ l, v }) => (
+          <div key={l} className="px-2.5 py-2">
+            <p className="text-[8px] font-bold text-ink/30 uppercase tracking-wide">{l}</p>
+            <p className="text-[11px] font-bold text-ink">{v}</p>
+          </div>
+        ))}
+      </div>
+      <div className="px-4 py-4 space-y-3.5">
+        <PreviewSection title="Samenvatting"       lines={[100, 82, 94]}         />
+        <PreviewSection title="Bereik en deelname" lines={[96, 72, 87, 61]}      />
+        <PreviewSection title="WMO-verantwoording" lines={[91, 76, 88, 52, 70]}  dim />
+      </div>
+      <div className="border-t border-sand/40 px-4 py-2 flex items-center justify-between">
+        <span className="text-[9px] text-ink/25">bijeen.app</span>
+        <span className="text-[9px] text-ink/20 uppercase tracking-widest">AVG</span>
+      </div>
+    </div>
+  );
+}
+
+function PreviewSection({ title, lines, dim }: { title: string; lines: number[]; dim?: boolean }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`h-px flex-1 ${dim ? "bg-sand/30" : "bg-sand/70"}`} />
+        <p className={`text-[9px] font-bold uppercase tracking-wider shrink-0 ${dim ? "text-ink/18" : "text-ink/40"}`}>
+          {title}
+        </p>
+        <div className={`h-px flex-1 ${dim ? "bg-sand/30" : "bg-sand/70"}`} />
+      </div>
+      <div className="space-y-1.5">
+        {lines.map((w, i) => (
+          <div
+            key={i}
+            className={`h-1.5 rounded-full ${dim ? "bg-sand/25" : "bg-sand/55"}`}
+            style={{ width: `${w}%` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   return (
     <div className="bg-[#12100E]">
@@ -173,9 +229,19 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <p className="text-white/40 text-sm">
-            Geen creditcard nodig · Eerste event gratis · Klaar in 10 minuten
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-white/40 text-sm">
+              Geen creditcard nodig · Eerste event gratis · Klaar in 10 minuten
+            </p>
+            <Link
+              href="/gratis-impactrapport"
+              className="inline-flex items-center gap-1.5 text-terra-400 hover:text-terra-300 text-sm font-medium transition-colors"
+            >
+              <FileText size={13} strokeWidth={2} />
+              Of genereer eerst een gratis WMO-impactrapport
+              <ArrowRight size={13} />
+            </Link>
+          </div>
         </div>
 
         {/* ── Phone showcase ────────────────────────────────── */}
@@ -332,6 +398,62 @@ export default function HomePage() {
             >
               Alle functies bekijken <ArrowRight size={16} />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── GRATIS RAPPORT CALLOUT ──────────────────────────── */}
+      <section className="bg-white py-16 sm:py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="bg-gradient-to-br from-[#12100E] to-[#1e1a17] rounded-3xl overflow-hidden border border-white/5 relative">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-terra-500/12 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative grid sm:grid-cols-[1fr_320px] gap-0">
+
+              {/* Copy */}
+              <div className="p-8 sm:p-12 flex flex-col justify-center">
+                <div className="inline-flex items-center gap-2 bg-terra-500/20 text-terra-400 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider mb-5 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-terra-400" />
+                  Gratis — geen account
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mb-4">
+                  Zie direct wat een
+                  <br />WMO-rapport van uw
+                  <br />
+                  <span className="text-terra-400">event oplevert.</span>
+                </h2>
+                <p className="text-white/55 text-[15px] leading-relaxed mb-8 max-w-sm">
+                  Vul in twee minuten de gegevens in. De AI schrijft een volledig rapport —
+                  inclusief WMO-artikelreferenties, kwantitatieve impact en een
+                  verantwoordingstekst die direct inzetbaar is bij uw subsidieaanvraag.
+                </p>
+                <div>
+                  <Link
+                    href="/gratis-impactrapport"
+                    className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold px-6 py-3.5 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-terra-500/25 text-sm"
+                  >
+                    <FileText size={15} />
+                    Genereer gratis rapport
+                  </Link>
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-1.5 mt-5">
+                  {[
+                    "Geen account nodig",
+                    "Gratis",
+                    "Direct bruikbaar voor subsidie",
+                  ].map(t => (
+                    <span key={t} className="flex items-center gap-1.5 text-xs text-white/40">
+                      <Check size={11} className="text-terra-500 shrink-0" strokeWidth={3} />
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Document preview */}
+              <div className="hidden sm:flex items-center justify-center p-8 border-l border-white/6">
+                <RapportPreviewMockup />
+              </div>
+            </div>
           </div>
         </div>
       </section>

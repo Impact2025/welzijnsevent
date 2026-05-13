@@ -539,6 +539,21 @@ export const volunteerMessages = pgTable("volunteer_messages", {
   createdAt:      timestamp("created_at").defaultNow(),
 });
 
+// ── RAPPORT LEADS ──────────────────────────────────────────
+export const rapportLeads = pgTable("rapport_leads", {
+  id:               uuid("id").defaultRandom().primaryKey(),
+  email:            text("email").notNull(),
+  naam:             text("naam"),
+  organisatieNaam:  text("organisatie_naam"),
+  evenementNaam:    text("evenement_naam"),
+  gemeente:         text("gemeente"),
+  aantalDeelnemers: integer("aantal_deelnemers"),
+  doelgroepen:      jsonb("doelgroepen").$type<string[]>(),
+  themas:           jsonb("themas").$type<string[]>(),
+  emailSent:        boolean("email_sent").default(false),
+  createdAt:        timestamp("created_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -571,3 +586,4 @@ export type VolunteerProfile      = typeof volunteerProfiles.$inferSelect;
 export type VacancyApplication    = typeof vacancyApplications.$inferSelect;
 export type VacancyInvitation     = typeof vacancyInvitations.$inferSelect;
 export type VolunteerMessage      = typeof volunteerMessages.$inferSelect;
+export type RapportLead           = typeof rapportLeads.$inferSelect;

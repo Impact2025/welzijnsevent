@@ -9,10 +9,11 @@ import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { href: "/functies", label: "Functies" },
-  { href: "/prijzen",  label: "Prijzen"  },
-  { href: "/faq",      label: "FAQ"      },
-  { href: "/over-ons", label: "Over ons" },
+  { href: "/functies",             label: "Functies"       },
+  { href: "/prijzen",              label: "Prijzen"        },
+  { href: "/faq",                  label: "FAQ"            },
+  { href: "/over-ons",             label: "Over ons"       },
+  { href: "/gratis-impactrapport", label: "Gratis rapport" },
 ];
 
 export function MarketingNav() {
