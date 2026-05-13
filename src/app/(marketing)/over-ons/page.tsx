@@ -2,7 +2,7 @@ import Link from "next/link";
 import {
   Leaf, Link2, BarChart3, Lock,
   Check, ArrowRight, Mail, MessageCircle,
-  Calendar, Navigation, Heart, Bot, Target,
+  Calendar,
 } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -29,12 +29,6 @@ const stats = [
   { value: "100%", label: "Welzijnsfocus" },
 ];
 
-const products = [
-  { icon: Navigation, name: "IctusGo",                  desc: "GPS-gebaseerde teambuilding die buitenactiviteiten combineert met maatschappelijke impact." },
-  { icon: Heart,      name: "VrijwilligersAssistent.nl", desc: "AI-platform dat vrijwilligers matcht met organisaties op basis van passie en beschikbaarheid." },
-  { icon: Bot,        name: "WelzijnsAssistent.AI",      desc: "Intelligente intake-tool die administratie vermindert en contactmomenten vergroot." },
-  { icon: Target,     name: "DatingAssistent.nl",        desc: "Datingsplatform voor mensen met een bijzonder verhaal, ondersteund door AI coaching." },
-];
 
 const values = [
   { icon: Leaf,      title: "Sector eerst",          desc: "We bouwen voor welzijn — niet voor profit. Onze prijzen zijn eerlijk en onze features relevant voor jouw werk." },
@@ -174,8 +168,6 @@ export default function OverOnsPage() {
                   <ul className="space-y-2.5">
                     {[
                       "15+ jaar events in de welzijnssector",
-                      "Oprichter DatingAssistent.nl",
-                      "Vrijwilligersdag Stichting Philia",
                       "WeAreImpact.nl — social tech NL",
                     ].map(fact => (
                       <li key={fact} className="flex items-center gap-2.5 text-sm text-ink/60">
@@ -223,17 +215,6 @@ export default function OverOnsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            {products.map(({ icon: Icon, name, desc }) => (
-              <div key={name} className="group bg-cream rounded-2xl border border-sand/60 p-5 sm:p-6 hover:border-terra-200 hover:shadow-md transition-all">
-                <div className="w-10 h-10 rounded-xl bg-terra-50 group-hover:bg-terra-100 flex items-center justify-center text-terra-500 mb-4 transition-colors">
-                  <Icon size={18} strokeWidth={2} />
-                </div>
-                <h3 className="font-bold text-ink mb-1.5">{name}</h3>
-                <p className="text-sm text-ink/55 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
