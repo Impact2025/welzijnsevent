@@ -44,16 +44,26 @@ export async function POST(req: Request) {
 
   void existing; // suppress unused warning
 
-  const [created] = await db.insert(volunteerProfiles).values({
-    organizationId: org.id,
-    name,
-    email,
-    phone:        phone ?? null,
-    skills:       skills ?? [],
-    availability: availability ?? null,
-    bio:          bio ?? null,
-    status:       "actief",
-  }).returning();
+  let created;
+  try {
+    [created] = await db.insert(volunteerProfiles).values({
+      organizationId: org.id,
+      name,
+      email,
+      phone:        phone ?? null,
+      skills:       skills ?? [],
+      availability: availability ?? null,
+      bio:          bio ?? null,
+      status:       "actief",
+    }).returning();
+  } catch (err) {
+    console.error("volunteer insert failed:", err);
+    return NextResponse.json({ error: "Database fout bij opslaan" }, { status: 500 });
+  }
+
+  if (!created) {
+    return NextResponse.json({ error: "Vrijwilliger kon niet worden opgeslagen" }, { status: 500 });
+  }
 
   return NextResponse.json(created, { status: 201 });
 }

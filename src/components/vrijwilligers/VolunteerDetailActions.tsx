@@ -1,32 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { Send, MessageSquare, StickyNote, Check, Loader2, ChevronDown } from "lucide-react";
+import { useState, KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
+import { Send, MessageSquare, StickyNote, Check, Loader2, Pencil, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type OpenVacancy = { id: string; title: string; eventTitle: string };
 
 type Props = {
-  volunteerEmail: string;
-  volunteerName:  string;
-  openVacancies:  OpenVacancy[];
-  crmNotes:       string | null;
-  organizationId: string;
+  volunteerEmail:        string;
+  volunteerName:         string;
+  openVacancies:         OpenVacancy[];
+  crmNotes:              string | null;
+  organizationId:        string;
+  // profile edit props
+  profileId:             string;
+  profilePhone:          string | null;
+  profileSkills:         string[];
+  profileAvailability:   string | null;
+  profileBio:            string | null;
 };
 
-type Panel = "invite" | "message" | "notes" | null;
+type Panel = "edit" | "invite" | "message" | "notes" | null;
 
 export function VolunteerDetailActions({
   volunteerEmail, volunteerName, openVacancies, crmNotes, organizationId,
+  profileId, profilePhone, profileSkills, profileAvailability, profileBio,
 }: Props) {
+  const router = useRouter();
   const [open, setOpen] = useState<Panel>(null);
+
+  // Edit state
+  const [editName,         setEditName]         = useState(volunteerName);
+  const [editEmail,        setEditEmail]        = useState(volunteerEmail);
+  const [editPhone,        setEditPhone]        = useState(profilePhone ?? "");
+  const [editSkills,       setEditSkills]       = useState<string[]>(profileSkills);
+  const [editSkillInput,   setEditSkillInput]   = useState("");
+  const [editAvailability, setEditAvailability] = useState(profileAvailability ?? "");
+  const [editBio,          setEditBio]          = useState(profileBio ?? "");
+  const [editBusy,         setEditBusy]         = useState(false);
+  const [editErr,          setEditErr]          = useState("");
+  const [editOk,           setEditOk]           = useState(false);
 
   // Invite state
   const [selectedVacancy, setSelectedVacancy] = useState("");
   const [invMsg,    setInvMsg]    = useState("");
   const [invBusy,   setInvBusy]   = useState(false);
   const [invOk,     setInvOk]     = useState(false);
-  const [invErr,    setInvErr]     = useState("");
+  const [invErr,    setInvErr]    = useState("");
 
   // Message state
   const [msgSubject, setMsgSubject] = useState("");
@@ -36,9 +57,59 @@ export function VolunteerDetailActions({
   const [msgErr,     setMsgErr]     = useState("");
 
   // Notes state
-  const [notes,    setNotes]    = useState(crmNotes ?? "");
-  const [notesBusy,setNotesBusy]= useState(false);
-  const [notesOk,  setNotesOk]  = useState(false);
+  const [notes,     setNotes]     = useState(crmNotes ?? "");
+  const [notesBusy, setNotesBusy] = useState(false);
+  const [notesOk,   setNotesOk]   = useState(false);
+
+  function addEditSkill() {
+    const s = editSkillInput.trim();
+    if (s && !editSkills.includes(s) && editSkills.length < 20) {
+      setEditSkills((prev) => [...prev, s]);
+    }
+    setEditSkillInput("");
+  }
+
+  function onEditSkillKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addEditSkill(); }
+    if (e.key === "Backspace" && editSkillInput === "" && editSkills.length > 0) {
+      setEditSkills((prev) => prev.slice(0, -1));
+    }
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editName.trim() || !editEmail.trim()) return;
+    setEditBusy(true); setEditErr(""); setEditOk(false);
+    try {
+      const res = await fetch(`/api/vrijwilligers/${profileId}`, {
+        method:  "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:         editName.trim(),
+          email:        editEmail.trim(),
+          phone:        editPhone.trim() || null,
+          skills:       editSkills,
+          availability: editAvailability.trim() || null,
+          bio:          editBio.trim() || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setEditErr(data.error ?? "Opslaan mislukt"); return; }
+      setEditOk(true);
+      setTimeout(() => {
+        // If email changed, redirect to new URL
+        const newEmail = editEmail.trim().toLowerCase();
+        if (newEmail !== volunteerEmail.toLowerCase()) {
+          router.push(`/dashboard/vrijwilligers/${encodeURIComponent(newEmail)}`);
+        } else {
+          router.refresh();
+          setOpen(null);
+          setEditOk(false);
+        }
+      }, 800);
+    } catch { setEditErr("Er ging iets mis"); }
+    finally { setEditBusy(false); }
+  }
 
   async function sendInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -98,9 +169,10 @@ export function VolunteerDetailActions({
   }
 
   const ACTIONS = [
-    { key: "invite"  as Panel, icon: Send,          label: "Uitnodigen",        disabled: openVacancies.length === 0 },
-    { key: "message" as Panel, icon: MessageSquare, label: "Bericht sturen",    disabled: false },
-    { key: "notes"   as Panel, icon: StickyNote,    label: "Interne notities",  disabled: false },
+    { key: "edit"    as Panel, icon: Pencil,        label: "Bewerken",          disabled: false },
+    { key: "invite"  as Panel, icon: Send,           label: "Uitnodigen",        disabled: openVacancies.length === 0 },
+    { key: "message" as Panel, icon: MessageSquare,  label: "Bericht sturen",    disabled: false },
+    { key: "notes"   as Panel, icon: StickyNote,     label: "Interne notities",  disabled: false },
   ];
 
   return (
@@ -129,6 +201,132 @@ export function VolunteerDetailActions({
           </button>
         ))}
       </div>
+
+      {/* Edit panel */}
+      {open === "edit" && (
+        <form onSubmit={saveEdit} className="p-4 space-y-3 bg-cream/30">
+          <p className="text-xs text-ink-muted">Wijzig de profielgegevens van deze vrijwilliger.</p>
+
+          {/* Naam */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">
+              Naam <span className="text-red-400">*</span>
+            </label>
+            <input
+              required
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              placeholder="Jan de Vries"
+              className="w-full bg-white border border-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-terra-300 transition-colors placeholder-ink-muted/40"
+            />
+          </div>
+
+          {/* E-mail */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">
+              E-mailadres <span className="text-red-400">*</span>
+            </label>
+            <input
+              required
+              type="email"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              placeholder="jan@voorbeeld.nl"
+              className="w-full bg-white border border-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-terra-300 transition-colors placeholder-ink-muted/40"
+            />
+          </div>
+
+          {/* Telefoon */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">Telefoon</label>
+            <input
+              type="tel"
+              value={editPhone}
+              onChange={(e) => setEditPhone(e.target.value)}
+              placeholder="06 12345678"
+              className="w-full bg-white border border-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-terra-300 transition-colors placeholder-ink-muted/40"
+            />
+          </div>
+
+          {/* Vaardigheden */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">Vaardigheden</label>
+            <div className="min-h-[42px] w-full bg-white border border-sand rounded-xl px-3 py-2 flex flex-wrap gap-1.5 focus-within:border-terra-300 transition-colors">
+              {editSkills.map((s) => (
+                <span
+                  key={s}
+                  className="inline-flex items-center gap-1 text-xs font-medium bg-terra-50 text-terra-700 border border-terra-100 px-2 py-0.5 rounded-full"
+                >
+                  {s}
+                  <button
+                    type="button"
+                    onClick={() => setEditSkills((prev) => prev.filter((x) => x !== s))}
+                    className="hover:text-terra-900 transition-colors"
+                  >
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
+              <input
+                value={editSkillInput}
+                onChange={(e) => setEditSkillInput(e.target.value)}
+                onKeyDown={onEditSkillKeyDown}
+                onBlur={addEditSkill}
+                placeholder={editSkills.length === 0 ? "EHBO, rijbewijs… (Enter)" : ""}
+                className="flex-1 min-w-[100px] text-sm bg-transparent text-ink placeholder:text-ink-muted/40 outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Beschikbaarheid */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">Beschikbaarheid</label>
+            <input
+              value={editAvailability}
+              onChange={(e) => setEditAvailability(e.target.value)}
+              placeholder="Bijv. weekenden, doordeweeks avonden"
+              className="w-full bg-white border border-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-terra-300 transition-colors placeholder-ink-muted/40"
+            />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label className="block text-[11px] font-bold text-ink-muted mb-1">Notitie / bio</label>
+            <textarea
+              value={editBio}
+              onChange={(e) => setEditBio(e.target.value)}
+              placeholder="Achtergrond, motivatie of andere informatie…"
+              rows={3}
+              className="w-full bg-white border border-sand rounded-xl px-3 py-2.5 text-sm text-ink outline-none focus:border-terra-300 transition-colors resize-none placeholder-ink-muted/40"
+            />
+          </div>
+
+          {editErr && <p className="text-red-600 text-xs bg-red-50 border border-red-200 rounded-xl px-3 py-2">{editErr}</p>}
+          {editOk  && (
+            <p className="text-green-700 text-xs bg-green-50 border border-green-200 rounded-xl px-3 py-2 flex items-center gap-1.5">
+              <Check size={12} /> Opgeslagen!
+            </p>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(null)}
+              className="flex-1 py-2.5 rounded-xl bg-sand text-ink text-sm font-bold hover:bg-sand/80 transition-colors"
+            >
+              Annuleren
+            </button>
+            <button
+              type="submit"
+              disabled={editBusy || !editName.trim() || !editEmail.trim()}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-terra-500 hover:bg-terra-600 disabled:opacity-50 text-white text-sm font-bold transition-colors"
+            >
+              {editBusy ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+              {editBusy ? "Opslaan…" : "Opslaan"}
+            </button>
+          </div>
+        </form>
+      )}
 
       {/* Invite panel */}
       {open === "invite" && (

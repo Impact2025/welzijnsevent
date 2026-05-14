@@ -48,8 +48,7 @@ function buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardU
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
       <!-- Header -->
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🌱</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Welkom bij Bijeen!</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;font-weight:500;">${orgName}</p>
       </div>
@@ -145,8 +144,7 @@ export async function sendWelcomeCommunityEmail(props: WelcomeCommunityEmailProp
 
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎉</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Welkom bij Bijeen!</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:15px;margin:0;font-weight:500;">${orgName} · Community</p>
       </div>
@@ -242,7 +240,6 @@ function buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features,
 
       <!-- Header -->
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎊</div>
         <h1 style="color:#FFFFFF;font-size:24px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Betaling ontvangen!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:15px;margin:0;font-weight:500;">${orgName} · ${planLabel}</p>
       </div>
@@ -333,8 +330,7 @@ export async function sendWaitlistConfirmation(props: WaitlistConfirmationProps)
       <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">⏳</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Je staat op de wachtlijst!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -391,7 +387,6 @@ export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">🎉</div>
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Er is een plek vrijgekomen!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -406,7 +401,7 @@ export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
           </a>
         </div>
         <div style="background:#FFF4EF;border:1px solid #F5D4C4;border-radius:12px;padding:16px;text-align:center;">
-          <p style="color:#C8522A;font-size:13px;font-weight:700;margin:0 0 4px;">⏰ Je plek vervalt over 48 uur</p>
+          <p style="color:#C8522A;font-size:13px;font-weight:700;margin:0 0 4px;">Je plek vervalt over 48 uur</p>
           <p style="color:#6B6560;font-size:12px;margin:0;">Meld je op tijd aan, anders gaat de plek naar de volgende persoon op de wachtlijst.</p>
         </div>
       </div>
@@ -460,7 +455,6 @@ export async function sendEventReminderEmail(props: EventReminderEmailProps) {
     <div style="text-align:center;margin-bottom:24px;">${brandHeader}</div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,${brandColor} 0%,${brandDark} 100%);padding:40px 32px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">⏰</div>
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Morgen is het zover!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -473,11 +467,11 @@ export async function sendEventReminderEmail(props: EventReminderEmailProps) {
           <table cellpadding="0" cellspacing="0" width="100%">
             <tr><td style="padding:6px 0;border-bottom:1px solid #EDE8E1;">
               <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Datum</span>
-              <span style="color:#1C1814;font-size:14px;font-weight:600;">📅 ${eventDate}</span>
+              <span style="color:#1C1814;font-size:14px;font-weight:600;">${eventDate}</span>
             </td></tr>
             ${eventLocation ? `<tr><td style="padding:6px 0;">
               <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">Locatie</span>
-              <span style="color:#1C1814;font-size:14px;font-weight:600;">📍 ${eventLocation}</span>
+              <span style="color:#1C1814;font-size:14px;font-weight:600;">${eventLocation}</span>
             </td></tr>` : ""}
           </table>
         </div>
@@ -528,7 +522,6 @@ export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">🌟</div>
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;">Bedankt voor je komst!</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -538,7 +531,6 @@ export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
           Bedankt dat je aanwezig was bij <strong>${eventTitle}</strong>! We hopen dat je een mooie en inspirerende dag hebt gehad.
         </p>
         <div style="background:linear-gradient(135deg,#FFF4EF 0%,#FFEEE6 100%);border:1px solid #F5D4C4;border-radius:14px;padding:20px;margin:0 0 24px;text-align:center;">
-          <div style="font-size:32px;margin-bottom:8px;">📝</div>
           <p style="color:#1C1814;font-size:14px;font-weight:700;margin:0 0 6px;">Deel je feedback</p>
           <p style="color:#6B6560;font-size:12px;line-height:1.6;margin:0 0 16px;">
             Het duurt slechts 2 minuten. Jouw input helpt ons het evenement volgend jaar nog beter te maken.
@@ -637,7 +629,7 @@ function buildConfirmationHtml({
     ? `<tr>
         <td style="padding: 6px 0; vertical-align: top;">
           <span style="color: #9E9890; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 2px;">Locatie</span>
-          <span style="color: #1C1814; font-size: 14px; font-weight: 600;">📍 ${eventLocation}</span>
+          <span style="color: #1C1814; font-size: 14px; font-weight: 600;">${eventLocation}</span>
         </td>
       </tr>`
     : "";
@@ -662,7 +654,6 @@ function buildConfirmationHtml({
 
       <!-- Header -->
       <div style="background: linear-gradient(135deg, ${brandColor} 0%, ${brandDark} 100%); padding: 32px; text-align: center;">
-        <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.15); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 26px; line-height: 1;">🎉</div>
         <h1 style="color: #FFFFFF; font-size: 22px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.3px;">Je aanmelding is bevestigd!</h1>
         <p style="color: rgba(255,255,255,0.82); font-size: 14px; margin: 0; font-weight: 500;">${eventTitle}</p>
       </div>
@@ -687,7 +678,7 @@ function buildConfirmationHtml({
             <tr>
               <td style="padding: 6px 0; border-bottom: 1px solid #EDE8E1;">
                 <span style="color: #9E9890; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 2px;">Datum</span>
-                <span style="color: #1C1814; font-size: 14px; font-weight: 600;">📅 ${eventDate}</span>
+                <span style="color: #1C1814; font-size: 14px; font-weight: 600;">${eventDate}</span>
               </td>
             </tr>
             ${locationRow}
@@ -696,7 +687,6 @@ function buildConfirmationHtml({
 
         <!-- QR Code CTA -->
         <div style="background: linear-gradient(135deg, #FFF4EF 0%, #FFEEE6 100%); border: 1px solid #F5D4C4; border-radius: 14px; padding: 20px; margin: 0 0 28px; text-align: center;">
-          <div style="font-size: 36px; margin-bottom: 8px;">📲</div>
           <p style="color: #1C1814; font-size: 14px; font-weight: 700; margin: 0 0 6px;">Je persoonlijke QR-code</p>
           <p style="color: #6B6560; font-size: 12px; line-height: 1.6; margin: 0 0 16px;">
             Gebruik deze QR-code voor snelle toegang op de dag zelf. Laat hem scannen bij de ingang.
@@ -710,7 +700,6 @@ function buildConfirmationHtml({
         <!-- Network teaser -->
         <div style="background: #F0F7F2; border: 1px solid #C8E0CE; border-radius: 14px; padding: 16px; margin: 0 0 8px;">
           <div style="display: flex; align-items: flex-start; gap: 12px;">
-            <span style="font-size: 20px; flex-shrink: 0;">🤝</span>
             <div>
               <p style="color: #2D5A3D; font-size: 13px; font-weight: 700; margin: 0 0 4px;">Netwerken via AI-matching</p>
               <p style="color: #4A7A59; font-size: 12px; line-height: 1.6; margin: 0;">
@@ -769,8 +758,7 @@ export async function sendAdminNewAttendeeNotification(props: {
       <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="32" height="32" style="height:32px;width:32px;border-radius:6px;" />
     </div>
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:28px 32px;text-align:center;">
-        <div style="font-size:32px;margin-bottom:8px;">👤</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:28px 32px;text-align:center;">
         <h1 style="color:#FFFFFF;font-size:18px;font-weight:800;margin:0 0 4px;">Nieuwe aanmelding</h1>
         <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:0;">${eventTitle}</p>
       </div>
@@ -853,8 +841,7 @@ export async function sendTeamInviteEmail(props: {
   <div style="max-width:480px;margin:0 auto;padding:32px 16px;text-align:center;">
     <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="32" height="32" style="height:32px;width:32px;border-radius:6px;margin-bottom:24px;" />
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#12100E 0%,#2A2520 100%);padding:36px 32px;text-align:center;">
-        <div style="font-size:36px;margin-bottom:12px;">👥</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:36px 32px;text-align:center;">
         <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0 0 6px;">Je bent uitgenodigd!</h1>
         <p style="color:rgba(255,255,255,0.7);font-size:13px;margin:0;">${invitedBy} nodigt je uit bij <strong style="color:#fff;">${orgName}</strong></p>
       </div>
@@ -941,8 +928,7 @@ export async function sendVacancyApplicationConfirmation(props: VacancyApplicati
       <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🙌</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Aanmelding ontvangen!</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -1011,8 +997,7 @@ export async function sendVacancyApplicationAccepted(props: VacancyApplicationAc
       <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#2D5A3D 0%,#1E3D29 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">🎉</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Je bent aangenomen!</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -1072,8 +1057,7 @@ export async function sendVacancyApplicationRejected(props: VacancyApplicationRe
       <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-      <div style="background:linear-gradient(135deg,#6B6560 0%,#4A4540 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">💙</div>
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
         <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Bedankt voor je aanmelding</h1>
         <p style="color:rgba(255,255,255,0.75);font-size:14px;margin:0;">${eventTitle}</p>
       </div>
@@ -1129,7 +1113,6 @@ export async function sendNewVolunteerApplicationNotification(props: NewVoluntee
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#9E3D1A 100%);padding:32px;text-align:center;">
-        <div style="font-size:28px;margin-bottom:12px;">🙋</div>
         <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0;letter-spacing:-0.3px;">Nieuwe vrijwilliger aanmelding</h1>
       </div>
       <div style="padding:32px;">
@@ -1197,7 +1180,6 @@ export async function sendVacancyInvitation(props: VacancyInvitationProps) {
     </div>
     <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
       <div style="background:linear-gradient(135deg,#C8522A 0%,#9E3D1A 100%);padding:40px 32px;text-align:center;">
-        <div style="width:64px;height:64px;background:rgba(255,255,255,0.15);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:32px;line-height:1;">💌</div>
         <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;letter-spacing:-0.4px;">Je bent uitgenodigd!</h1>
         <p style="color:rgba(255,255,255,0.8);font-size:14px;margin:0;">${eventTitle}</p>
       </div>

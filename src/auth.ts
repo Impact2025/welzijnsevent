@@ -29,7 +29,6 @@ function buildMagicLinkHtml(url: string) {
     <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
 
       <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:36px 32px;text-align:center;">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.15);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:26px;line-height:1;">🔑</div>
         <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:-0.3px;">Jouw inloglink</h1>
         <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;font-weight:500;">Bijeen — Evenementenplatform</p>
       </div>

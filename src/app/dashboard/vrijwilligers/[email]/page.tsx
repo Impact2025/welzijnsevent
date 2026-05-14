@@ -288,6 +288,11 @@ export default async function VolunteerDetailPage({
         openVacancies={openVacanciesWithEvent}
         crmNotes={crmProfile?.crmNotes ?? null}
         organizationId={org.id}
+        profileId={primary.id}
+        profilePhone={primary.phone ?? null}
+        profileSkills={skills}
+        profileAvailability={primary.availability ?? null}
+        profileBio={primary.bio ?? null}
       />
 
       {/* Timeline */}
