@@ -1,5 +1,5 @@
-import { db, events, attendees, sessions } from "@/db";
-import { eq, count, desc } from "drizzle-orm";
+import { db, events, attendees, sessions, vacancyApplications, volunteerVacancies, volunteerProfiles } from "@/db";
+import { eq, count, desc, and } from "drizzle-orm";
 import { getCurrentOrg } from "@/lib/auth";
 import Link from "next/link";
 import {
@@ -9,11 +9,12 @@ import {
   CheckSquare,
   ArrowRight,
   ListChecks,
+  HandHeart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Priority = "urgent" | "attention" | "suggestion";
-type IconType = "zap" | "alert" | "clock" | "check";
+type IconType = "zap" | "alert" | "clock" | "check" | "volunteer";
 
 interface Todo {
   priority: Priority;
@@ -38,9 +39,10 @@ const PRIORITY_LABEL: Record<Priority, string> = {
 const PRIORITY_ORDER: Record<Priority, number> = { urgent: 0, attention: 1, suggestion: 2 };
 
 function TodoIcon({ type, cls }: { type: IconType; cls: string }) {
-  if (type === "zap")   return <Zap size={13} className={cn(cls, "fill-current")} />;
-  if (type === "alert") return <AlertTriangle size={13} className={cls} />;
-  if (type === "clock") return <Clock size={13} className={cls} />;
+  if (type === "zap")       return <Zap size={13} className={cn(cls, "fill-current")} />;
+  if (type === "alert")     return <AlertTriangle size={13} className={cls} />;
+  if (type === "clock")     return <Clock size={13} className={cls} />;
+  if (type === "volunteer") return <HandHeart size={13} className={cls} />;
   return <CheckSquare size={13} className={cls} />;
 }
 
@@ -71,7 +73,61 @@ export async function SmartTodos() {
     })
   );
 
+  // Pending volunteer applications per vacancy (all events for this org)
+  const pendingApps = await db
+    .select({
+      vacancyId:    vacancyApplications.vacancyId,
+      vacancyTitle: volunteerVacancies.title,
+      eventId:      volunteerVacancies.eventId,
+      profileName:  volunteerProfiles.name,
+      profileEmail: volunteerProfiles.email,
+    })
+    .from(vacancyApplications)
+    .innerJoin(volunteerVacancies, eq(vacancyApplications.vacancyId, volunteerVacancies.id))
+    .innerJoin(volunteerProfiles, eq(vacancyApplications.volunteerProfileId, volunteerProfiles.id))
+    .where(
+      and(
+        eq(vacancyApplications.status, "pending"),
+        eq(volunteerVacancies.organizationId, org.id)
+      )
+    )
+    .orderBy(desc(vacancyApplications.appliedAt))
+    .limit(20);
+
+  // Group by vacancyId
+  const byVacancy = new Map<string, typeof pendingApps>();
+  for (const row of pendingApps) {
+    if (!byVacancy.has(row.vacancyId)) byVacancy.set(row.vacancyId, []);
+    byVacancy.get(row.vacancyId)!.push(row);
+  }
+
   const todos: Todo[] = [];
+
+  // Add a todo per vacancy with pending applications
+  for (const [vacancyId, rows] of Array.from(byVacancy.entries())) {
+    const first = rows[0];
+    const eventForVacancy = allEvents.find((e) => e.id === first.eventId);
+    const eventPath = eventForVacancy
+      ? `/dashboard/events/${first.eventId}/vacatures/${vacancyId}`
+      : `/dashboard/vrijwilligers`;
+    if (rows.length === 1) {
+      todos.push({
+        priority: "attention",
+        label:    `${first.profileName} wacht op beoordeling`,
+        detail:   `Aanmelding voor "${first.vacancyTitle}"`,
+        href:     eventPath,
+        icon:     "volunteer",
+      });
+    } else {
+      todos.push({
+        priority: "attention",
+        label:    `${rows.length} aanmeldingen voor "${first.vacancyTitle}"`,
+        detail:   `${rows.map((r: { profileName: string }) => r.profileName).slice(0, 2).join(", ")}${rows.length > 2 ? ` +${rows.length - 2}` : ""} wachten op beoordeling`,
+        href:     eventPath,
+        icon:     "volunteer",
+      });
+    }
+  }
 
   for (const ev of enriched) {
     const startsAt = new Date(ev.startsAt);
