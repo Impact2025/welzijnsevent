@@ -4,9 +4,11 @@ import { KpiCard } from "@/components/dashboard/kpi-card";
 import { EventCard } from "@/components/events/event-card";
 import { SmartTodos } from "@/components/dashboard/smart-todos";
 import { AiPanel } from "@/components/dashboard/ai-panel";
+import { CommunityBanner } from "@/components/dashboard/community-banner";
 import { Users, Calendar, Star, ArrowRight, Zap, AlertTriangle, Clock } from "lucide-react";
 import Link from "next/link";
 import { getCurrentOrg } from "@/lib/auth";
+import { PLAN_LIMITS } from "@/lib/plans";
 
 export default async function DashboardPage() {
   const org = await getCurrentOrg();
@@ -55,19 +57,24 @@ export default async function DashboardPage() {
   }
 
   // Subscription / trial info for banner
-  const [sub] = await db
-    .select()
-    .from(subscriptions)
-    .where(eq(subscriptions.organizationId, org.id))
-    .orderBy(desc(subscriptions.createdAt))
-    .limit(1);
+  const [[sub], [{ count: totalEvents }]] = await Promise.all([
+    db.select().from(subscriptions)
+      .where(eq(subscriptions.organizationId, org.id))
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1),
+    db.select({ count: count() }).from(events)
+      .where(eq(events.organizationId, org.id)),
+  ]);
   const isTrial = !sub || sub.plan === "trial";
+  const isCommunity = sub?.plan === "community";
   const isExpired = sub?.expiresAt ? new Date(sub.expiresAt) < new Date() : false;
   const daysLeft = sub?.expiresAt
     ? Math.max(0, Math.ceil((new Date(sub.expiresAt).getTime() - Date.now()) / 86400000))
     : null;
   const showTrialBanner = isTrial && !isExpired;
   const showExpiredBanner = isExpired;
+  const showCommunityBanner = isCommunity && !isExpired;
+  const communityEventsMax = PLAN_LIMITS.community.events;
 
   return (
     <div className="px-4 py-5 sm:p-7 max-w-3xl mx-auto animate-fade-in">
@@ -113,6 +120,13 @@ export default async function DashboardPage() {
             Upgraden
           </Link>
         </div>
+      )}
+
+      {showCommunityBanner && (
+        <CommunityBanner
+          eventsUsed={Number(totalEvents)}
+          eventsMax={communityEventsMax}
+        />
       )}
 
       {/* Live banner */}

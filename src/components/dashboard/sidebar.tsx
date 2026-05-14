@@ -1,15 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOutAction } from "@/actions/auth";
 import { LogOut,
   LayoutDashboard, Calendar, Settings, Plus, Search, ExternalLink, Users, HandHeart,
+  Lock, BarChart2, Sparkles,
 } from "lucide-react";
 
 import { cn, getInitials, avatarColor } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
-import { PLAN_LIMITS } from "@/lib/plans";
+import { PLAN_LIMITS, FREE_PLANS } from "@/lib/plans";
+import { UpgradeModal } from "@/components/dashboard/upgrade-modal";
+
+const LOCKED_NAV = [
+  { icon: BarChart2, label: "Impact rapport",      feature: "Impact rapport"      },
+  { icon: Sparkles,  label: "AI Netwerkkoppeling", feature: "AI Netwerkkoppeling" },
+];
 
 const BASE_NAV = [
   { href: "/dashboard",        icon: LayoutDashboard, label: "Overzicht"   },
@@ -31,6 +39,15 @@ interface SidebarProps {
 
 export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = false, showVolunteers = false }: SidebarProps) {
   const path = usePathname();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>();
+
+  const isFreePlan = plan ? FREE_PLANS.has(plan) : true;
+
+  const openUpgrade = (feature: string) => {
+    setUpgradeFeature(feature);
+    setUpgradeOpen(true);
+  };
 
   const peopleNav = [
     ...(showVolunteers ? [{ href: "/dashboard/vrijwilligers", icon: HandHeart, label: "Vrijwilligers" }] : []),
@@ -116,6 +133,26 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
           </>
         )}
 
+        {/* Vergrendelde pro-features — zichtbaar voor gratis plan */}
+        {isFreePlan && (
+          <>
+            <p className="text-[9px] font-black text-white/20 uppercase tracking-widest px-3 pt-4 pb-1">
+              Pro
+            </p>
+            {LOCKED_NAV.map(({ icon: Icon, label, feature }) => (
+              <button
+                key={label}
+                onClick={() => openUpgrade(feature)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-white/30 hover:text-white/50 hover:bg-white/5 transition-all duration-150 w-full text-left"
+              >
+                <Icon size={17} strokeWidth={2} />
+                <span className="flex-1">{label}</span>
+                <Lock size={11} strokeWidth={2.5} className="text-white/20" />
+              </button>
+            ))}
+          </>
+        )}
+
         {/* Instellingen */}
         {SETTINGS_NAV.map(({ href, icon: Icon, label }) => {
           const active = path.startsWith(href);
@@ -178,6 +215,12 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
         </div>
       </div>
     </aside>
+
+    <UpgradeModal
+      open={upgradeOpen}
+      onClose={() => setUpgradeOpen(false)}
+      featureName={upgradeFeature}
+    />
 
     {/* Mobile bottom navigation */}
     <nav data-tour="nav-mobile" className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#12100E]/95 backdrop-blur-xl border-t border-white/8 flex items-center justify-around px-1 pb-safe">
