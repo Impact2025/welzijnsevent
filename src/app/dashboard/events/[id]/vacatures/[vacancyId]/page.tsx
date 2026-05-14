@@ -46,6 +46,7 @@ type Invitation = {
   invitedName: string | null;
   status: string | null;
   createdAt: string | null;
+  respondedAt: string | null;
   expiresAt: string;
 };
 
@@ -199,6 +200,12 @@ export default function VacancyDetailPage() {
 
   const pending  = applications.filter((a) => a.application.status === "pending").length;
   const accepted = applications.filter((a) => a.application.status === "accepted").length;
+  const invAccepted = invitations.filter((i) => i.status === "accepted").length;
+
+  // Set of emails that came in via accepted invitation (to show badge in applications tab)
+  const viaInvitationEmails = new Set(
+    invitations.filter((i) => i.status === "accepted").map((i) => i.invitedEmail.toLowerCase())
+  );
 
   return (
     <div className="w-full md:max-w-3xl md:mx-auto bg-white min-h-screen pb-16">
@@ -256,15 +263,16 @@ export default function VacancyDetailPage() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-px bg-sand border-b border-sand">
+      <div className="grid grid-cols-4 gap-px bg-sand border-b border-sand">
         {[
-          { label: "Aanmeldingen", value: applications.length },
-          { label: "In behandeling", value: pending   },
-          { label: "Geaccepteerd",  value: accepted   },
-        ].map(({ label, value }) => (
+          { label: "Aanmeldingen",   value: applications.length },
+          { label: "In behandeling", value: pending             },
+          { label: "Geaccepteerd",   value: accepted            },
+          { label: "Uitnodigingen ✓", value: invAccepted, green: invAccepted > 0 },
+        ].map(({ label, value, green }) => (
           <div key={label} className="bg-white py-3 text-center">
-            <p className="text-xl font-bold text-ink">{value}</p>
-            <p className="text-[11px] text-ink-muted">{label}</p>
+            <p className={`text-xl font-bold ${green ? "text-green-600" : "text-ink"}`}>{value}</p>
+            <p className="text-[11px] text-ink-muted leading-tight">{label}</p>
           </div>
         ))}
       </div>
@@ -293,6 +301,11 @@ export default function VacancyDetailPage() {
                   {applications.length}
                 </span>
               )}
+              {t === "uitnodigen" && invAccepted > 0 && (
+                <span className="ml-1 bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                  {invAccepted} ✓
+                </span>
+              )}
             </button>
           );
         })}
@@ -316,7 +329,14 @@ export default function VacancyDetailPage() {
                   <div key={app.id} className="card-base p-4 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-ink text-sm">{profile?.name ?? "Onbekend"}</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-bold text-ink text-sm">{profile?.name ?? "Onbekend"}</p>
+                          {profile?.email && viaInvitationEmails.has(profile.email.toLowerCase()) && (
+                            <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded-full">
+                              Via uitnodiging
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs text-ink-muted">{profile?.email}</p>
                         {profile?.phone && (
                           <p className="text-xs text-ink-muted">{profile.phone}</p>
@@ -433,11 +453,25 @@ export default function VacancyDetailPage() {
                 <div className="space-y-2">
                   {invitations.map((inv) => {
                     const cfg = INV_STATUS_CFG[inv.status as keyof typeof INV_STATUS_CFG] ?? INV_STATUS_CFG.pending;
+                    const respondedDate = inv.respondedAt
+                      ? new Date(inv.respondedAt).toLocaleDateString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
+                      : null;
                     return (
-                      <div key={inv.id} className="card-base p-3 flex items-center justify-between gap-3">
+                      <div
+                        key={inv.id}
+                        className={cn(
+                          "card-base p-3 flex items-center justify-between gap-3",
+                          inv.status === "accepted" && "border-green-200 bg-green-50/40"
+                        )}
+                      >
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-ink truncate">{inv.invitedName ?? inv.invitedEmail}</p>
                           <p className="text-xs text-ink-muted truncate">{inv.invitedEmail}</p>
+                          {respondedDate && (
+                            <p className="text-[11px] text-ink-muted mt-0.5">
+                              {inv.status === "accepted" ? "Geaccepteerd" : "Afgewezen"} op {respondedDate}
+                            </p>
+                          )}
                         </div>
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full border shrink-0 ${cfg.cls}`}>
                           {cfg.label}

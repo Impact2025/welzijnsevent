@@ -1213,3 +1213,150 @@ export async function sendVacancyInvitation(props: VacancyInvitationProps) {
 </html>`,
   });
 }
+
+// ─── Vrijwilliger: bevestiging na acceptatie uitnodiging ─────────────────────
+
+interface InvitationAcceptedConfirmationProps {
+  to: string;
+  name: string;
+  vacancyTitle: string;
+  eventTitle: string;
+  shiftDate: string | null;
+  shiftStart: string | null;
+  shiftEnd: string | null;
+  location: string | null;
+}
+
+export async function sendInvitationAcceptedConfirmation(props: InvitationAcceptedConfirmationProps) {
+  if (!resend) return;
+  const { to, name, vacancyTitle, eventTitle, shiftDate, shiftStart, shiftEnd, location } = props;
+  const firstName = name.split(" ")[0];
+
+  const shiftRow = (shiftDate || shiftStart)
+    ? `<tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Tijdstip</td><td style="padding:6px 0;color:#1C1814;font-size:14px;">${shiftDate ? new Date(shiftDate).toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" }) : ""}${shiftStart ? ` · ${shiftStart}${shiftEnd ? `–${shiftEnd}` : ""}` : ""}</td></tr>`
+    : "";
+  const locationRow = location
+    ? `<tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Locatie</td><td style="padding:6px 0;color:#1C1814;font-size:14px;">${location}</td></tr>`
+    : "";
+
+  await resend.emails.send({
+    from:    "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: `Bevestigd: ${vacancyTitle} bij ${eventTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#16a34a 0%,#15803d 100%);padding:40px 32px;text-align:center;">
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <span style="font-size:28px;">✓</span>
+        </div>
+        <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:-0.4px;">Aanmelding bevestigd!</h1>
+        <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:0;">${eventTitle}</p>
+      </div>
+      <div style="padding:36px 32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 24px;">
+          Super dat je erbij bent! Je aanmelding voor <strong>${vacancyTitle}</strong> bij <strong>${eventTitle}</strong> is bevestigd.
+        </p>
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:20px 24px;margin:0 0 24px;">
+          <p style="color:#166534;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Jouw aanmelding</p>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Vacature</td><td style="padding:6px 0;color:#1C1814;font-size:14px;font-weight:700;">${vacancyTitle}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Evenement</td><td style="padding:6px 0;color:#5C5248;font-size:14px;">${eventTitle}</td></tr>
+            ${shiftRow}
+            ${locationRow}
+          </table>
+        </div>
+        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0 0 24px;">
+          De organisatie neemt binnenkort contact met je op met verdere informatie. Heb je vragen? Stuur dan een mail naar <a href="mailto:hello@bijeen.app" style="color:#C8522A;text-decoration:none;">hello@bijeen.app</a>.
+        </p>
+        <p style="color:#9E9890;font-size:13px;margin:24px 0 0;padding-top:20px;border-top:1px solid #F0E8DC;">
+          Bedankt dat je een bijdrage levert!
+        </p>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Organisator: notificatie bij reactie op uitnodiging ─────────────────────
+
+interface InvitationResponseNotificationProps {
+  to: string;
+  volunteerName: string;
+  volunteerEmail: string;
+  vacancyTitle: string;
+  eventTitle: string;
+  action: "accepted" | "declined";
+  dashboardUrl: string;
+}
+
+export async function sendInvitationResponseNotification(props: InvitationResponseNotificationProps) {
+  if (!resend) return;
+  const { to, volunteerName, volunteerEmail, vacancyTitle, eventTitle, action, dashboardUrl } = props;
+  const accepted = action === "accepted";
+
+  await resend.emails.send({
+    from:    "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: accepted
+      ? `✓ ${volunteerName} heeft je uitnodiging geaccepteerd — ${vacancyTitle}`
+      : `${volunteerName} heeft je uitnodiging afgewezen — ${vacancyTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
+    </div>
+    <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:${accepted ? "linear-gradient(135deg,#16a34a 0%,#15803d 100%)" : "linear-gradient(135deg,#64748b 0%,#475569 100%)"};padding:32px;text-align:center;">
+        <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0;letter-spacing:-0.3px;">
+          ${accepted ? "Uitnodiging geaccepteerd 🎉" : "Uitnodiging afgewezen"}
+        </h1>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 20px;">
+          ${accepted
+            ? `<strong>${volunteerName}</strong> heeft je uitnodiging voor <strong>${vacancyTitle}</strong> geaccepteerd en staat klaar als vrijwilliger.`
+            : `<strong>${volunteerName}</strong> heeft je uitnodiging voor <strong>${vacancyTitle}</strong> afgewezen.`
+          }
+        </p>
+        <div style="background:#FFF8F5;border:1px solid #F5D4C4;border-radius:14px;padding:20px 24px;margin:0 0 24px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Details</p>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Vrijwilliger</td><td style="padding:6px 0;color:#1C1814;font-size:14px;font-weight:700;">${volunteerName}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">E-mail</td><td style="padding:6px 0;color:#5C5248;font-size:14px;"><a href="mailto:${volunteerEmail}" style="color:#C8522A;text-decoration:none;">${volunteerEmail}</a></td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Vacature</td><td style="padding:6px 0;color:#1C1814;font-size:14px;font-weight:600;">${vacancyTitle}</td></tr>
+            <tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Evenement</td><td style="padding:6px 0;color:#5C5248;font-size:14px;">${eventTitle}</td></tr>
+          </table>
+        </div>
+        ${accepted ? `<div style="text-align:center;">
+          <a href="${dashboardUrl}" style="display:inline-block;background:#C8522A;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:13px 32px;border-radius:12px;letter-spacing:-0.2px;">
+            Bekijk aanmelding in dashboard →
+          </a>
+        </div>` : `<p style="color:#9E9890;font-size:13px;text-align:center;margin:0;">Je kunt een andere vrijwilliger uitnodigen via het dashboard.</p>`}
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:12px;margin-top:24px;">
+      Verstuurd via <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
