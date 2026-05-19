@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
-import { db, events, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
-import { eq, and, gte } from "drizzle-orm";
+import { db, events, blogPosts, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
+import { eq, and, gte, desc } from "drizzle-orm";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.nl";
 
@@ -34,6 +34,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${BASE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/kennisbank`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/faq`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -52,6 +64,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.3,
     },
   ];
+
+  // Blog posts
+  let blogPages: MetadataRoute.Sitemap = [];
+  try {
+    const posts = await db
+      .select({ slug: blogPosts.slug, publishedAt: blogPosts.publishedAt, updatedAt: blogPosts.updatedAt })
+      .from(blogPosts)
+      .where(eq(blogPosts.status, "published"))
+      .orderBy(desc(blogPosts.publishedAt));
+
+    blogPages = posts.map(p => ({
+      url: `${BASE_URL}/blog/${p.slug}`,
+      lastModified: p.updatedAt ?? now,
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
+    }));
+  } catch {
+    // Sitemap werkt ook zonder DB toegang tijdens build
+  }
 
   // Kennisbank pagina's
   let kbPages: MetadataRoute.Sitemap = [];
@@ -101,5 +132,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sitemap werkt ook zonder DB toegang tijdens build
   }
 
-  return [...staticPages, ...kbPages, ...eventPages];
+  return [...staticPages, ...blogPages, ...kbPages, ...eventPages];
 }
