@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { db, events } from "@/db";
+import { db, events, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
 import { eq, and, gte } from "drizzle-orm";
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.nl";
@@ -53,6 +53,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
+  // Kennisbank pagina's
+  let kbPages: MetadataRoute.Sitemap = [];
+  try {
+    const articles = await db
+      .select({
+        slug:        knowledgeBaseArticles.slug,
+        updatedAt:   knowledgeBaseArticles.updatedAt,
+        categorySlug: knowledgeBaseCategories.slug,
+      })
+      .from(knowledgeBaseArticles)
+      .leftJoin(knowledgeBaseCategories, eq(knowledgeBaseArticles.categoryId, knowledgeBaseCategories.id))
+      .where(eq(knowledgeBaseArticles.status, "published"));
+
+    kbPages = [
+      { url: `${BASE_URL}/kennisbank`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+      ...articles
+        .filter(a => a.categorySlug)
+        .map(a => ({
+          url: `${BASE_URL}/kennisbank/${a.categorySlug}/${a.slug}`,
+          lastModified: a.updatedAt ?? now,
+          changeFrequency: "monthly" as const,
+          priority: 0.7,
+        })),
+    ];
+  } catch {
+    // Sitemap werkt ook zonder DB toegang tijdens build
+  }
+
   // Publieke evenementpagina's
   let eventPages: MetadataRoute.Sitemap = [];
   try {
@@ -73,5 +101,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Sitemap werkt ook zonder DB toegang tijdens build
   }
 
-  return [...staticPages, ...eventPages];
+  return [...staticPages, ...kbPages, ...eventPages];
 }

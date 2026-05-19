@@ -1,0 +1,94 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { db, blogPosts } from "@/db";
+import { eq, desc } from "drizzle-orm";
+
+export async function POST(req: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (session.user.email !== adminEmail) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    if (!apiKey) return NextResponse.json({ error: "AI niet geconfigureerd" }, { status: 500 });
+
+    const body = await req.json();
+    const { title = "", content = "", currentSlug } = body;
+
+    const plainText = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 3000);
+
+    const allPosts = await db
+      .select({ title: blogPosts.title, slug: blogPosts.slug })
+      .from(blogPosts)
+      .where(currentSlug ? undefined : undefined)
+      .orderBy(desc(blogPosts.publishedAt))
+      .limit(30);
+
+    const internalLinkCandidates = allPosts
+      .filter(p => p.slug !== currentSlug)
+      .map(p => `- "${p.title}" → /blog/${p.slug}`)
+      .join("\n");
+
+    const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+    const prompt = `Je bent een expert SEO-copywriter en content strateeg die gespecialiseerd is in Nederlandse welzijnsorganisaties.
+
+Analyseer deze blogtekst en geef een volledige SEO-optimalisatie terug als JSON.
+
+Blogtitel: "${title}"
+Blogtekst (fragment): "${plainText}"
+
+Bestaande blog-artikelen voor interne links:
+${internalLinkCandidates || "(geen andere posts beschikbaar)"}
+
+Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
+{
+  "metaTitle": "SEO-geoptimaliseerde paginatitel (max 60 tekens, bevat hoofdkeyword)",
+  "metaDescription": "Aansprekende meta omschrijving (max 155 tekens, bevat call-to-action)",
+  "excerpt": "Korte, pakkende intro voor de bloglijst (2-3 zinnen, max 200 tekens)",
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "internalLinks": [
+    { "text": "ankertekst in de blog", "href": "/blog/slug-van-post" }
+  ],
+  "focusKeyword": "het primaire zoekwoord",
+  "readabilityTips": ["tip1", "tip2"]
+}
+
+Regels:
+- Tags zijn Nederlandse hashtags zonder # teken, relevant voor welzijn/sociaal werk
+- Internallinks: kies maximaal 3 relevante posts uit de lijst hierboven die écht passen bij de inhoud
+- Als er geen relevante interne links zijn, geef een lege array
+- Alle tekst is in het Nederlands
+- De metaTitle moet de blog-URL slug bevatten of de merknaam "Bijeen"`;
+
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://bijeen.app",
+        "X-Title": "Bijeen Blog SEO",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 800,
+        temperature: 0.4,
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!res.ok) return NextResponse.json({ error: "AI aanroep mislukt" }, { status: 502 });
+
+    const data = await res.json();
+    const raw  = data.choices?.[0]?.message?.content ?? "{}";
+
+    let seo: Record<string, unknown>;
+    try { seo = JSON.parse(raw); } catch { seo = {}; }
+
+    return NextResponse.json({ seo });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}

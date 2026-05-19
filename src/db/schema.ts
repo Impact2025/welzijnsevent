@@ -554,6 +554,61 @@ export const rapportLeads = pgTable("rapport_leads", {
   createdAt:        timestamp("created_at").defaultNow(),
 });
 
+// ── KNOWLEDGE BASE ─────────────────────────────────────────
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
+
+export const knowledgeBaseCategories = pgTable("knowledge_base_categories", {
+  id:          uuid("id").defaultRandom().primaryKey(),
+  name:        text("name").notNull(),
+  slug:        text("slug").notNull().unique(),
+  description: text("description"),
+  icon:        text("icon").default("📚"),
+  color:       text("color").default("#C8522A"),
+  sortOrder:   integer("sort_order").default(0),
+  parentId:    uuid("parent_id").references((): AnyPgColumn => knowledgeBaseCategories.id, { onDelete: "set null" }),
+  createdAt:   timestamp("created_at").defaultNow(),
+  updatedAt:   timestamp("updated_at").defaultNow(),
+});
+
+export const knowledgeBaseArticles = pgTable("knowledge_base_articles", {
+  id:              uuid("id").defaultRandom().primaryKey(),
+  slug:            text("slug").notNull().unique(),
+  title:           text("title").notNull(),
+  content:         text("content").notNull().default(""),
+  excerpt:         text("excerpt"),
+  status:          text("status").default("draft"),         // draft | published | archived
+  categoryId:      uuid("category_id").references(() => knowledgeBaseCategories.id, { onDelete: "set null" }),
+  tags:            jsonb("tags").$type<string[]>().default([]),
+  relatedArticles: jsonb("related_articles").$type<string[]>().default([]),  // slugs
+  metaTitle:       text("meta_title"),
+  metaDescription: text("meta_description"),
+  readingTime:     integer("reading_time"),
+  helpfulCount:    integer("helpful_count").default(0),
+  notHelpfulCount: integer("not_helpful_count").default(0),
+  publishedAt:     timestamp("published_at"),
+  createdAt:       timestamp("created_at").defaultNow(),
+  updatedAt:       timestamp("updated_at").defaultNow(),
+});
+
+// ── BLOG POSTS ──────────────────────────────────────────────
+export const blogPosts = pgTable("blog_posts", {
+  id:              uuid("id").defaultRandom().primaryKey(),
+  slug:            text("slug").notNull().unique(),
+  title:           text("title").notNull(),
+  content:         text("content").notNull().default(""),
+  excerpt:         text("excerpt"),
+  coverImage:      text("cover_image"),
+  status:          text("status").default("draft"),          // draft | published
+  metaTitle:       text("meta_title"),
+  metaDescription: text("meta_description"),
+  tags:            jsonb("tags").$type<string[]>().default([]),
+  internalLinks:   jsonb("internal_links").$type<{ text: string; href: string }[]>().default([]),
+  readingTime:     integer("reading_time"),                  // minuten
+  publishedAt:     timestamp("published_at"),
+  createdAt:       timestamp("created_at").defaultNow(),
+  updatedAt:       timestamp("updated_at").defaultNow(),
+});
+
 // ── TYPES ──────────────────────────────────────────────────
 export type AdminAuditLog      = typeof adminAuditLog.$inferSelect;
 export type AuthUser           = typeof authUsers.$inferSelect;
@@ -587,3 +642,6 @@ export type VacancyApplication    = typeof vacancyApplications.$inferSelect;
 export type VacancyInvitation     = typeof vacancyInvitations.$inferSelect;
 export type VolunteerMessage      = typeof volunteerMessages.$inferSelect;
 export type RapportLead           = typeof rapportLeads.$inferSelect;
+export type BlogPost                      = typeof blogPosts.$inferSelect;
+export type KnowledgeBaseCategory         = typeof knowledgeBaseCategories.$inferSelect;
+export type KnowledgeBaseArticle          = typeof knowledgeBaseArticles.$inferSelect;
