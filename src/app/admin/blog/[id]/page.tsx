@@ -4,10 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { BlogEditor } from "@/components/blog/blog-editor";
+import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
   ExternalLink, AlertCircle, CheckCircle2, Loader2, Clock,
-  Link as LinkIcon, Eye,
+  Link as LinkIcon, Eye, Calendar,
 } from "lucide-react";
 
 interface SeoResult {
@@ -70,6 +71,7 @@ export default function BlogEditorPage() {
   const [tags,            setTags]            = useState<string[]>([]);
   const [internalLinks,   setInternalLinks]   = useState<{ text: string; href: string }[]>([]);
   const [seoResult,       setSeoResult]       = useState<SeoResult | null>(null);
+  const [publishedAt,     setPublishedAt]     = useState("");
 
   const showToast = (msg: string, type: "ok" | "err") => {
     setToast({ msg, type });
@@ -93,6 +95,10 @@ export default function BlogEditorPage() {
       setMetaDescription(post.metaDescription ?? "");
       setTags(post.tags ?? []);
       setInternalLinks(post.internalLinks ?? []);
+      if (post.publishedAt) {
+        const d = new Date(post.publishedAt);
+        setPublishedAt(d.toISOString().slice(0, 16));
+      }
       setLoading(false);
     })();
   }, [isNew, params.id, router]);
@@ -107,7 +113,8 @@ export default function BlogEditorPage() {
     title, slug, content, excerpt: excerpt || null,
     coverImage: coverImage || null, status, metaTitle: metaTitle || null,
     metaDescription: metaDescription || null, tags, internalLinks,
-  }), [title, slug, content, excerpt, coverImage, status, metaTitle, metaDescription, tags, internalLinks]);
+    publishedAt: publishedAt || null,
+  }), [title, slug, content, excerpt, coverImage, status, metaTitle, metaDescription, tags, internalLinks, publishedAt]);
 
   async function save(overrideStatus?: "draft" | "published") {
     if (!title.trim()) { showToast("Titel is verplicht", "err"); return; }
@@ -236,20 +243,10 @@ export default function BlogEditorPage() {
             </div>
           </div>
 
-          {/* Cover image */}
+          {/* Cover */}
           <div className="bg-white rounded-2xl border border-[#E8E4DE] px-6 py-4">
-            <label className="block text-xs font-bold text-[#6B5E54] mb-2 uppercase tracking-wide">Cover afbeelding (URL)</label>
-            <input
-              type="url"
-              value={coverImage}
-              onChange={e => setCoverImage(e.target.value)}
-              placeholder="https://..."
-              className="w-full text-sm text-[#1C1814] bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors"
-            />
-            {coverImage && (
-              <img src={coverImage} alt="cover preview"
-                className="mt-3 w-full max-h-48 object-cover rounded-xl border border-[#E8E4DE]" />
-            )}
+            <p className="text-xs font-bold text-[#6B5E54] mb-3 uppercase tracking-wide">Header</p>
+            <CoverPicker value={coverImage} onChange={setCoverImage} />
           </div>
 
           {/* Tiptap Pro Editor */}
@@ -264,12 +261,18 @@ export default function BlogEditorPage() {
         {/* Right sidebar */}
         <div className="w-[300px] shrink-0 flex flex-col gap-4">
 
-          {/* Status card */}
+          {/* Status + publicatiedatum */}
           <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
             <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-3">Status</p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               {(["draft", "published"] as const).map(s => (
-                <button key={s} type="button" onClick={() => setStatus(s)}
+                <button key={s} type="button" onClick={() => {
+                  setStatus(s);
+                  if (s === "published" && !publishedAt) {
+                    const now = new Date();
+                    setPublishedAt(now.toISOString().slice(0, 16));
+                  }
+                }}
                   className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-xl border transition-colors ${
                     status === s
                       ? s === "published"
@@ -281,6 +284,17 @@ export default function BlogEditorPage() {
                   {s === "published" ? "Publiceren" : "Concept"}
                 </button>
               ))}
+            </div>
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-semibold text-[#9E9890] mb-1.5">
+                <Calendar size={11} /> Publicatiedatum
+              </label>
+              <input
+                type="datetime-local"
+                value={publishedAt}
+                onChange={e => setPublishedAt(e.target.value)}
+                className="w-full text-xs bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors"
+              />
             </div>
           </div>
 

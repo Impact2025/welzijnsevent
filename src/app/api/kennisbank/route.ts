@@ -60,7 +60,8 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const {
-      title, content = "", excerpt, status = "draft",
+      title, content = "", excerpt, coverImage, status = "draft",
+      publishedAt: publishedAtRaw,
       categoryId, tags = [], relatedArticles = [],
       metaTitle, metaDescription,
     } = body;
@@ -77,10 +78,13 @@ export async function POST(req: Request) {
     while (usedSlugs.has(slug)) slug = `${baseSlug}-${counter++}`;
 
     const readingTime = calcReadingTime(content);
-    const publishedAt = status === "published" ? new Date() : null;
+    const publishedAt = status === "published"
+      ? (publishedAtRaw ? new Date(publishedAtRaw) : new Date())
+      : null;
 
     const [article] = await db.insert(knowledgeBaseArticles).values({
       slug, title: title.trim(), content, excerpt: excerpt ?? null,
+      coverImage: coverImage ?? null,
       status, categoryId: categoryId ?? null,
       tags, relatedArticles,
       metaTitle: metaTitle ?? null, metaDescription: metaDescription ?? null,

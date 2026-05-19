@@ -62,7 +62,8 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const { title, content = "", excerpt, coverImage, status = "draft",
-            metaTitle, metaDescription, tags = [], internalLinks = [] } = body;
+            metaTitle, metaDescription, tags = [], internalLinks = [],
+            publishedAt: publishedAtRaw } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: "Titel is verplicht" }, { status: 422 });
 
@@ -74,8 +75,10 @@ export async function POST(req: Request) {
     let   counter   = 2;
     while (usedSlugs.has(slug)) slug = `${baseSlug}-${counter++}`;
 
-    const readingTime  = calcReadingTime(content);
-    const publishedAt  = status === "published" ? new Date() : null;
+    const readingTime = calcReadingTime(content);
+    const publishedAt = status === "published"
+      ? (publishedAtRaw ? new Date(publishedAtRaw) : new Date())
+      : null;
 
     const [post] = await db.insert(blogPosts).values({
       slug, title: title.trim(), content, excerpt: excerpt ?? null,

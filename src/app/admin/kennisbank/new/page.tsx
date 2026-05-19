@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BlogEditor } from "@/components/blog/blog-editor";
+import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
-  AlertCircle, CheckCircle2, Loader2, Clock,
+  AlertCircle, CheckCircle2, Loader2, Clock, Calendar,
 } from "lucide-react";
 
 interface Category {
@@ -51,7 +52,9 @@ export default function NewKennisbankPage() {
   const [slugManual,      setSlugManual]       = useState(false);
   const [content,         setContent]         = useState("");
   const [excerpt,         setExcerpt]         = useState("");
+  const [coverImage,      setCoverImage]      = useState("");
   const [status,          setStatus]          = useState<"draft" | "published">("draft");
+  const [publishedAt,     setPublishedAt]     = useState("");
   const [categoryId,      setCategoryId]      = useState("");
   const [tags,            setTags]            = useState<string[]>([]);
   const [relatedArticles, setRelatedArticles] = useState<string[]>([]);
@@ -78,12 +81,15 @@ export default function NewKennisbankPage() {
   async function save(overrideStatus?: "draft" | "published") {
     if (!title.trim()) { showToast("Titel is verplicht", "err"); return; }
     setSaving(true);
+    const finalStatus = overrideStatus ?? status;
     const res = await fetch("/api/kennisbank", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title, slug, content, excerpt: excerpt || null,
-        status: overrideStatus ?? status,
+        coverImage: coverImage || null,
+        status: finalStatus,
+        publishedAt: publishedAt || null,
         categoryId: categoryId || null,
         tags, relatedArticles,
         metaTitle: metaTitle || null,
@@ -186,12 +192,20 @@ export default function NewKennisbankPage() {
         </div>
 
         <div className="w-[300px] shrink-0 flex flex-col gap-4">
+          {/* Cover */}
+          <CoverPicker value={coverImage} onChange={setCoverImage} />
+
           {/* Status */}
           <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
             <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-3">Status</p>
             <div className="flex gap-2">
               {(["draft", "published"] as const).map(s => (
-                <button key={s} type="button" onClick={() => setStatus(s)}
+                <button key={s} type="button" onClick={() => {
+                  setStatus(s);
+                  if (s === "published" && !publishedAt) {
+                    setPublishedAt(new Date().toISOString().slice(0, 16));
+                  }
+                }}
                   className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-xl border transition-colors ${
                     status === s
                       ? s === "published" ? "bg-green-100 border-green-300 text-green-700" : "bg-[#F0EDE8] border-[#C8C0B8] text-[#6B5E54]"
@@ -201,6 +215,13 @@ export default function NewKennisbankPage() {
                   {s === "published" ? "Publiceren" : "Concept"}
                 </button>
               ))}
+            </div>
+            <div className="mt-3">
+              <label className="block text-[10px] font-semibold text-[#9E9890] mb-1 flex items-center gap-1">
+                <Calendar size={10} /> Publicatiedatum
+              </label>
+              <input type="datetime-local" value={publishedAt} onChange={e => setPublishedAt(e.target.value)}
+                className="w-full text-xs bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors" />
             </div>
           </div>
 

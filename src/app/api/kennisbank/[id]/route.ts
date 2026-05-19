@@ -53,6 +53,7 @@ export async function PATCH(
     if (body.title           !== undefined) patch.title           = body.title;
     if (body.content         !== undefined) { patch.content = body.content; patch.readingTime = calcReadingTime(body.content); }
     if (body.excerpt         !== undefined) patch.excerpt         = body.excerpt;
+    if (body.coverImage      !== undefined) patch.coverImage      = body.coverImage;
     if (body.categoryId      !== undefined) patch.categoryId      = body.categoryId;
     if (body.tags            !== undefined) patch.tags            = body.tags;
     if (body.relatedArticles !== undefined) patch.relatedArticles = body.relatedArticles;
@@ -62,8 +63,10 @@ export async function PATCH(
     const wasPublished = existing.status === "published";
     if (body.status !== undefined) {
       patch.status = body.status;
-      if (body.status === "published" && !wasPublished) patch.publishedAt = new Date();
-      if (body.status === "draft"     && wasPublished)  patch.publishedAt = null;
+      if (body.status === "published") {
+        patch.publishedAt = body.publishedAt ? new Date(body.publishedAt) : (wasPublished ? undefined : new Date());
+      }
+      if (body.status === "draft" && wasPublished) patch.publishedAt = null;
     }
 
     const [updated] = await db.update(knowledgeBaseArticles)

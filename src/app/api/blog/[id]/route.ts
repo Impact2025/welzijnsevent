@@ -47,7 +47,7 @@ export async function PATCH(
     const body = await req.json();
     const {
       title, content, excerpt, coverImage, status,
-      metaTitle, metaDescription, tags, internalLinks,
+      metaTitle, metaDescription, tags, internalLinks, publishedAt,
     } = body;
 
     const patch: Record<string, unknown> = { updatedAt: new Date() };
@@ -66,8 +66,10 @@ export async function PATCH(
     const wasPublished = existing.status === "published";
     if (status !== undefined) {
       patch.status = status;
-      if (status === "published" && !wasPublished) patch.publishedAt = new Date();
-      if (status === "draft"     && wasPublished)  patch.publishedAt = null;
+      if (status === "published") {
+        patch.publishedAt = publishedAt ? new Date(publishedAt) : (wasPublished ? undefined : new Date());
+      }
+      if (status === "draft" && wasPublished) patch.publishedAt = null;
     }
 
     const [updated] = await db

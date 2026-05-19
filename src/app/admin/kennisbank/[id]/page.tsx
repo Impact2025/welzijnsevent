@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { BlogEditor } from "@/components/blog/blog-editor";
+import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
-  AlertCircle, CheckCircle2, Loader2, Clock, Eye,
+  AlertCircle, CheckCircle2, Loader2, Clock, Eye, Calendar,
 } from "lucide-react";
 
 interface Category {
@@ -68,6 +69,8 @@ export default function EditKennisbankPage() {
   const [slugManual,      setSlugManual]       = useState(false);
   const [content,         setContent]         = useState("");
   const [excerpt,         setExcerpt]         = useState("");
+  const [coverImage,      setCoverImage]       = useState("");
+  const [publishedAt,     setPublishedAt]     = useState("");
   const [status,          setStatus]          = useState<"draft" | "published">("draft");
   const [categoryId,      setCategoryId]      = useState("");
   const [tags,            setTags]            = useState<string[]>([]);
@@ -95,6 +98,9 @@ export default function EditKennisbankPage() {
       setRelatedArticles(article.relatedArticles ?? []);
       setMetaTitle(article.metaTitle ?? "");
       setMetaDescription(article.metaDescription ?? "");
+      setCoverImage((article as unknown as Record<string, string>).coverImage ?? "");
+      const pub = (article as unknown as Record<string, string>).publishedAt;
+      if (pub) setPublishedAt(new Date(pub).toISOString().slice(0, 16));
       setLoading(false);
     })();
   }, [params.id, router]);
@@ -109,11 +115,13 @@ export default function EditKennisbankPage() {
 
   const buildPayload = useCallback(() => ({
     title, slug, content, excerpt: excerpt || null,
+    coverImage: coverImage || null,
     status, categoryId: categoryId || null,
     tags, relatedArticles,
     metaTitle: metaTitle || null,
     metaDescription: metaDescription || null,
-  }), [title, slug, content, excerpt, status, categoryId, tags, relatedArticles, metaTitle, metaDescription]);
+    publishedAt: publishedAt || null,
+  }), [title, slug, content, excerpt, coverImage, status, categoryId, tags, relatedArticles, metaTitle, metaDescription, publishedAt]);
 
   async function save(overrideStatus?: "draft" | "published") {
     if (!title.trim()) { showToast("Titel is verplicht", "err"); return; }
@@ -232,11 +240,22 @@ export default function EditKennisbankPage() {
         </div>
 
         <div className="w-[300px] shrink-0 flex flex-col gap-4">
+
+          {/* Header / Cover */}
+          <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
+            <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-3">Header</p>
+            <CoverPicker value={coverImage} onChange={setCoverImage} />
+          </div>
+
+          {/* Status + datum */}
           <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
             <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-3">Status</p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               {(["draft", "published"] as const).map(s => (
-                <button key={s} type="button" onClick={() => setStatus(s)}
+                <button key={s} type="button" onClick={() => {
+                  setStatus(s);
+                  if (s === "published" && !publishedAt) setPublishedAt(new Date().toISOString().slice(0, 16));
+                }}
                   className={`flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-2 rounded-xl border transition-colors ${
                     status === s
                       ? s === "published" ? "bg-green-100 border-green-300 text-green-700" : "bg-[#F0EDE8] border-[#C8C0B8] text-[#6B5E54]"
@@ -246,6 +265,13 @@ export default function EditKennisbankPage() {
                   {s === "published" ? "Publiceren" : "Concept"}
                 </button>
               ))}
+            </div>
+            <div>
+              <label className="flex items-center gap-1.5 text-[10px] font-semibold text-[#9E9890] mb-1.5">
+                <Calendar size={11} /> Publicatiedatum
+              </label>
+              <input type="datetime-local" value={publishedAt} onChange={e => setPublishedAt(e.target.value)}
+                className="w-full text-xs bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors" />
             </div>
           </div>
 

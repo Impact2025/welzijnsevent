@@ -576,6 +576,7 @@ export const knowledgeBaseArticles = pgTable("knowledge_base_articles", {
   title:           text("title").notNull(),
   content:         text("content").notNull().default(""),
   excerpt:         text("excerpt"),
+  coverImage:      text("cover_image"),                     // URL of image, or "color:#XXXXXX"
   status:          text("status").default("draft"),         // draft | published | archived
   categoryId:      uuid("category_id").references(() => knowledgeBaseCategories.id, { onDelete: "set null" }),
   tags:            jsonb("tags").$type<string[]>().default([]),

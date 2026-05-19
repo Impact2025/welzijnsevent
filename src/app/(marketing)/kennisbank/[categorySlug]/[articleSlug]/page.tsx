@@ -115,6 +115,17 @@ export default async function KennisbankArticlePage({ params }: Props) {
         keywords: article.tags?.join(", "),
       }) }} />
 
+      {/* Cover image or color header */}
+      {(article as any).coverImage && (
+        (article as any).coverImage.startsWith("color:") ? (
+          <div className="w-full h-52 md:h-64" style={{ backgroundColor: (article as any).coverImage.slice(6) }} />
+        ) : (
+          <div className="w-full max-h-[360px] overflow-hidden">
+            <img src={(article as any).coverImage} alt={article.title} className="w-full object-cover max-h-[360px]" />
+          </div>
+        )
+      )}
+
       {/* Breadcrumb bar */}
       <div className="bg-white border-b border-[#E8E4DE]">
         <div className="max-w-6xl mx-auto px-6 py-3">

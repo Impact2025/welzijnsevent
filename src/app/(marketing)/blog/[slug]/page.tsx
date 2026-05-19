@@ -71,11 +71,15 @@ export default async function BlogPostPage({ params }: Props) {
         keywords: post.tags?.join(", "),
       }) }} />
 
-      {/* Cover image */}
+      {/* Cover image of kleur-header */}
       {post.coverImage && (
-        <div className="w-full max-h-[420px] overflow-hidden">
-          <img src={post.coverImage} alt={post.title} className="w-full object-cover max-h-[420px]" />
-        </div>
+        post.coverImage.startsWith("color:") ? (
+          <div className="w-full h-52 md:h-72" style={{ backgroundColor: post.coverImage.slice(6) }} />
+        ) : (
+          <div className="w-full max-h-[420px] overflow-hidden">
+            <img src={post.coverImage} alt={post.title} className="w-full object-cover max-h-[420px]" />
+          </div>
+        )
       )}
 
       {/* Article header */}
