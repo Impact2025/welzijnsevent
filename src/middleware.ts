@@ -29,6 +29,14 @@ const INTERNAL_HOSTS = [
   "welzijnsevent.nl",
 ];
 
+// Dynamisch het geconfigureerde app-domein toevoegen (bijv. voetbal-flame.vercel.app)
+const appUrlHost = (() => {
+  try {
+    const u = process.env.NEXT_PUBLIC_APP_URL;
+    return u ? new URL(u).hostname : "";
+  } catch { return ""; }
+})();
+
 export default auth((req: NextRequest & { auth: unknown }) => {
   const { pathname } = req.nextUrl;
   const host = req.headers.get("host") ?? "";
@@ -36,7 +44,10 @@ export default auth((req: NextRequest & { auth: unknown }) => {
 
   // ── White-label custom domain routing ─────────────────────
   // Als het verzoek binnenkomt op een onbekend domein → map naar /e/[org-slug]
-  const isInternalHost = INTERNAL_HOSTS.some(h => baseHost === h || baseHost.endsWith(`.${h}`));
+  const isInternalHost =
+    INTERNAL_HOSTS.some(h => baseHost === h || baseHost.endsWith(`.${h}`)) ||
+    baseHost.endsWith(".vercel.app") ||
+    (appUrlHost && baseHost === appUrlHost);
 
   if (!isInternalHost && pathname === "/") {
     // Redirect custom domain root naar /api/domain-lookup zodat de public event page geladen wordt
