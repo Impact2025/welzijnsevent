@@ -13,6 +13,8 @@ const footerLinks = {
     { href: "/over-ons",             label: "Over ons"       },
     { href: "/over-ons#contact",     label: "Contact"        },
     { href: "/over-ons#weareimpact", label: "WeAreImpact.nl" },
+    { href: "/blog",                 label: "Blog"           },
+    { href: "/kennisbank",           label: "Kennisbank"     },
   ],
   Contact: [
     { href: "mailto:hallo@bijeen.nl", label: "hallo@bijeen.nl"  },
