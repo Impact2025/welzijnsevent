@@ -6,7 +6,7 @@ import { nl } from "date-fns/locale";
 import { Clock, Tag } from "lucide-react";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Blog — Bijeen",
