@@ -114,7 +114,7 @@ export default async function BlogPage() {
                 <div className="flex-1 p-5 flex flex-col">
                   <div className="flex flex-wrap gap-1 mb-2">
                     {post.tags?.slice(0, 2).map(tag => (
-                      <span key={tag} className="text-[10px] font-semibold text-[#9E9890] bg-[#F0EDE8] px-2 py-0.5 rounded-full">
+                      <span key={tag} className="text-[10px] font-semibold text-[#C8522A] bg-[#C8522A]/10 px-2 py-0.5 rounded-full">
                         #{tag}
                       </span>
                     ))}
