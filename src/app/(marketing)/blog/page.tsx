@@ -71,8 +71,12 @@ export default async function BlogPage() {
             <div className="flex flex-col md:flex-row">
               {featured.coverImage ? (
                 <div className="md:w-2/5 shrink-0">
-                  <img src={featured.coverImage} alt={featured.title}
-                    className="w-full h-64 md:h-full object-cover" />
+                  {featured.coverImage.startsWith("color:") ? (
+                    <div className="w-full h-64 md:h-full" style={{ backgroundColor: featured.coverImage.slice(6) }} />
+                  ) : (
+                    <img src={featured.coverImage} alt={featured.title}
+                      className="w-full h-64 md:h-full object-cover" />
+                  )}
                 </div>
               ) : (
                 <div className="md:w-2/5 shrink-0 bg-gradient-to-br from-[#C8522A]/15 via-[#C8522A]/5 to-[#1C1814]/10 flex items-center justify-center h-64 md:h-auto">
@@ -125,8 +129,12 @@ export default async function BlogPage() {
                 <Link key={post.id} href={`/blog/${post.slug}`}
                   className="group bg-white rounded-2xl border border-[#E8E4DE] overflow-hidden hover:border-[#C8522A]/50 hover:shadow-lg transition-all duration-300 flex flex-col">
                   {post.coverImage ? (
-                    <img src={post.coverImage} alt={post.title}
-                      className="w-full h-44 object-cover" />
+                    post.coverImage.startsWith("color:") ? (
+                      <div className="w-full h-44" style={{ backgroundColor: post.coverImage.slice(6) }} />
+                    ) : (
+                      <img src={post.coverImage} alt={post.title}
+                        className="w-full h-44 object-cover" />
+                    )
                   ) : (
                     <div className="h-44 bg-gradient-to-br from-[#F5F2EE] to-[#EDE8E2] flex items-center justify-center">
                       <span className="text-4xl opacity-25">✍️</span>
