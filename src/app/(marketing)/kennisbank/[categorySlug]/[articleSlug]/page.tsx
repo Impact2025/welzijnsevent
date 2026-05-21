@@ -195,7 +195,7 @@ export default async function KennisbankArticlePage({ params }: Props) {
           {/* Article body */}
           <div
             className="tiptap-content prose prose-slate prose-lg max-w-none mt-8
-              prose-headings:font-black prose-headings:text-[#1C1814] prose-headings:scroll-mt-24
+              prose-headings:font-black prose-headings:scroll-mt-24
               prose-h2:text-2xl prose-h3:text-xl
               prose-p:text-[#3D3330] prose-p:leading-relaxed
               prose-a:text-[#C8522A] prose-a:no-underline hover:prose-a:underline
