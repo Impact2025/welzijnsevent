@@ -2,70 +2,27 @@ import { MetadataRoute } from "next";
 import { db, events, blogPosts, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
 import { eq, and, gte, desc } from "drizzle-orm";
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.nl";
+const BASE = (process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app").replace(/\/$/, "");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // Statische marketing pagina's
+  // ── Statische marketing pagina's ──────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: BASE_URL,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${BASE_URL}/functies`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/over-ons`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/prijzen`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/blog`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/kennisbank`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/faq`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${BASE_URL}/privacyverklaring`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${BASE_URL}/verwerkersovereenkomst`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
+    { url: BASE,                                 lastModified: now, changeFrequency: "weekly",  priority: 1.0 },
+    { url: `${BASE}/functies`,                   lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/prijzen`,                    lastModified: now, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/over-ons`,                   lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/faq`,                        lastModified: now, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/demo`,                       lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/gratis-impactrapport`,       lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/blog`,                       lastModified: now, changeFrequency: "weekly",  priority: 0.8 },
+    { url: `${BASE}/kennisbank`,                 lastModified: now, changeFrequency: "weekly",  priority: 0.9 },
+    { url: `${BASE}/privacyverklaring`,          lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/verwerkersovereenkomst`,     lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
   ];
 
-  // Blog posts
+  // ── Blog posts ────────────────────────────────────────────────────────────
   let blogPages: MetadataRoute.Sitemap = [];
   try {
     const posts = await db
@@ -75,62 +32,70 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .orderBy(desc(blogPosts.publishedAt));
 
     blogPages = posts.map(p => ({
-      url: `${BASE_URL}/blog/${p.slug}`,
+      url: `${BASE}/blog/${p.slug}`,
       lastModified: p.updatedAt ?? now,
       changeFrequency: "monthly" as const,
       priority: 0.75,
     }));
-  } catch {
-    // Sitemap werkt ook zonder DB toegang tijdens build
-  }
+  } catch { /* sitemap werkt ook zonder DB tijdens build */ }
 
-  // Kennisbank pagina's
+  // ── Kennisbank: categorieën + artikelen ────────────────────────────────────
   let kbPages: MetadataRoute.Sitemap = [];
   try {
+    // Categoriepagina's
+    const cats = await db
+      .select({ slug: knowledgeBaseCategories.slug, updatedAt: knowledgeBaseCategories.updatedAt })
+      .from(knowledgeBaseCategories);
+
+    const catPages: MetadataRoute.Sitemap = cats.map(c => ({
+      url: `${BASE}/kennisbank/${c.slug}`,
+      lastModified: c.updatedAt ?? now,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
+
+    // Artikelen met categorieslug via join
     const articles = await db
       .select({
-        slug:        knowledgeBaseArticles.slug,
-        updatedAt:   knowledgeBaseArticles.updatedAt,
+        articleSlug:  knowledgeBaseArticles.slug,
+        updatedAt:    knowledgeBaseArticles.updatedAt,
+        publishedAt:  knowledgeBaseArticles.publishedAt,
         categorySlug: knowledgeBaseCategories.slug,
       })
       .from(knowledgeBaseArticles)
       .leftJoin(knowledgeBaseCategories, eq(knowledgeBaseArticles.categoryId, knowledgeBaseCategories.id))
-      .where(eq(knowledgeBaseArticles.status, "published"));
+      .where(eq(knowledgeBaseArticles.status, "published"))
+      .orderBy(desc(knowledgeBaseArticles.publishedAt));
 
-    kbPages = [
-      { url: `${BASE_URL}/kennisbank`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-      ...articles
-        .filter(a => a.categorySlug)
-        .map(a => ({
-          url: `${BASE_URL}/kennisbank/${a.categorySlug}/${a.slug}`,
-          lastModified: a.updatedAt ?? now,
-          changeFrequency: "monthly" as const,
-          priority: 0.7,
-        })),
-    ];
-  } catch {
-    // Sitemap werkt ook zonder DB toegang tijdens build
-  }
+    const articlePages: MetadataRoute.Sitemap = articles
+      .filter(a => a.categorySlug)
+      .map(a => ({
+        url: `${BASE}/kennisbank/${a.categorySlug}/${a.articleSlug}`,
+        lastModified: a.updatedAt ?? now,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+      }));
 
-  // Publieke evenementpagina's
+    kbPages = [...catPages, ...articlePages];
+  } catch { /* sitemap werkt ook zonder DB tijdens build */ }
+
+  // ── Publieke evenementen ──────────────────────────────────────────────────
   let eventPages: MetadataRoute.Sitemap = [];
   try {
     const publicEvents = await db
-      .select({ slug: events.slug, endsAt: events.endsAt, updatedAt: events.updatedAt })
+      .select({ slug: events.slug, updatedAt: events.updatedAt })
       .from(events)
       .where(and(eq(events.isPublic, true), gte(events.endsAt, now)));
 
     eventPages = publicEvents
-      .filter((e) => e.slug)
-      .map((e) => ({
-        url: `${BASE_URL}/e/${e.slug}`,
+      .filter(e => e.slug)
+      .map(e => ({
+        url: `${BASE}/e/${e.slug}`,
         lastModified: e.updatedAt ?? now,
         changeFrequency: "daily" as const,
         priority: 0.8,
       }));
-  } catch {
-    // Sitemap werkt ook zonder DB toegang tijdens build
-  }
+  } catch { /* sitemap werkt ook zonder DB tijdens build */ }
 
   return [...staticPages, ...blogPages, ...kbPages, ...eventPages];
 }

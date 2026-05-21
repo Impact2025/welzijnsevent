@@ -4,10 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { Clock, Tag, ArrowLeft, ExternalLink } from "lucide-react";
+import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: { slug: string };
@@ -57,7 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
-      {/* JSON-LD structured data */}
+      {/* Structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         "@context": "https://schema.org",
         "@type": "BlogPosting",
@@ -67,8 +67,29 @@ export default async function BlogPostPage({ params }: Props) {
         dateModified: post.updatedAt?.toISOString(),
         image: post.coverImage ?? undefined,
         url: `${siteUrl}/blog/${post.slug}`,
-        publisher: { "@type": "Organization", name: "Bijeen", url: siteUrl },
+        author: {
+          "@type": "Person",
+          name: "Vincent van Munster",
+          url: "https://weareimpact.nl",
+          jobTitle: "Sociaal ondernemer en oprichter Bijeen",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Bijeen",
+          url: siteUrl,
+          logo: { "@type": "ImageObject", url: `${siteUrl}/Bijeen-logo.png` },
+        },
+        mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}/blog/${post.slug}` },
         keywords: post.tags?.join(", "),
+      }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
+          { "@type": "ListItem", position: 3, name: post.title, item: `${siteUrl}/blog/${post.slug}` },
+        ],
       }) }} />
 
       {/* Cover image of kleur-header */}
@@ -108,7 +129,11 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="mt-4 text-lg text-[#6B5E54] leading-relaxed">{post.excerpt}</p>
         )}
 
-        <div className="flex items-center gap-5 mt-5 pb-6 border-b border-[#E8E4DE] text-sm text-[#9E9890]">
+        <div className="flex flex-wrap items-center gap-4 mt-5 pb-6 border-b border-[#E8E4DE] text-sm text-[#9E9890]">
+          <span className="flex items-center gap-1.5 text-xs font-medium text-[#6B5E54]">
+            <span className="w-6 h-6 rounded-full bg-[#C8522A] text-white flex items-center justify-center font-black text-[10px]">V</span>
+            Vincent van Munster
+          </span>
           {post.publishedAt && (
             <span>{format(new Date(post.publishedAt), "d MMMM yyyy", { locale: nl })}</span>
           )}
@@ -155,8 +180,21 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
 
+        {/* Kennisbank crosslink */}
+        <div className="mt-12 bg-[#FDF1EC] rounded-2xl border border-[#C8522A]/15 p-6">
+          <p className="text-xs font-bold text-[#C8522A] uppercase tracking-widest mb-3">Kennisbank</p>
+          <h3 className="font-black text-[#1C1814] mb-1">Praktische gidsen voor je evenement</h3>
+          <p className="text-sm text-[#6B5E54] mb-4">
+            Van checklist tot GDPR: de Bijeen kennisbank bevat 20 gratis artikelen voor welzijnsorganisaties.
+          </p>
+          <Link href="/kennisbank"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C8522A] hover:underline">
+            Ga naar de kennisbank <ArrowRight size={13} />
+          </Link>
+        </div>
+
         {/* Back to blog */}
-        <div className="mt-12 pt-8 border-t border-[#E8E4DE] text-center">
+        <div className="mt-10 pt-8 border-t border-[#E8E4DE] text-center">
           <Link href="/blog"
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#6B5E54] hover:text-[#C8522A] transition-colors">
             <ArrowLeft size={15} /> Terug naar alle artikelen

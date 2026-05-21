@@ -19,7 +19,7 @@ function extractToc(html: string) {
   while ((match = re.exec(html)) !== null) {
     const text = match[2].replace(/<[^>]+>/g, "");
     const id   = text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+      .replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-");
     headings.push({ level: parseInt(match[1]), id, text });
   }
   return headings;
@@ -29,9 +29,24 @@ function injectHeadingIds(html: string): string {
   return html.replace(/<h([23])([^>]*)>(.*?)<\/h[23]>/gi, (_m, level, attrs, inner) => {
     const text = inner.replace(/<[^>]+>/g, "");
     const id   = text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+      .replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-");
     return `<h${level}${attrs} id="${id}">${inner}</h${level}>`;
   });
+}
+
+function extractFaq(html: string): { question: string; answer: string }[] {
+  const items: { question: string; answer: string }[] = [];
+  const faqMatch = html.match(/<h2[^>]*>[^<]*(?:veelgestelde|faq)[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i);
+  if (!faqMatch) return items;
+  const section = faqMatch[1];
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*(?:<p[^>]*>([\s\S]*?)<\/p>)?/gi;
+  let m;
+  while ((m = re.exec(section)) !== null) {
+    const q = m[1].replace(/<[^>]+>/g, "").trim();
+    const a = m[2] ? m[2].replace(/<[^>]+>/g, "").trim() : "";
+    if (q && a) items.push({ question: q, answer: a });
+  }
+  return items;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -73,6 +88,7 @@ export default async function KennisbankArticlePage({ params }: Props) {
 
   const contentWithIds = injectHeadingIds(article.content);
   const toc = extractToc(article.content);
+  const faqItems = extractFaq(article.content.toLowerCase() !== article.content ? article.content : article.content);
 
   // Related articles
   const related = article.relatedArticles && article.relatedArticles.length > 0
@@ -89,7 +105,6 @@ export default async function KennisbankArticlePage({ params }: Props) {
       ))
     : [];
 
-  // Get category slugs for related articles
   const relatedCatIds = Array.from(new Set(related.map(r => r.categoryId).filter(Boolean))) as string[];
   const relatedCats = relatedCatIds.length > 0
     ? await db.select({ id: knowledgeBaseCategories.id, slug: knowledgeBaseCategories.slug })
@@ -99,21 +114,61 @@ export default async function KennisbankArticlePage({ params }: Props) {
   const catSlugMap = Object.fromEntries(relatedCats.map(c => [c.id, c.slug]));
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const articleUrl = `${siteUrl}/kennisbank/${params.categorySlug}/${article.slug}`;
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.metaTitle || article.title,
+    description: article.metaDescription || article.excerpt,
+    datePublished: article.publishedAt?.toISOString(),
+    dateModified: article.updatedAt?.toISOString(),
+    url: articleUrl,
+    author: {
+      "@type": "Person",
+      name: "Vincent van Munster",
+      url: "https://weareimpact.nl",
+      jobTitle: "Sociaal ondernemer en oprichter Bijeen",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Bijeen",
+      url: siteUrl,
+      logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png` },
+    },
+    keywords: article.tags?.join(", "),
+    mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Kennisbank", item: `${siteUrl}/kennisbank` },
+      { "@type": "ListItem", position: 3, name: cat.name, item: `${siteUrl}/kennisbank/${params.categorySlug}` },
+      { "@type": "ListItem", position: 4, name: article.title, item: articleUrl },
+    ],
+  };
+
+  const faqJsonLd = faqItems.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map(item => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  } : null;
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
-      {/* JSON-LD */}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: article.metaTitle || article.title,
-        description: article.metaDescription || article.excerpt,
-        datePublished: article.publishedAt?.toISOString(),
-        dateModified: article.updatedAt?.toISOString(),
-        url: `${siteUrl}/kennisbank/${params.categorySlug}/${article.slug}`,
-        publisher: { "@type": "Organization", name: "Bijeen", url: siteUrl },
-        keywords: article.tags?.join(", "),
-      }) }} />
+      {/* Structured data */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
 
       {/* Cover image or color header */}
       {(article as any).coverImage && (
@@ -129,7 +184,9 @@ export default async function KennisbankArticlePage({ params }: Props) {
       {/* Breadcrumb bar */}
       <div className="bg-white border-b border-[#E8E4DE]">
         <div className="max-w-6xl mx-auto px-6 py-3">
-          <nav className="flex items-center gap-1.5 text-[11px] text-[#9E9890] flex-wrap">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[11px] text-[#9E9890] flex-wrap">
+            <Link href="/" className="hover:text-[#C8522A] transition-colors">Home</Link>
+            <ChevronRight size={11} />
             <Link href="/kennisbank" className="hover:text-[#C8522A] transition-colors font-medium">Kennisbank</Link>
             <ChevronRight size={11} />
             <Link href={`/kennisbank/${params.categorySlug}`} className="hover:text-[#C8522A] transition-colors">
@@ -184,11 +241,21 @@ export default async function KennisbankArticlePage({ params }: Props) {
           )}
 
           <div className="flex items-center gap-5 mt-5 pb-6 border-b border-[#E8E4DE] text-sm text-[#9E9890]">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-[#9E9890]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+              Vincent van Munster
+            </span>
             {article.readingTime && (
               <span className="flex items-center gap-1.5"><Clock size={14} /> {article.readingTime} min leestijd</span>
             )}
-            {article.updatedAt && (
-              <span>Bijgewerkt op {format(new Date(article.updatedAt), "d MMMM yyyy", { locale: nl })}</span>
+            {article.publishedAt && (
+              <span>{format(new Date(article.publishedAt), "d MMMM yyyy", { locale: nl })}</span>
+            )}
+            {article.updatedAt && article.publishedAt &&
+              new Date(article.updatedAt).getTime() - new Date(article.publishedAt).getTime() > 86400000 && (
+              <span className="text-[11px] bg-[#F0EDE8] px-2 py-0.5 rounded-full">
+                Bijgewerkt {format(new Date(article.updatedAt), "d MMM yyyy", { locale: nl })}
+              </span>
             )}
           </div>
 

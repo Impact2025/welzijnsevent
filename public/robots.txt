@@ -2,14 +2,23 @@ User-agent: *
 Allow: /
 Allow: /e/
 Allow: /functies
-Allow: /over-ons
 Allow: /prijzen
+Allow: /over-ons
+Allow: /faq
+Allow: /blog/
+Allow: /kennisbank/
+Allow: /gratis-impactrapport
+Allow: /demo
 
 # Geen dashboard of auth routes indexeren
 Disallow: /dashboard/
+Disallow: /admin/
 Disallow: /onboarding/
 Disallow: /api/
 Disallow: /sign-in/
 Disallow: /sign-up/
+Disallow: /invite/
+Disallow: /ticket/
+Disallow: /offline
 
-Sitemap: https://bijeen.nl/sitemap.xml
+Sitemap: https://bijeen.app/sitemap.xml

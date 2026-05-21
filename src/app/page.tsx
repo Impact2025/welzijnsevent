@@ -3,26 +3,53 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRight, Zap, BarChart3, QrCode,
-  MessageSquare, Star, Network, FileText, Smartphone, Check,
+  MessageSquare, Star, Network, FileText, Smartphone, Check, BookOpen, Clock,
 } from "lucide-react";
 import { MarketingNav } from "@/components/marketing/nav";
 import { MarketingFooter } from "@/components/marketing/footer";
 import { AiAssistant } from "@/components/marketing/ai-assistant";
+import { db, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
+import { eq, desc } from "drizzle-orm";
+
+export const revalidate = 3600;
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
 export const metadata: Metadata = {
-  title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
-  description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO-rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.",
-  alternates: { canonical: "/" },
+  title: "Bijeen — Eventplatform voor welzijnsorganisaties",
+  description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.",
+  keywords: ["event management welzijnsorganisatie", "WMO rapportage evenement", "deelnemersbeheer nonprofit", "QR check-in evenement", "evenementenplatform stichting"],
+  authors: [{ name: "Vincent van Munster", url: "https://weareimpact.nl" }],
+  alternates: { canonical: siteUrl },
   openGraph: {
-    title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
-    description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO-rapportage — Bijeen regelt het.",
-    url: "/",
+    title: "Bijeen — Eventplatform voor welzijnsorganisaties",
+    description: "Van aanmelding tot WMO rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.",
+    url: siteUrl,
     type: "website",
+    siteName: "Bijeen",
   },
   twitter: {
-    title: "Bijeen — Van aanmelding tot impact, alles bijeen!",
-    description: "Het eerste eventplatform gebouwd voor de welzijnssector.",
+    card: "summary_large_image",
+    title: "Bijeen — Eventplatform voor welzijnsorganisaties",
+    description: "Van aanmelding tot WMO rapportage — Bijeen regelt het.",
   },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Bijeen",
+  url: siteUrl,
+  description: "Eventplatform voor welzijnsorganisaties. Van aanmelding tot WMO rapportage.",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "EUR", description: "Gratis starter plan beschikbaar" },
+  author: {
+    "@type": "Person",
+    name: "Vincent van Munster",
+    url: "https://weareimpact.nl",
+  },
+  publisher: { "@type": "Organization", name: "WeAreImpact", url: "https://weareimpact.nl" },
 };
 
 const features = [
@@ -182,7 +209,26 @@ function PreviewSection({ title, lines, dim }: { title: string; lines: number[];
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // 3 meest recente kennisbank artikelen voor de preview sectie
+  let kbArticles: { slug: string; title: string; excerpt: string | null; readingTime: number | null; categorySlug: string }[] = [];
+  try {
+    const raw = await db.select({
+      slug:        knowledgeBaseArticles.slug,
+      title:       knowledgeBaseArticles.title,
+      excerpt:     knowledgeBaseArticles.excerpt,
+      readingTime: knowledgeBaseArticles.readingTime,
+      categoryId:  knowledgeBaseArticles.categoryId,
+      categorySlug: knowledgeBaseCategories.slug,
+    })
+    .from(knowledgeBaseArticles)
+    .leftJoin(knowledgeBaseCategories, eq(knowledgeBaseArticles.categoryId, knowledgeBaseCategories.id))
+    .where(eq(knowledgeBaseArticles.status, "published"))
+    .orderBy(desc(knowledgeBaseArticles.publishedAt))
+    .limit(3);
+    kbArticles = raw.map(r => ({ ...r, categorySlug: r.categorySlug ?? "" }));
+  } catch { /* statische build fallback */ }
+
   return (
     <div className="bg-[#12100E]">
       <MarketingNav />
@@ -458,6 +504,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Organization JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+
       {/* ── TESTIMONIALS ─────────────────────────────────────── */}
       <section className="bg-[#12100E] py-20 sm:py-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -499,6 +548,65 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── KENNISBANK PREVIEW ──────────────────────────────── */}
+      {kbArticles.length > 0 && (
+        <section className="bg-[#FAF9F7] py-20 sm:py-28">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+              <div>
+                <p className="text-[11px] font-bold text-terra-500 uppercase tracking-widest mb-3">
+                  Kennisbank
+                </p>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#1C1814] tracking-tight">
+                  Gratis gidsen voor de welzijnssector
+                </h2>
+                <p className="mt-3 text-[#6B5E54] max-w-xl">
+                  20 praktische artikelen geschreven door Vincent van Munster — sociaal ondernemer
+                  en voormalig directeur van Stichting de Baan.
+                </p>
+              </div>
+              <Link href="/kennisbank"
+                className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-terra-600 hover:text-terra-700 transition-colors">
+                Alle artikelen <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-5">
+              {kbArticles.map(a => (
+                <Link
+                  key={a.slug}
+                  href={`/kennisbank/${a.categorySlug}/${a.slug}`}
+                  className="group bg-white rounded-2xl border border-[#E8E4DE] p-6 hover:border-terra-300 hover:shadow-md transition-all"
+                >
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <BookOpen size={13} className="text-terra-500 shrink-0" />
+                    <span className="text-[11px] font-bold text-terra-500 uppercase tracking-wider">Kennisbank</span>
+                  </div>
+                  <h3 className="font-bold text-[#1C1814] group-hover:text-terra-600 transition-colors leading-snug text-[15px]">
+                    {a.title}
+                  </h3>
+                  {a.excerpt && (
+                    <p className="text-xs text-[#9E9890] mt-2 line-clamp-2 leading-relaxed">{a.excerpt}</p>
+                  )}
+                  {a.readingTime && (
+                    <p className="mt-3 flex items-center gap-1 text-[11px] text-[#9E9890]">
+                      <Clock size={11} /> {a.readingTime} min leestijd
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link href="/kennisbank"
+                className="inline-flex items-center gap-2 bg-[#1C1814] hover:bg-[#2D2520] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+                Bekijk alle 20 artikelen <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── PRIJZEN TEASER ───────────────────────────────────── */}
       <section className="bg-cream py-20 sm:py-28">

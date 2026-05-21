@@ -10,7 +10,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:push": "drizzle-kit push:pg"
+    "db:push": "drizzle-kit push:pg",
+    "db:seed-kennisbank": "npx tsx src/db/seed-kennisbank.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.1",
