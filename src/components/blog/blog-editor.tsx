@@ -68,6 +68,9 @@ export function BlogEditor({ value, onChange, placeholder, className }: Props) {
         bulletList:  { keepMarks: true, keepAttributes: false },
         orderedList: { keepMarks: true, keepAttributes: false },
         codeBlock:   {},
+        // StarterKit v3 bundles these — disable so our explicit configs take effect
+        underline:   false,
+        link:        false,
       }),
       Placeholder.configure({ placeholder: placeholder ?? "Begin hier met schrijven..." }),
       Underline,

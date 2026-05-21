@@ -91,8 +91,13 @@ export default function AdminBlogPage() {
 
               {/* Cover thumb */}
               {post.coverImage ? (
-                <img src={post.coverImage} alt=""
-                  className="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#F0EDE8]" />
+                post.coverImage.startsWith("color:") ? (
+                  <div className="w-16 h-16 rounded-xl shrink-0"
+                    style={{ backgroundColor: post.coverImage.slice(6) }} />
+                ) : (
+                  <img src={post.coverImage} alt=""
+                    className="w-16 h-16 rounded-xl object-cover shrink-0 bg-[#F0EDE8]" />
+                )
               ) : (
                 <div className="w-16 h-16 rounded-xl bg-[#F0EDE8] shrink-0 flex items-center justify-center">
                   <FileText size={22} className="text-[#C8C0B8]" />

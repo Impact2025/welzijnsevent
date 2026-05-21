@@ -50,9 +50,11 @@ export function TiptapEditor({ value, onChange, placeholder, className }: Props)
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading:     { levels: [2, 3] },
         bulletList:  { keepMarks: true, keepAttributes: false },
         orderedList: { keepMarks: true, keepAttributes: false },
+        underline:   false,
+        link:        false,
       }),
       Placeholder.configure({
         placeholder: placeholder ?? "Beschrijf de vacature: taken, tijden en wat vrijwilligers kunnen verwachten...",
