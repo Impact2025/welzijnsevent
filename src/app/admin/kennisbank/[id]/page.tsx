@@ -391,7 +391,10 @@ export default function EditKennisbankPage() {
                       <button
                         type="button"
                         title="Invoegen in tekst"
-                        onClick={() => editorRef.current?.insertLink(link.text, link.href)}
+                        onClick={() => {
+                          const found = editorRef.current?.insertLink(link.text, link.href);
+                          if (found === false) showToast("Tekst niet gevonden — link ingevoegd op cursorpositie", "ok");
+                        }}
                         className="text-[10px] font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap">
                         + Invoegen
                       </button>

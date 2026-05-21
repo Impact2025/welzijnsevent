@@ -67,7 +67,7 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
   "tags": ["tag1", "tag2", "tag3", "tag4"],
   "relatedArticles": ["slug-van-artikel-1", "slug-van-artikel-2"],
   "internalLinks": [
-    { "text": "ankertekst die past in de lopende tekst", "href": "/kennisbank/categorie-slug/artikel-slug" }
+    { "text": "exact letterlijk fragment uit de artikeltekst hierboven", "href": "/kennisbank/categorie-slug/artikel-slug" }
   ],
   "focusKeyword": "het primaire zoekwoord",
   "readabilityTips": ["tip1", "tip2"]
@@ -76,7 +76,9 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 Regels:
 - Tags zijn Nederlandse trefwoorden relevant voor welzijn/evenementen/sociaal werk
 - relatedArticles: maximaal 3 slugs uit de lijst hierboven die écht passen bij de inhoud
-- internalLinks: maximaal 3 links uit de lijst hierboven; gebruik de exacte hrefs uit die lijst; ankertekst is een natuurlijke zin die in de tekst past
+- internalLinks.text: kopieer een LETTERLIJK aaneengesloten fragment (3-8 woorden) dat EXACT zo in de artikeltekst hierboven staat — verzin NIETS nieuws
+- internalLinks: maximaal 3 links uit de lijst hierboven; gebruik de exacte hrefs uit die lijst
+- Als er geen relevante links zijn, geef een lege array
 - Als er geen relevante links zijn, geef een lege array
 - Alle tekst is in het Nederlands
 - De metaTitle moet het hoofdkeyword bevatten`;

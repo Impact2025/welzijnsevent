@@ -67,7 +67,7 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
   "excerpt": "Korte, pakkende intro voor de bloglijst (2-3 zinnen, max 200 tekens)",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
   "internalLinks": [
-    { "text": "ankertekst in de blog", "href": "/blog/slug-van-post" }
+    { "text": "exact letterlijk fragment uit de blogtekst hierboven", "href": "/blog/slug-van-post" }
   ],
   "focusKeyword": "het primaire zoekwoord",
   "readabilityTips": ["tip1", "tip2"]
@@ -75,7 +75,8 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 
 Regels:
 - Tags zijn Nederlandse hashtags zonder # teken, relevant voor welzijn/sociaal werk
-- Internallinks: kies maximaal 3 relevante posts uit de lijst hierboven die écht passen bij de inhoud
+- internalLinks.text: kopieer een LETTERLIJK aaneengesloten fragment (3-8 woorden) dat EXACT zo in de blogtekst hierboven staat — verzin NIETS nieuws
+- internalLinks: kies maximaal 3 relevante posts uit de lijst hierboven die écht passen bij de inhoud
 - Als er geen relevante interne links zijn, geef een lege array
 - Alle tekst is in het Nederlands
 - De metaTitle moet de blog-URL slug bevatten of de merknaam "Bijeen"`;

@@ -18,7 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 
 export interface BlogEditorHandle {
-  insertLink: (text: string, href: string) => void;
+  /** Zoekt ankertekst in document en linkt die. Geeft true als gevonden, false als fallback op cursor. */
+  insertLink: (text: string, href: string) => boolean;
 }
 
 interface Props {
@@ -96,8 +97,8 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
   });
 
   useImperativeHandle(ref, () => ({
-    insertLink: (text: string, href: string) => {
-      if (!editor) return;
+    insertLink: (text: string, href: string): boolean => {
+      if (!editor) return false;
       const isExternal = href.startsWith("http");
       const linkAttrs = {
         href,
@@ -105,16 +106,17 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
         rel:    isExternal ? "noopener noreferrer" : null,
       };
 
-      // Zoek ankertekst op in de document-nodes en link die
       const { doc } = editor.state;
       let foundFrom = -1;
       let foundTo   = -1;
-      const needle  = text.toLowerCase();
+      const needle  = text.toLowerCase().trim();
 
+      // Exacte match over node-grenzen heen via volledige tekst van elke node
       doc.descendants((node, pos) => {
         if (foundFrom !== -1) return false;
         if (node.isText && node.text) {
-          const idx = node.text.toLowerCase().indexOf(needle);
+          const haystack = node.text.toLowerCase();
+          const idx = haystack.indexOf(needle);
           if (idx !== -1) {
             foundFrom = pos + idx;
             foundTo   = foundFrom + text.length;
@@ -127,11 +129,13 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
           .setTextSelection({ from: foundFrom, to: foundTo })
           .setLink(linkAttrs)
           .run();
-      } else {
-        // Ankertekst niet gevonden: voeg in op cursorpositie
-        const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
-        editor.chain().focus().insertContent(`<a href="${href}"${attrs}>${text}</a> `).run();
+        return true;
       }
+
+      // Fallback: voeg in op cursorpositie
+      const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
+      editor.chain().focus().insertContent(`<a href="${href}"${attrs}>${text}</a> `).run();
+      return false;
     },
   }), [editor]);
 
