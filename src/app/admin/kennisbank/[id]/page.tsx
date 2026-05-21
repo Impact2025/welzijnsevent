@@ -161,8 +161,17 @@ export default function EditKennisbankPage() {
     if (seo.excerpt)                 setExcerpt(seo.excerpt);
     if (seo.tags?.length)            setTags(prev => Array.from(new Set([...prev, ...seo.tags!])));
     if (seo.relatedArticles?.length) setRelatedArticles(prev => Array.from(new Set([...prev, ...seo.relatedArticles!])));
-    if (seo.internalLinks?.length)   setInternalLinks(seo.internalLinks);
-    showToast("SEO geoptimaliseerd!", "ok");
+    if (seo.internalLinks?.length) {
+      setInternalLinks(seo.internalLinks);
+      let placed = 0;
+      for (const link of seo.internalLinks) {
+        if (editorRef.current?.insertLink(link.text, link.href)) placed++;
+      }
+      const total = seo.internalLinks.length;
+      showToast(`SEO klaar! ${placed}/${total} link${total !== 1 ? "s" : ""} in tekst geplaatst — sla op om te bewaren`, "ok");
+    } else {
+      showToast("SEO geoptimaliseerd!", "ok");
+    }
   }
 
   function addTag(val: string) {

@@ -76,7 +76,7 @@ export default function BlogEditorPage() {
 
   const showToast = (msg: string, type: "ok" | "err") => {
     setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), 5000);
   };
 
   useEffect(() => {
@@ -151,8 +151,17 @@ export default function BlogEditorPage() {
     if (seo.metaDescription) setMetaDescription(seo.metaDescription);
     if (seo.excerpt)         setExcerpt(seo.excerpt);
     if (seo.tags?.length)    setTags(prev => Array.from(new Set([...prev, ...seo.tags!])));
-    if (seo.internalLinks?.length) setInternalLinks(seo.internalLinks);
-    showToast("SEO geoptimaliseerd!", "ok");
+    if (seo.internalLinks?.length) {
+      setInternalLinks(seo.internalLinks);
+      let placed = 0;
+      for (const link of seo.internalLinks) {
+        if (editorRef.current?.insertLink(link.text, link.href)) placed++;
+      }
+      const total = seo.internalLinks.length;
+      showToast(`SEO klaar! ${placed}/${total} link${total !== 1 ? "s" : ""} in tekst geplaatst — sla op om te bewaren`, "ok");
+    } else {
+      showToast("SEO geoptimaliseerd!", "ok");
+    }
   }
 
   function addTag(val: string) {
