@@ -124,8 +124,10 @@ export default async function BlogPostPage({ params }: Props) {
       <div className="max-w-3xl mx-auto px-6 py-8">
         <div
           className="tiptap-content prose prose-slate prose-lg max-w-none
-            prose-headings:font-black prose-headings:text-[#1C1814]
-            prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+            prose-headings:font-black
+            prose-h1:text-3xl prose-h1:text-[#1C1814]
+            prose-h2:text-2xl prose-h2:text-[#C8522A] prose-h2:mt-10 prose-h2:mb-4
+            prose-h3:text-xl prose-h3:text-[#1C1814] prose-h3:border-l-[3px] prose-h3:border-[#C8522A] prose-h3:pl-4
             prose-p:text-[#3D3330] prose-p:leading-relaxed
             prose-a:text-[#C8522A] prose-a:no-underline hover:prose-a:underline
             prose-strong:text-[#1C1814]
