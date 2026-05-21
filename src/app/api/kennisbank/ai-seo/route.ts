@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, knowledgeBaseArticles } from "@/db";
+import { db, knowledgeBaseArticles, knowledgeBaseCategories, blogPosts } from "@/db";
 import { desc, eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -19,16 +19,33 @@ export async function POST(req: Request) {
     const plainText = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 3000);
 
     const allArticles = await db
-      .select({ title: knowledgeBaseArticles.title, slug: knowledgeBaseArticles.slug })
+      .select({
+        title: knowledgeBaseArticles.title,
+        slug: knowledgeBaseArticles.slug,
+        categorySlug: knowledgeBaseCategories.slug,
+      })
       .from(knowledgeBaseArticles)
+      .leftJoin(knowledgeBaseCategories, eq(knowledgeBaseArticles.categoryId, knowledgeBaseCategories.id))
       .where(eq(knowledgeBaseArticles.status, "published"))
       .orderBy(desc(knowledgeBaseArticles.publishedAt))
       .limit(30);
 
-    const relatedCandidates = allArticles
-      .filter(a => a.slug !== currentSlug)
-      .map(a => `- "${a.title}" → slug: ${a.slug}`)
+    const allBlogPosts = await db
+      .select({ title: blogPosts.title, slug: blogPosts.slug })
+      .from(blogPosts)
+      .orderBy(desc(blogPosts.publishedAt))
+      .limit(20);
+
+    const kbCandidates = allArticles
+      .filter(a => a.slug !== currentSlug && a.categorySlug)
+      .map(a => `- "${a.title}" → /kennisbank/${a.categorySlug}/${a.slug}`)
       .join("\n");
+
+    const blogCandidates = allBlogPosts
+      .map(p => `- "${p.title}" → /blog/${p.slug}`)
+      .join("\n");
+
+    const allCandidates = [kbCandidates, blogCandidates].filter(Boolean).join("\n");
 
     const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
     const prompt = `Je bent een expert SEO-copywriter gespecialiseerd in kennisbank-artikelen voor Nederlandse welzijnsorganisaties.
@@ -39,8 +56,8 @@ Artikeltitel: "${title}"
 Categorie: "${categoryName}"
 Artikeltekst (fragment): "${plainText}"
 
-Bestaande kennisbank-artikelen voor gerelateerde links:
-${relatedCandidates || "(geen andere artikelen beschikbaar)"}
+Beschikbare interne pagina's voor links (kennisbank + blog):
+${allCandidates || "(geen andere pagina's beschikbaar)"}
 
 Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 {
@@ -49,6 +66,9 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
   "excerpt": "Korte, pakkende intro voor het kennisbank-overzicht (2-3 zinnen, max 200 tekens)",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
   "relatedArticles": ["slug-van-artikel-1", "slug-van-artikel-2"],
+  "internalLinks": [
+    { "text": "ankertekst die past in de lopende tekst", "href": "/kennisbank/categorie-slug/artikel-slug" }
+  ],
   "focusKeyword": "het primaire zoekwoord",
   "readabilityTips": ["tip1", "tip2"]
 }
@@ -56,7 +76,8 @@ Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 Regels:
 - Tags zijn Nederlandse trefwoorden relevant voor welzijn/evenementen/sociaal werk
 - relatedArticles: maximaal 3 slugs uit de lijst hierboven die écht passen bij de inhoud
-- Als er geen relevante gerelateerde artikelen zijn, geef een lege array
+- internalLinks: maximaal 3 links uit de lijst hierboven; gebruik de exacte hrefs uit die lijst; ankertekst is een natuurlijke zin die in de tekst past
+- Als er geen relevante links zijn, geef een lege array
 - Alle tekst is in het Nederlands
 - De metaTitle moet het hoofdkeyword bevatten`;
 
@@ -70,7 +91,7 @@ Regels:
       },
       body: JSON.stringify({
         model,
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0.4,
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },

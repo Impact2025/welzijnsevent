@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, blogPosts } from "@/db";
+import { db, blogPosts, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
 import { eq, desc } from "drizzle-orm";
 
 export async function POST(req: Request) {
@@ -26,10 +26,28 @@ export async function POST(req: Request) {
       .orderBy(desc(blogPosts.publishedAt))
       .limit(30);
 
-    const internalLinkCandidates = allPosts
+    const kbArticles = await db
+      .select({
+        title: knowledgeBaseArticles.title,
+        slug: knowledgeBaseArticles.slug,
+        categorySlug: knowledgeBaseCategories.slug,
+      })
+      .from(knowledgeBaseArticles)
+      .leftJoin(knowledgeBaseCategories, eq(knowledgeBaseArticles.categoryId, knowledgeBaseCategories.id))
+      .where(eq(knowledgeBaseArticles.status, "published"))
+      .limit(20);
+
+    const blogCandidates = allPosts
       .filter(p => p.slug !== currentSlug)
       .map(p => `- "${p.title}" → /blog/${p.slug}`)
       .join("\n");
+
+    const kbCandidates = kbArticles
+      .filter(a => a.categorySlug)
+      .map(a => `- "${a.title}" → /kennisbank/${a.categorySlug}/${a.slug}`)
+      .join("\n");
+
+    const internalLinkCandidates = [blogCandidates, kbCandidates].filter(Boolean).join("\n");
 
     const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
     const prompt = `Je bent een expert SEO-copywriter en content strateeg die gespecialiseerd is in Nederlandse welzijnsorganisaties.
@@ -39,8 +57,8 @@ Analyseer deze blogtekst en geef een volledige SEO-optimalisatie terug als JSON.
 Blogtitel: "${title}"
 Blogtekst (fragment): "${plainText}"
 
-Bestaande blog-artikelen voor interne links:
-${internalLinkCandidates || "(geen andere posts beschikbaar)"}
+Beschikbare interne pagina's voor links (blog + kennisbank):
+${internalLinkCandidates || "(geen andere pagina's beschikbaar)"}
 
 Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 {
@@ -72,7 +90,7 @@ Regels:
       },
       body: JSON.stringify({
         model,
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0.4,
         messages: [{ role: "user", content: prompt }],
         response_format: { type: "json_object" },

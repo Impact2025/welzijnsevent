@@ -9,13 +9,17 @@ import Image from "@tiptap/extension-image";
 import { TextStyle, Color } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import CharacterCount from "@tiptap/extension-character-count";
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, forwardRef, useImperativeHandle } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   Heading1, Heading2, Heading3, Minus, Link as LinkIcon, Image as ImageIcon,
   Quote, Code, Redo, Undo, Highlighter, Strikethrough, RemoveFormatting,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+export interface BlogEditorHandle {
+  insertLink: (text: string, href: string) => void;
+}
 
 interface Props {
   value: string;
@@ -55,7 +59,10 @@ function Divider() {
   return <div className="w-px h-4 bg-[#E8E4DE] mx-0.5" />;
 }
 
-export function BlogEditor({ value, onChange, placeholder, className }: Props) {
+export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEditor(
+  { value, onChange, placeholder, className }: Props,
+  ref,
+) {
   const [linkUrl, setLinkUrl]       = useState("");
   const [showLink, setShowLink]     = useState(false);
   const [imageUrl, setImageUrl]     = useState("");
@@ -87,6 +94,15 @@ export function BlogEditor({ value, onChange, placeholder, className }: Props) {
       attributes: { class: "tiptap-content focus:outline-none min-h-[500px] px-6 py-5 prose prose-slate max-w-none" },
     },
   });
+
+  useImperativeHandle(ref, () => ({
+    insertLink: (text: string, href: string) => {
+      if (!editor) return;
+      const isExternal = href.startsWith("http");
+      const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
+      editor.chain().focus().insertContent(`<a href="${href}"${attrs}>${text}</a> `).run();
+    },
+  }), [editor]);
 
   const setExternal = useCallback(
     (html: string) => {
@@ -273,4 +289,4 @@ export function BlogEditor({ value, onChange, placeholder, className }: Props) {
       <EditorContent editor={editor} className="flex-1" />
     </div>
   );
-}
+});

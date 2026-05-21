@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { BlogEditor } from "@/components/blog/blog-editor";
+import { BlogEditor, type BlogEditorHandle } from "@/components/blog/blog-editor";
 import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
   AlertCircle, CheckCircle2, Loader2, Clock, Eye, Calendar,
+  Link as LinkIcon,
 } from "lucide-react";
 
 interface Category {
@@ -23,6 +24,7 @@ interface SeoResult {
   excerpt?: string;
   tags?: string[];
   relatedArticles?: string[];
+  internalLinks?: { text: string; href: string }[];
   focusKeyword?: string;
   readabilityTips?: string[];
 }
@@ -51,8 +53,9 @@ function calcReadingTime(html: string) {
 }
 
 export default function EditKennisbankPage() {
-  const params = useParams<{ id: string }>();
-  const router = useRouter();
+  const params    = useParams<{ id: string }>();
+  const router    = useRouter();
+  const editorRef = useRef<BlogEditorHandle>(null);
 
   const [loading,    setLoading]    = useState(true);
   const [saving,     setSaving]     = useState(false);
@@ -60,9 +63,10 @@ export default function EditKennisbankPage() {
   const [toast,      setToast]      = useState<{ msg: string; type: "ok" | "err" } | null>(null);
   const [seoPanel,   setSeoPanel]   = useState(false);
   const [tagInput,   setTagInput]   = useState("");
-  const [relInput,   setRelInput]   = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [seoResult,  setSeoResult]  = useState<SeoResult | null>(null);
+  const [relInput,       setRelInput]       = useState("");
+  const [categories,     setCategories]     = useState<Category[]>([]);
+  const [seoResult,      setSeoResult]      = useState<SeoResult | null>(null);
+  const [internalLinks,  setInternalLinks]  = useState<{ text: string; href: string }[]>([]);
 
   const [title,           setTitle]           = useState("");
   const [slug,            setSlug]            = useState("");
@@ -152,11 +156,12 @@ export default function EditKennisbankPage() {
     if (!res.ok) { showToast("AI analyse mislukt", "err"); return; }
     const { seo }: { seo: SeoResult } = await res.json();
     setSeoResult(seo);
-    if (seo.metaTitle)         setMetaTitle(seo.metaTitle);
-    if (seo.metaDescription)   setMetaDescription(seo.metaDescription);
-    if (seo.excerpt)           setExcerpt(seo.excerpt);
-    if (seo.tags?.length)      setTags(prev => Array.from(new Set([...prev, ...seo.tags!])));
+    if (seo.metaTitle)               setMetaTitle(seo.metaTitle);
+    if (seo.metaDescription)         setMetaDescription(seo.metaDescription);
+    if (seo.excerpt)                 setExcerpt(seo.excerpt);
+    if (seo.tags?.length)            setTags(prev => Array.from(new Set([...prev, ...seo.tags!])));
     if (seo.relatedArticles?.length) setRelatedArticles(prev => Array.from(new Set([...prev, ...seo.relatedArticles!])));
+    if (seo.internalLinks?.length)   setInternalLinks(seo.internalLinks);
     showToast("SEO geoptimaliseerd!", "ok");
   }
 
@@ -234,7 +239,7 @@ export default function EditKennisbankPage() {
             </div>
           </div>
 
-          <BlogEditor value={content} onChange={setContent}
+          <BlogEditor ref={editorRef} value={content} onChange={setContent}
             placeholder="Begin hier met schrijven..."
             className="min-h-[600px]" />
         </div>
@@ -366,6 +371,40 @@ export default function EditKennisbankPage() {
               placeholder="Tag toevoegen + Enter"
               className="w-full text-xs bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors" />
           </div>
+
+          {internalLinks.length > 0 && (
+            <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
+              <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                <LinkIcon size={12} /> Interne links (AI)
+              </p>
+              <div className="flex flex-col gap-2">
+                {internalLinks.map((link, i) => (
+                  <div key={i} className="flex items-start gap-2 group">
+                    <div className="flex-1 min-w-0">
+                      <a href={link.href} target="_blank" rel="noopener"
+                        className="block text-[11px] text-blue-600 hover:underline truncate">
+                        {link.text}
+                      </a>
+                      <span className="text-[10px] text-[#9E9890] font-mono truncate block">{link.href}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        title="Invoegen in tekst"
+                        onClick={() => editorRef.current?.insertLink(link.text, link.href)}
+                        className="text-[10px] font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap">
+                        + Invoegen
+                      </button>
+                      <button type="button" onClick={() => setInternalLinks(l => l.filter((_, j) => j !== i))}
+                        className="text-[#C8C0B8] hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                        <X size={11} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
             <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-2">Gerelateerde artikelen</p>

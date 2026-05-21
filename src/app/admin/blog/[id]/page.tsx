@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { BlogEditor } from "@/components/blog/blog-editor";
+import { BlogEditor, type BlogEditorHandle } from "@/components/blog/blog-editor";
 import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
@@ -48,9 +48,10 @@ function calcReadingTime(html: string) {
 }
 
 export default function BlogEditorPage() {
-  const params  = useParams<{ id: string }>();
-  const router  = useRouter();
-  const isNew   = params.id === "new";
+  const params     = useParams<{ id: string }>();
+  const router     = useRouter();
+  const isNew      = params.id === "new";
+  const editorRef  = useRef<BlogEditorHandle>(null);
 
   const [loading,    setLoading]    = useState(!isNew);
   const [saving,     setSaving]     = useState(false);
@@ -251,6 +252,7 @@ export default function BlogEditorPage() {
 
           {/* Tiptap Pro Editor */}
           <BlogEditor
+            ref={editorRef}
             value={content}
             onChange={setContent}
             placeholder="Begin hier met schrijven... Gebruik de toolbar voor opmaak, links en afbeeldingen."
@@ -437,20 +439,29 @@ export default function BlogEditorPage() {
               <div className="flex flex-col gap-2">
                 {internalLinks.map((link, i) => (
                   <div key={i} className="flex items-start gap-2 group">
-                    <a href={link.href} target="_blank" rel="noopener"
-                      className="flex-1 min-w-0 text-[11px] text-blue-600 hover:underline truncate">
-                      {link.text}
-                    </a>
-                    <button type="button" onClick={() => setInternalLinks(l => l.filter((_, j) => j !== i))}
-                      className="text-[#C8C0B8] hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100">
-                      <X size={11} />
-                    </button>
+                    <div className="flex-1 min-w-0">
+                      <a href={link.href} target="_blank" rel="noopener"
+                        className="block text-[11px] text-blue-600 hover:underline truncate">
+                        {link.text}
+                      </a>
+                      <span className="text-[10px] text-[#9E9890] font-mono truncate block">{link.href}</span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        title="Invoegen in tekst"
+                        onClick={() => editorRef.current?.insertLink(link.text, link.href)}
+                        className="text-[10px] font-semibold text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-lg transition-colors whitespace-nowrap">
+                        + Invoegen
+                      </button>
+                      <button type="button" onClick={() => setInternalLinks(l => l.filter((_, j) => j !== i))}
+                        className="text-[#C8C0B8] hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                        <X size={11} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
-              <p className="text-[10px] text-[#9E9890] mt-2">
-                Voeg deze links handmatig toe in je tekst via de toolbar.
-              </p>
             </div>
           )}
 
