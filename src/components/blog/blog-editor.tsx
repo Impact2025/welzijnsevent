@@ -99,8 +99,39 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
     insertLink: (text: string, href: string) => {
       if (!editor) return;
       const isExternal = href.startsWith("http");
-      const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
-      editor.chain().focus().insertContent(`<a href="${href}"${attrs}>${text}</a> `).run();
+      const linkAttrs = {
+        href,
+        target: isExternal ? "_blank" : null,
+        rel:    isExternal ? "noopener noreferrer" : null,
+      };
+
+      // Zoek ankertekst op in de document-nodes en link die
+      const { doc } = editor.state;
+      let foundFrom = -1;
+      let foundTo   = -1;
+      const needle  = text.toLowerCase();
+
+      doc.descendants((node, pos) => {
+        if (foundFrom !== -1) return false;
+        if (node.isText && node.text) {
+          const idx = node.text.toLowerCase().indexOf(needle);
+          if (idx !== -1) {
+            foundFrom = pos + idx;
+            foundTo   = foundFrom + text.length;
+          }
+        }
+      });
+
+      if (foundFrom !== -1) {
+        editor.chain().focus()
+          .setTextSelection({ from: foundFrom, to: foundTo })
+          .setLink(linkAttrs)
+          .run();
+      } else {
+        // Ankertekst niet gevonden: voeg in op cursorpositie
+        const attrs = isExternal ? ` target="_blank" rel="noopener noreferrer"` : "";
+        editor.chain().focus().insertContent(`<a href="${href}"${attrs}>${text}</a> `).run();
+      }
     },
   }), [editor]);
 
