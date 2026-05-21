@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     startupImage: [],
   },
   icons: {
-    icon: "/icon.svg",
+    icon: "/icon.png",
     apple: "/icons/apple-touch-icon.png",
   },
   openGraph: {
