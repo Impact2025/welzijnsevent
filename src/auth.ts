@@ -138,11 +138,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       apiKey: process.env.RESEND_API_KEY,
       from: "Bijeen <hello@bijeen.app>",
       sendVerificationRequest: async ({ identifier, url }) => {
+        // Redirect through an intermediate page so email-scanner pre-fetches
+        // don't consume the one-time token before the user clicks.
+        const original = new URL(url);
+        const intermediate = new URL(`${BASE_URL}/sign-in/magic`);
+        intermediate.searchParams.set("token", original.searchParams.get("token") ?? "");
+        intermediate.searchParams.set("email", identifier);
+        intermediate.searchParams.set("callbackUrl", original.searchParams.get("callbackUrl") ?? "/dashboard");
+
         const { error } = await resend.emails.send({
           from: "Bijeen <hello@bijeen.app>",
           to: identifier,
           subject: "Jouw inloglink voor Bijeen",
-          html: buildMagicLinkHtml(url),
+          html: buildMagicLinkHtml(intermediate.toString()),
         });
         if (error) throw new Error(`Resend fout: ${error.message}`);
       },
