@@ -18,6 +18,42 @@ const ASPECT: Record<string, string> = {
   logo:   "aspect-[3/1]",
 };
 
+async function compressImage(file: File, maxBytes = 2 * 1024 * 1024): Promise<File> {
+  if (file.type === "image/svg+xml" || file.size <= maxBytes) return file;
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const canvas = document.createElement("canvas");
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
+      const MAX_DIM = 2048;
+      if (w > MAX_DIM || h > MAX_DIM) {
+        const ratio = MAX_DIM / Math.max(w, h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+      const tryQuality = (q: number) => {
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error("Compressie mislukt")); return; }
+          if (blob.size <= maxBytes || q <= 0.2) {
+            resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+          } else {
+            tryQuality(Math.round((q - 0.15) * 100) / 100);
+          }
+        }, "image/jpeg", q);
+      };
+      tryQuality(0.85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("Afbeelding laden mislukt")); };
+    img.src = objectUrl;
+  });
+}
+
 export function ImageUpload({
   value,
   onChange,
@@ -34,8 +70,9 @@ export function ImageUpload({
     setError("");
     setUploading(true);
     try {
+      const compressed = await compressImage(file);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", compressed);
       const res  = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Upload mislukt");
@@ -102,7 +139,7 @@ export function ImageUpload({
                 }
               </div>
               <p className="text-xs text-ink-muted text-center px-4">{placeholder}</p>
-              <p className="text-[10px] text-ink-muted/50">PNG, JPG, WebP · max 2 MB</p>
+              <p className="text-[10px] text-ink-muted/50">PNG, JPG, WebP · grote foto&apos;s worden automatisch verkleind</p>
             </>
           )}
         </div>
