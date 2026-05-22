@@ -143,7 +143,7 @@ export default function EditEventPage() {
         {/* Tagline */}
         <div className="card-base p-5">
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs font-bold text-ink-muted uppercase tracking-wider">Tagline</label>
+            <label className="text-xs font-bold text-ink-muted uppercase tracking-wider">Het thema</label>
             <AiGenButton
               type="tagline"
               context={{ title: form.title }}

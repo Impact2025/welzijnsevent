@@ -246,7 +246,7 @@ export default function NewEventPage() {
         <div className="card-base p-5">
           <div className="flex items-center justify-between mb-2">
             <label className="block text-xs font-bold text-ink-muted uppercase tracking-wider">
-              Tagline
+              Het thema
             </label>
             <AiGenButton
               type="tagline"
