@@ -226,7 +226,7 @@ export function AiPanel() {
   };
 
   return (
-    <div className="card-base overflow-hidden mb-5 sm:mb-7">
+    <div data-tour="ai-panel" className="card-base overflow-hidden mb-5 sm:mb-7">
       {/* ── Header / toggle ───────────────────────────────── */}
       <button
         onClick={() => setOpen((o) => !o)}

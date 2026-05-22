@@ -85,6 +85,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
 
       {/* Search / Command palette trigger */}
       <button
+        data-tour="search"
         onClick={() => {
           const e = new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true });
           window.dispatchEvent(e);
@@ -157,7 +158,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
         {SETTINGS_NAV.map(({ href, icon: Icon, label }) => {
           const active = path.startsWith(href);
           return (
-            <Link key={href} href={href} className={cn(
+            <Link key={href} href={href} data-tour="settings" className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mt-auto",
               active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75 hover:bg-white/5"
             )}>

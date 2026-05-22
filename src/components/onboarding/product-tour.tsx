@@ -17,17 +17,85 @@ import {
   TrendingUp,
   Zap,
   PartyPopper,
+  Search,
+  Settings,
+  Calendar,
+  Bot,
+  Radio,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TOUR_STEPS, TourStep, TourPosition } from "./tour-config";
 
-const STORAGE_KEY   = "bijeen_tour_v1";
-const PAD           = 10;    // px padding around highlighted element
-const BALLOON_W     = 360;   // desktop balloon width
-const BALLOON_H     = 260;   // approximate (for placement math)
-const GAP           = 16;    // gap between spotlight edge and balloon
-const MD_BREAKPOINT = 768;   // mobile/desktop switch
+const STORAGE_KEY    = "bijeen_tour_v2";
+const PAD            = 10;
+const BALLOON_W      = 360;
+const BALLOON_W_WIDE = 440;
+const BALLOON_H      = 260;
+const GAP            = 16;
+const MD_BREAKPOINT  = 768;
+
+// ─── Welcome features grid ────────────────────────────────────────────────────
+
+const WELCOME_FEATURES = [
+  { emoji: "📅", label: "Evenementen",      desc: "Aanmeldpagina in 5 min"     },
+  { emoji: "🎫", label: "Tickets",          desc: "iDEAL, Visa & gratis"       },
+  { emoji: "📱", label: "QR check-in",      desc: "Scan met elke smartphone"   },
+  { emoji: "⚡", label: "Live polls & Q&A", desc: "Realtime interactie"        },
+  { emoji: "🤖", label: "AI Netwerk",       desc: "Slimste matches na event"   },
+  { emoji: "📊", label: "Impact rapport",   desc: "Subsidie-export in 1 klik"  },
+  { emoji: "👥", label: "CRM Contacten",    desc: "Alles over je deelnemers"   },
+  { emoji: "🙋", label: "Vrijwilligers",    desc: "Vacatures & pipeline"       },
+  { emoji: "📧", label: "E-mail flows",     desc: "Auto berichten & bulkmail"  },
+  { emoji: "✨", label: "AI Assistent",     desc: "Content op aanvraag"        },
+  { emoji: "🎤", label: "Sprekers",         desc: "Professionele eventsite"    },
+  { emoji: "🔒", label: "Multi-team",       desc: "Meerdere beheerders"        },
+];
+
+function WelcomeFeaturesGrid() {
+  return (
+    <div className="grid grid-cols-2 gap-1.5 px-5 pb-1">
+      {WELCOME_FEATURES.map(({ emoji, label, desc }) => (
+        <div
+          key={label}
+          className="flex items-center gap-2 bg-cream rounded-xl px-3 py-2.5 border border-sand/60"
+        >
+          <span className="text-base shrink-0 leading-none">{emoji}</span>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-ink leading-none">{label}</p>
+            <p className="text-[10px] text-ink-muted mt-0.5 truncate leading-snug">{desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Finish quick-start links ─────────────────────────────────────────────────
+
+const FINISH_LINKS = [
+  { emoji: "🎉", label: "Maak je eerste evenement", href: "/dashboard/events/new" },
+  { emoji: "⚙️", label: "Stel je organisatie in",   href: "/dashboard/instellingen" },
+  { emoji: "📚", label: "Bekijk de kennisbank",      href: "/kennisbank" },
+];
+
+function FinishLinks() {
+  return (
+    <div className="flex flex-col gap-1.5 px-5 pb-1">
+      {FINISH_LINKS.map(({ emoji, label, href }) => (
+        <a
+          key={href}
+          href={href}
+          className="flex items-center gap-3 bg-cream hover:bg-sand/70 rounded-xl px-4 py-2.5 border border-sand/60 transition-colors group"
+        >
+          <span className="text-base shrink-0 leading-none">{emoji}</span>
+          <p className="text-[12px] font-semibold text-ink flex-1">{label}</p>
+          <ArrowRight size={12} className="text-ink-muted/40 group-hover:text-terra-500 group-hover:translate-x-0.5 transition-all" />
+        </a>
+      ))}
+    </div>
+  );
+}
 
 // ─── Per-step visual identity ─────────────────────────────────────────────────
 
@@ -48,6 +116,11 @@ const STEP_META: Record<string, StepMeta> = {
     headerStyle: { background: "linear-gradient(135deg, #A8431F 0%, #D97706 100%)" },
     buttonStyle: { background: "linear-gradient(135deg, #A8431F 0%, #D97706 100%)" },
   },
+  search: {
+    Icon: Search,
+    headerStyle: { background: "linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%)" },
+    buttonStyle: { background: "linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%)" },
+  },
   nav: {
     Icon: LayoutGrid,
     headerStyle: { background: "linear-gradient(135deg, #2D5A3D 0%, #4A8C62 100%)" },
@@ -58,19 +131,40 @@ const STEP_META: Record<string, StepMeta> = {
     headerStyle: { background: "linear-gradient(135deg, #244A31 0%, #2D5A3D 100%)" },
     buttonStyle: { background: "linear-gradient(135deg, #244A31 0%, #2D5A3D 100%)" },
   },
+  "ai-panel": {
+    Icon: Bot,
+    headerStyle: { background: "linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)" },
+    buttonStyle: { background: "linear-gradient(135deg, #5B21B6 0%, #7C3AED 100%)" },
+  },
   "events-list": {
-    Icon: Zap,
+    Icon: Calendar,
     headerStyle: { background: "linear-gradient(135deg, #C8522A 0%, #92400E 100%)" },
     buttonStyle: { background: "linear-gradient(135deg, #C8522A 0%, #92400E 100%)" },
+  },
+  "live-features": {
+    Icon: Radio,
+    headerStyle: { background: "linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)" },
+    buttonStyle: { background: "linear-gradient(135deg, #0F766E 0%, #14B8A6 100%)" },
+  },
+  settings: {
+    Icon: Settings,
+    headerStyle: { background: "linear-gradient(135deg, #374151 0%, #6B7280 100%)" },
+    buttonStyle: { background: "linear-gradient(135deg, #374151 0%, #6B7280 100%)" },
   },
   finish: {
     Icon: PartyPopper,
     headerStyle: { background: "linear-gradient(135deg, #7C3AED 0%, #C8522A 100%)" },
     buttonStyle: { background: "linear-gradient(135deg, #7C3AED 0%, #C8522A 100%)" },
   },
+  // Catch-all for any unmapped step
+  _default: {
+    Icon: Zap,
+    headerStyle: { background: "linear-gradient(135deg, #C8522A 0%, #E8896A 100%)" },
+    buttonStyle: { background: "linear-gradient(135deg, #C8522A 0%, #E8896A 100%)" },
+  },
 };
 
-const FALLBACK_META = STEP_META.welcome;
+const FALLBACK_META = STEP_META._default;
 
 // ─── Spotlight geometry ───────────────────────────────────────────────────────
 
@@ -93,10 +187,6 @@ function measureTarget(selector: string): Rect | null {
   };
 }
 
-/**
- * Always 10-point polygon so CSS can transition smoothly between any two states.
- * null target → degenerate off-screen quad (full overlay, no visible hole).
- */
 function buildClipPath(rect: Rect | null, w: number, h: number): string {
   const { top, left, right, bottom } = rect ?? { top: -20, left: -20, right: -19, bottom: -19 };
   return (
@@ -114,25 +204,24 @@ function getBalloonPos(
   position: TourPosition | undefined,
   winW: number,
   winH: number,
+  balloonW: number = BALLOON_W,
 ): CSSProperties {
   if (!rect) return { top: "50%", left: "50%", transform: "translate(-50%,-50%)" };
 
   let top: number, left: number;
   switch (position) {
     case "right": top = rect.top + rect.height / 2 - BALLOON_H / 2; left = rect.right + GAP; break;
-    case "left":  top = rect.top + rect.height / 2 - BALLOON_H / 2; left = rect.left - BALLOON_W - GAP; break;
-    case "top":   top = rect.top - BALLOON_H - GAP; left = rect.left + rect.width / 2 - BALLOON_W / 2; break;
-    default:      top = rect.bottom + GAP;            left = rect.left + rect.width / 2 - BALLOON_W / 2;
+    case "left":  top = rect.top + rect.height / 2 - BALLOON_H / 2; left = rect.left - balloonW - GAP; break;
+    case "top":   top = rect.top - BALLOON_H - GAP; left = rect.left + rect.width / 2 - balloonW / 2; break;
+    default:      top = rect.bottom + GAP;            left = rect.left + rect.width / 2 - balloonW / 2;
   }
 
-  // Clamp within viewport, respecting actual balloon width
-  const effectiveW = Math.min(BALLOON_W, winW - 32);
+  const effectiveW = Math.min(balloonW, winW - 32);
   left = Math.max(16, Math.min(left, winW - effectiveW - 16));
   top  = Math.max(16, Math.min(top,  winH - BALLOON_H - 16));
   return { top, left };
 }
 
-/** Pick the right selector for the current device */
 function resolveTarget(s: TourStep, mobile: boolean): string | null {
   if (mobile && s.targetMobile !== undefined) return s.targetMobile;
   return s.target;
@@ -144,10 +233,10 @@ const CONFETTI_COLORS = ["#C8522A","#2D5A3D","#F59E0B","#3B82F6","#EC4899","#8B5
 
 function ConfettiBurst() {
   const pieces = useRef(
-    Array.from({ length: 56 }, (_, i) => ({
-      left:     10 + Math.random() * 80,
-      delay:    Math.random() * 0.9,
-      duration: 1.6 + Math.random() * 1.6,
+    Array.from({ length: 64 }, (_, i) => ({
+      left:     5 + Math.random() * 90,
+      delay:    Math.random() * 1.0,
+      duration: 1.8 + Math.random() * 1.6,
       size:     5 + Math.random() * 9,
       color:    CONFETTI_COLORS[i % CONFETTI_COLORS.length],
       rotate:   Math.random() * 360,
@@ -197,6 +286,8 @@ function TourCardInner({
 }: CardProps) {
   const { Icon, headerStyle, buttonStyle } = meta;
   const progressPct = ((step + 1) / total) * 100;
+  const isWelcome = currentStep.id === "welcome";
+  const isFinish  = currentStep.id === "finish";
 
   return (
     <>
@@ -220,7 +311,7 @@ function TourCardInner({
                 <p className="text-white/55 text-[9.5px] font-bold uppercase tracking-[0.14em]">
                   Stap {step + 1} van {total}
                 </p>
-                <h3 className="text-white font-extrabold text-[15px] leading-snug mt-0.5 max-w-[220px]">
+                <h3 className="text-white font-extrabold text-[15px] leading-snug mt-0.5 max-w-[240px]">
                   {currentStep.title}
                 </h3>
               </div>
@@ -248,6 +339,15 @@ function TourCardInner({
           {currentStep.description}
         </p>
       </div>
+
+      {/* Welcome features grid */}
+      {isWelcome && <WelcomeFeaturesGrid />}
+
+      {/* Finish quick-start links */}
+      {isFinish && <FinishLinks />}
+
+      {/* Spacer between feature content and footer */}
+      {(isWelcome || isFinish) && <div className="h-3" />}
 
       {/* Footer */}
       <div className={cn("flex items-center justify-between gap-3 px-5 pt-0", isMobile ? "pb-2" : "pb-4")}>
@@ -287,7 +387,6 @@ function TourCardInner({
               {isMobile && <span>Terug</span>}
             </button>
           ) : (
-            /* Placeholder to keep Volgende right-aligned on mobile step 1 */
             isMobile && <div className="flex-1" />
           )}
           <button
@@ -301,6 +400,8 @@ function TourCardInner({
           >
             {isLastStep ? (
               <span>Klaar&nbsp;🎉</span>
+            ) : isWelcome ? (
+              <><Sparkles size={isMobile ? 15 : 13} /> Start rondleiding</>
             ) : (
               <>Volgende <ArrowRight size={isMobile ? 15 : 13} /></>
             )}
@@ -327,14 +428,14 @@ export function ProductTour() {
   const isMobile    = winSize.w < MD_BREAKPOINT;
   const currentStep = TOUR_STEPS[step];
   const meta        = STEP_META[currentStep.id] ?? FALLBACK_META;
+  const balloonW    = currentStep.wide ? BALLOON_W_WIDE : BALLOON_W;
 
-  // ── Measure + scroll to target ───────────────────────────────────────────
   const updateTarget = useCallback((s: TourStep) => {
     const newW = window.innerWidth;
     const newH = window.innerHeight;
     setWinSize({ w: newW, h: newH });
 
-    const mobile  = newW < MD_BREAKPOINT;
+    const mobile   = newW < MD_BREAKPOINT;
     const selector = resolveTarget(s, mobile);
 
     if (!selector) { setTargetRect(null); return; }
@@ -346,7 +447,6 @@ export function ProductTour() {
     }
   }, []);
 
-  // ── Auto-start once for new users ────────────────────────────────────────
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEY)) {
       const t = setTimeout(() => { setActive(true); setBalloonVisible(true); }, 900);
@@ -354,14 +454,12 @@ export function ProductTour() {
     }
   }, []);
 
-  // ── Re-measure on step / active change ───────────────────────────────────
   useEffect(() => {
     if (!active) return;
     const t = setTimeout(() => updateTarget(currentStep), 80);
     return () => clearTimeout(t);
   }, [active, step, currentStep, updateTarget]);
 
-  // ── Resize handler ────────────────────────────────────────────────────────
   useEffect(() => {
     if (!active) return;
     const handle = () => {
@@ -371,20 +469,18 @@ export function ProductTour() {
     return () => { window.removeEventListener("resize", handle); cancelAnimationFrame(rafRef.current); };
   }, [active, currentStep, updateTarget]);
 
-  // ── Keyboard navigation ───────────────────────────────────────────────────
   useEffect(() => {
     if (!active) return;
     const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape")                       finish();
+      if (e.key === "Escape")                             finish();
       else if (e.key === "ArrowRight" || e.key === "Enter") advance();
-      else if (e.key === "ArrowLeft")               back();
+      else if (e.key === "ArrowLeft")                     back();
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, step]);
 
-  // ── Actions ───────────────────────────────────────────────────────────────
   const finish = useCallback(() => {
     localStorage.setItem(STORAGE_KEY, "1");
     setBalloonVisible(false);
@@ -405,7 +501,7 @@ export function ProductTour() {
         localStorage.setItem(STORAGE_KEY, "1");
         setActive(false);
         setShowConfetti(false);
-      }, 3000);
+      }, 3200);
     }
   }, [step, busy]);
 
@@ -420,11 +516,9 @@ export function ProductTour() {
   if (!active && !showConfetti) return null;
 
   const { w, h } = winSize;
-  const clipPath  = buildClipPath(targetRect, w, h);
+  const clipPath   = buildClipPath(targetRect, w, h);
   const isLastStep = step === TOUR_STEPS.length - 1;
 
-  // On mobile: if the spotlight target is in the bottom ~40% of the screen
-  // (e.g. the bottom nav), float the sheet above it so it doesn't overlap.
   const mobileSheetBottom = (() => {
     if (!isMobile || !targetRect) return 0;
     if (targetRect.bottom > h * 0.6) return h - targetRect.top + 12;
@@ -448,7 +542,7 @@ export function ProductTour() {
           <div
             className="fixed inset-0 z-[9000] cursor-pointer"
             style={{
-              backgroundColor: "rgba(18,16,14,0.76)",
+              backgroundColor: "rgba(18,16,14,0.80)",
               clipPath,
               transition: "clip-path 0.55s cubic-bezier(0.4,0,0.2,1)",
             }}
@@ -464,9 +558,9 @@ export function ProductTour() {
                 top: targetRect.top, left: targetRect.left,
                 width: targetRect.width, height: targetRect.height,
                 boxShadow:
-                  "0 0 0 2px rgba(200,82,42,0.65), " +
-                  "0 0 0 6px rgba(200,82,42,0.18), " +
-                  "0 0 24px 4px rgba(200,82,42,0.12)",
+                  "0 0 0 2px rgba(200,82,42,0.70), " +
+                  "0 0 0 6px rgba(200,82,42,0.20), " +
+                  "0 0 28px 6px rgba(200,82,42,0.14)",
                 transition:
                   "top 0.55s cubic-bezier(0.4,0,0.2,1), left 0.55s cubic-bezier(0.4,0,0.2,1), " +
                   "width 0.55s cubic-bezier(0.4,0,0.2,1), height 0.55s cubic-bezier(0.4,0,0.2,1)",
@@ -488,6 +582,8 @@ export function ProductTour() {
               style={{
                 bottom: sheetIsFloating ? mobileSheetBottom : 0,
                 transition: "transform 0.45s cubic-bezier(0.4,0,0.2,1)",
+                maxHeight: "85dvh",
+                overflowY: "auto",
               }}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
@@ -501,7 +597,6 @@ export function ProductTour() {
 
               <TourCardInner {...sharedCardProps} />
 
-              {/* iOS home-indicator safe area */}
               {!sheetIsFloating && <div className="pb-safe shrink-0" />}
             </div>
           )}
@@ -510,15 +605,15 @@ export function ProductTour() {
               DESKTOP — floating balloon
           ═══════════════════════════════════════════════════ */}
           {!isMobile && (() => {
-            const balloonPos = getBalloonPos(targetRect, currentStep.position, w, h);
-            const isCentered = !targetRect;
-            const effectiveW = Math.min(BALLOON_W, w - 32);
+            const balloonPos  = getBalloonPos(targetRect, currentStep.position, w, h, balloonW);
+            const isCentered  = !targetRect;
+            const effectiveW  = Math.min(balloonW, w - 32);
 
             return (
               <div
                 className={cn(
                   "fixed z-[9002] bg-white rounded-2xl overflow-hidden flex flex-col",
-                  "shadow-[0_24px_64px_-8px_rgba(0,0,0,0.40),0_4px_16px_-2px_rgba(0,0,0,0.20)]",
+                  "shadow-[0_24px_64px_-8px_rgba(0,0,0,0.42),0_4px_16px_-2px_rgba(0,0,0,0.22)]",
                   "transition-[opacity,transform] duration-300",
                   balloonVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
                 )}
