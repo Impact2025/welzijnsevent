@@ -50,10 +50,20 @@ export function EventActionsMenu({ eventId }: Props) {
     setDeleting(true);
     setOpen(false);
     try {
-      await fetch(`/api/events/${eventId}`, { method: "DELETE" });
+      const res = await fetch(`/api/events/${eventId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error ?? "Verwijderen mislukt. Probeer het opnieuw.");
+        setDeleting(false);
+        setConfirmDelete(false);
+        return;
+      }
       router.push("/dashboard/events");
-    } finally {
+      router.refresh();
+    } catch {
+      alert("Verwijderen mislukt. Controleer je verbinding.");
       setDeleting(false);
+      setConfirmDelete(false);
     }
   }
 
