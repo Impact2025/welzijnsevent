@@ -6,7 +6,10 @@ import { randomUUID } from "crypto";
 import { sendPaymentConfirmationEmail, sendRegistrationConfirmation } from "@/lib/email";
 import { formatDateTime } from "@/lib/utils";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not set");
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 
 export async function POST(req: Request) {
   const rawBody = await req.text();
@@ -17,6 +20,7 @@ export async function POST(req: Request) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) return NextResponse.json({ error: "Webhook secret niet geconfigureerd" }, { status: 500 });
 
+  const stripe = getStripe();
   let event: Stripe.Event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);

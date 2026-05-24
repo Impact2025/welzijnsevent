@@ -5,7 +5,10 @@ import { eq } from "drizzle-orm";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rate-limit";
 import { PaymentSchema, validationError } from "@/lib/validation";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not set");
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 
 export async function POST(req: Request) {
   const ip = getClientIp(req);
@@ -50,6 +53,7 @@ export async function POST(req: Request) {
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${req.headers.get("host")}`;
 
+  const stripe = getStripe();
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card", "ideal"],

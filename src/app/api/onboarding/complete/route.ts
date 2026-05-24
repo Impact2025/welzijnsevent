@@ -6,7 +6,10 @@ import { eq, desc } from "drizzle-orm";
 import { PLAN_PRICES_CENTS, FREE_PLANS } from "@/lib/plans";
 import { sendWelcomeTrialEmail, sendWelcomeCommunityEmail } from "@/lib/email";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_KEY) throw new Error("STRIPE_SECRET_KEY is not set");
+  return new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 
 const PLAN_LABELS: Record<string, string> = {
   welzijn: "Bijeen Welzijn",
@@ -127,6 +130,7 @@ export async function POST(req: Request) {
     })
     .returning();
 
+  const stripe = getStripe();
   const stripeSession = await stripe.checkout.sessions.create({
     mode: "payment",
     payment_method_types: ["card", "ideal"],
