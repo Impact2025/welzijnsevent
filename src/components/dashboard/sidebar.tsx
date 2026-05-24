@@ -61,7 +61,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
 
   return (
     <>
-    <aside className="hidden md:flex w-[220px] min-h-screen bg-[#12100E] flex-col py-5 px-3 shrink-0">
+    <aside className="hidden md:flex w-[220px] h-screen bg-[#12100E] flex-col py-5 px-3 shrink-0 overflow-hidden">
       {/* Logo */}
       <div className="px-2 mb-7">
         <Link href="/dashboard" className="inline-flex items-center px-1 py-1">
@@ -98,7 +98,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
       </button>
 
       {/* Navigation */}
-      <nav data-tour="nav" className="flex flex-col gap-0.5 flex-1">
+      <nav data-tour="nav" className="flex flex-col gap-0.5 flex-1 overflow-y-auto min-h-0">
         {/* Hoofdnavigatie */}
         {BASE_NAV.map(({ href, icon: Icon, label }) => {
           const active = path === href || (href !== "/dashboard" && path.startsWith(href));
@@ -153,13 +153,15 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
             ))}
           </>
         )}
+      </nav>
 
-        {/* Instellingen */}
+      {/* Altijd zichtbaar: Instellingen + Ontdek */}
+      <div className="flex flex-col gap-0.5 pt-1">
         {SETTINGS_NAV.map(({ href, icon: Icon, label }) => {
           const active = path.startsWith(href);
           return (
             <Link key={href} href={href} data-tour="settings" className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 mt-auto",
+              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150",
               active ? "bg-white/10 text-white" : "text-white/45 hover:text-white/75 hover:bg-white/5"
             )}>
               <Icon size={17} className={cn(active ? "text-terra-400" : "text-current")} strokeWidth={active ? 2.5 : 2} />
@@ -178,7 +180,7 @@ export function Sidebar({ orgName, orgLogo, plan, subscriptionActive, showCrm = 
           <ExternalLink size={17} strokeWidth={2} />
           Ontdek
         </a>
-      </nav>
+      </div>
 
       {/* User / Org footer */}
       <div className="border-t border-white/8 pt-4 mt-2">

@@ -5,10 +5,11 @@ import { EventCard } from "@/components/events/event-card";
 import { SmartTodos } from "@/components/dashboard/smart-todos";
 import { AiPanel } from "@/components/dashboard/ai-panel";
 import { CommunityBanner } from "@/components/dashboard/community-banner";
-import { Users, Calendar, Star, ArrowRight, Zap, AlertTriangle, Clock } from "lucide-react";
+import { Users, Calendar, Star, ArrowRight, Zap, AlertTriangle, Clock, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import { getCurrentOrg } from "@/lib/auth";
 import { PLAN_LIMITS } from "@/lib/plans";
+import { signOutAction } from "@/actions/auth";
 
 export default async function DashboardPage() {
   const org = await getCurrentOrg();
@@ -80,16 +81,36 @@ export default async function DashboardPage() {
     <div className="px-4 py-5 sm:p-7 max-w-3xl mx-auto animate-fade-in">
 
       {/* Page header */}
-      <div className="mb-5 sm:mb-8">
-        <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">
-          Dashboard
-        </p>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
-          Welkom terug
-        </h1>
-        <p className="text-sm text-ink-muted mt-1 font-medium">
-          {org.name} · Overzicht van je evenementen
-        </p>
+      <div className="mb-5 sm:mb-8 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-bold text-ink-muted uppercase tracking-widest mb-1">
+            Dashboard
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">
+            Welkom terug
+          </h1>
+          <p className="text-sm text-ink-muted mt-1 font-medium">
+            {org.name} · Overzicht van je evenementen
+          </p>
+        </div>
+        <div className="md:hidden flex items-center gap-1 shrink-0 mt-1">
+          <Link
+            href="/dashboard/instellingen"
+            className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-black/5 transition-colors"
+            title="Instellingen"
+          >
+            <Settings size={20} strokeWidth={2} />
+          </Link>
+          <form action={signOutAction}>
+            <button
+              type="submit"
+              title="Uitloggen"
+              className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-black/5 transition-colors"
+            >
+              <LogOut size={20} strokeWidth={2} />
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* Trial / expiry banner */}
