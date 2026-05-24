@@ -44,7 +44,7 @@ const categories = [
       },
       {
         q: "Zijn er verborgen kosten of transactiekosten?",
-        a: "Nee. De prijs op de prijzenpagina is wat je betaalt. Bij ticketverkoop betaal je de standaard transactiekosten van MultiSafePay (je eigen account), niet aan ons.",
+        a: "Nee. De prijs op de prijzenpagina is wat je betaalt. Bij ticketverkoop betaal je de standaard transactiekosten van Stripe (je eigen account), niet aan ons.",
       },
       {
         q: "Zijn er contracten of opzegtermijnen?",
@@ -56,11 +56,11 @@ const categories = [
       },
       {
         q: "Hoe werkt de facturatie?",
-        a: "Pay-per-event: je betaalt vooraf per event via iDEAL of creditcard. Abonnement: jaarlijkse factuur via MultiSafePay. Je ontvangt een BTW-factuur per e-mail.",
+        a: "Pay-per-event: je betaalt vooraf per event via iDEAL of creditcard. Abonnement: jaarlijkse factuur via Stripe. Je ontvangt een BTW-factuur per e-mail.",
       },
       {
         q: "Kan ik betaalde tickets verkopen aan deelnemers?",
-        a: "Ja. Je kunt per event meerdere tickettypes aanmaken met eigen prijzen. Deelnemers betalen via MultiSafePay (iDEAL, creditcard, etc.) en worden automatisch ingeschreven na geslaagde betaling.",
+        a: "Ja. Je kunt per event meerdere tickettypes aanmaken met eigen prijzen. Deelnemers betalen via Stripe (iDEAL, creditcard, etc.) en worden automatisch ingeschreven na geslaagde betaling.",
       },
     ],
   },

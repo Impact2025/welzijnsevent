@@ -183,7 +183,7 @@ export default function InstellingenPage() {
     setUpgrading(plan);
     setUpgradeError(null);
     try {
-      const res = await fetch("/api/payments/multisafepay/subscription", {
+      const res = await fetch("/api/payments/stripe/subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),
@@ -192,9 +192,7 @@ export default function InstellingenPage() {
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
-        const detail = data.details?.error_code
-          ? `MSP fout ${data.details.error_code}: ${data.details.error_info ?? data.error}`
-          : (data.error ?? "Betaallink aanmaken mislukt");
+        const detail = data.error ?? "Betaallink aanmaken mislukt";
         setUpgradeError(detail);
       }
     } catch {
@@ -573,7 +571,7 @@ export default function InstellingenPage() {
                       {upgrading === plan ? (
                         <><Loader2 size={12} className="animate-spin" /> Doorsturen...</>
                       ) : (
-                        <><ExternalLink size={12} /> Upgraden via MultiSafePay</>
+                        <><ExternalLink size={12} /> Upgraden via Stripe</>
                       )}
                     </button>
                   )}

@@ -563,7 +563,7 @@ export default function OnboardingPage() {
 
               {selectedPlan !== "community" && (
                 <p className="text-center text-xs text-ink-muted mt-4">
-                  Jaarlijkse betaling via MultiSafePay · Veilig &amp; AVG-compliant · Opzegbaar
+                  Jaarlijkse betaling via Stripe · Veilig &amp; AVG-compliant · Opzegbaar
                 </p>
               )}
             </div>

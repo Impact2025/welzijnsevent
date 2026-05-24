@@ -15,7 +15,7 @@ const PUBLIC_PREFIXES = [
   "/blog",
   "/kennisbank",
   "/api/pusher",
-  "/api/payments/multisafepay",
+  "/api/payments/stripe/webhook",
   "/api/social-wall",
   "/api/survey",
   "/api/custom-fields",

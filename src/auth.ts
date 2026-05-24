@@ -121,7 +121,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (new Date() > new Date(demoExpires)) return null;
 
-        const DEMO_EMAIL = "v.munster@weareimpact.nl";
+        const DEMO_EMAIL = process.env.DEMO_USER_EMAIL ?? "demo@bijeen.app";
         const existing = await db.select().from(authUsers)
           .where(eq(authUsers.email, DEMO_EMAIL)).limit(1);
 
@@ -129,7 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const [created] = await db.insert(authUsers).values({
           email: DEMO_EMAIL,
-          name:  "V. Munster",
+          name:  "Demo Gebruiker",
         }).returning();
         return created;
       },

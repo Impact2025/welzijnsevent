@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { auth } from "@/auth";
 import { db, organizations, subscriptions, authUsers } from "@/db";
 import { eq, desc } from "drizzle-orm";
-import { randomUUID } from "crypto";
 import { PLAN_PRICES_CENTS, FREE_PLANS } from "@/lib/plans";
 import { sendWelcomeTrialEmail, sendWelcomeCommunityEmail } from "@/lib/email";
 
-const MSP_API_BASE =
-  process.env.MULTISAFEPAY_ENV === "live"
-    ? "https://api.multisafepay.com/v1/json"
-    : "https://testapi.multisafepay.com/v1/json";
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+const PLAN_LABELS: Record<string, string> = {
+  welzijn: "Bijeen Welzijn",
+  netwerk: "Bijeen Netwerk",
+  organisatie: "Bijeen Organisatie",
+};
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -33,7 +36,6 @@ export async function POST(req: Request) {
     contactRole: contactRole || null,
   };
 
-  // Check for existing organisation
   const [existing] = await db
     .select()
     .from(organizations)
@@ -109,7 +111,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ redirect: "/dashboard" });
   }
 
-  // Paid plan: create pending subscription + MultiSafePay payment
+  // Betaald plan: maak subscription aan + Stripe Checkout Session
   const amountCents = PLAN_PRICES_CENTS[plan];
   if (!amountCents) {
     return NextResponse.json({ error: "Ongeldig plan" }, { status: 400 });
@@ -125,42 +127,37 @@ export async function POST(req: Request) {
     })
     .returning();
 
-  const apiKey = process.env.MULTISAFEPAY_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "Betaalprovider niet geconfigureerd" }, { status: 500 });
-  }
-
-  const orderId = `sub_${randomUUID()}`;
-
-  const mspPayload = {
-    type: "redirect",
-    order_id: orderId,
-    currency: "EUR",
-    amount: amountCents,
-    description: `Bijeen abonnement — ${plan}`,
-    payment_options: {
-      notification_url: `${baseUrl}/api/payments/multisafepay/webhook`,
-      redirect_url: `${baseUrl}/onboarding/succes`,
-      cancel_url: `${baseUrl}/onboarding`,
+  const stripeSession = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card", "ideal"],
+    customer_email: user?.email ?? undefined,
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: "eur",
+          unit_amount: amountCents,
+          product_data: {
+            name: `${PLAN_LABELS[plan] ?? plan} — jaarabonnement`,
+            description: "Geldig voor 1 jaar na betaling",
+          },
+        },
+      },
+    ],
+    metadata: {
+      type: "subscription",
+      subscriptionId: sub.id,
+      plan,
     },
-    customer: { locale: "nl_NL" },
-  };
-
-  const mspRes = await fetch(`${MSP_API_BASE}/orders?api_key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(mspPayload),
+    success_url: `${baseUrl}/onboarding/succes`,
+    cancel_url: `${baseUrl}/onboarding`,
+    locale: "nl",
   });
-
-  const mspData = await mspRes.json();
-  if (!mspRes.ok || !mspData.data?.payment_url) {
-    return NextResponse.json({ error: "Betaallink aanmaken mislukt", details: mspData }, { status: 502 });
-  }
 
   await db
     .update(subscriptions)
-    .set({ paymentId: orderId })
+    .set({ paymentId: stripeSession.id })
     .where(eq(subscriptions.id, sub.id));
 
-  return NextResponse.json({ paymentUrl: mspData.data.payment_url });
+  return NextResponse.json({ paymentUrl: stripeSession.url });
 }

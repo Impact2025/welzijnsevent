@@ -45,7 +45,7 @@ export default function PrivacyverklaringPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Naam en e-mailadres (voor inloggen via magic link)</li>
                 <li>Organisatienaam en logo</li>
-                <li>Abonnementsgegevens en betaalinformatie (via MultiSafepay)</li>
+                <li>Abonnementsgegevens en betaalinformatie (via Stripe)</li>
               </ul>
             </div>
             <div>

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { db, attendees, networkMatches, events, organizations } from "@/db";
+import { db, attendees, networkMatches, events } from "@/db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
-import { getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
+import { getCurrentOrg, getCurrentSubscription, isSubscriptionActive } from "@/lib/auth";
 import { PLAN_LIMITS } from "@/lib/plans";
 
 const INTEREST_LABELS: Record<string, string> = {
@@ -49,21 +49,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Evenement niet gevonden" }, { status: 404 });
     }
 
+    // Verify the authenticated user owns the organization this event belongs to
+    const userOrg = await getCurrentOrg();
+    if (!userOrg || userOrg.id !== event.organizationId) {
+      return NextResponse.json({ error: "Geen toegang tot dit evenement" }, { status: 403 });
+    }
+
     // Plan check: AI matching not available on trial
-    const [eventOrg] = await db.select().from(organizations).where(
-      eq(organizations.id, event.organizationId!)
-    );
-    if (eventOrg) {
-      const subscription = await getCurrentSubscription(eventOrg.id);
-      const active = isSubscriptionActive(subscription);
-      const plan = (active && subscription?.plan) ? subscription.plan : "trial";
-      const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.trial;
-      if (!limits.aiMatching) {
-        return NextResponse.json(
-          { error: "AI-koppeling is niet beschikbaar in de proefperiode. Upgrade naar Starter of hoger." },
-          { status: 403 }
-        );
-      }
+    const subscription = await getCurrentSubscription(userOrg.id);
+    const active = isSubscriptionActive(subscription);
+    const plan = (active && subscription?.plan) ? subscription.plan : "trial";
+    const limits = PLAN_LIMITS[plan as keyof typeof PLAN_LIMITS] ?? PLAN_LIMITS.trial;
+    if (!limits.aiMatching) {
+      return NextResponse.json(
+        { error: "AI-koppeling is niet beschikbaar in de proefperiode. Upgrade naar Starter of hoger." },
+        { status: 403 }
+      );
     }
 
     const allAttendees = await db
@@ -74,18 +75,15 @@ export async function POST(req: Request) {
     // Filter op GDPR opt-in — alleen deelnemers die toestemming gaven
     const optedIn = allAttendees.filter(a => a.networkingOptIn === true);
 
-    // Fallback: als niemand opt-in heeft gedaan, alle deelnemers gebruiken (backwards compat)
-    const matchPool = optedIn.length >= 2 ? optedIn : allAttendees;
-    const optInNote = optedIn.length >= 2
-      ? `(${optedIn.length} van ${allAttendees.length} deelnemers hebben toestemming gegeven voor netwerkkoppeling)`
-      : `(GDPR opt-in nog niet actief — alle ${allAttendees.length} deelnemers worden gebruikt)`;
-
-    if (matchPool.length < 2) {
+    if (optedIn.length < 2) {
       return NextResponse.json(
-        { error: "Minimaal 2 deelnemers met netwerktoestemming nodig voor AI-matching" },
+        { error: `Minimaal 2 deelnemers met netwerktoestemming nodig voor AI-matching. Nu: ${optedIn.length} van ${allAttendees.length}.` },
         { status: 400 }
       );
     }
+
+    const matchPool = optedIn;
+    const optInNote = `(${optedIn.length} van ${allAttendees.length} deelnemers hebben toestemming gegeven voor netwerkkoppeling)`;
 
     // Prioriteer deelnemers met ingevuld profiel (meer data = betere matches)
     const sorted = matchPool

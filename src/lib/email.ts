@@ -4,6 +4,16 @@ import { PLAN_LIMITS, PLAN_FEATURES } from "@/lib/plans";
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const REPLY_TO = "hello@bijeen.app";
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+function sanitizeUrl(url: string): string {
+  return /^https?:\/\//.test(url) ? url : "#";
+}
+function sanitizeCssColor(color: string): string {
+  return /^#[0-9A-Fa-f]{3,6}$/.test(color) ? color : "#C8522A";
+}
+
 // ─── Organisatie: welkomstmail (trial) ───────────────────────────────────────
 
 interface WelcomeTrialEmailProps {
@@ -28,9 +38,12 @@ export async function sendWelcomeTrialEmail(props: WelcomeTrialEmailProps) {
   });
 }
 
-function buildWelcomeTrialHtml({ firstName, orgName, expiryFormatted, dashboardUrl }: {
+function buildWelcomeTrialHtml({ firstName: _fn, orgName: _on, expiryFormatted, dashboardUrl: _du }: {
   firstName: string; orgName: string; expiryFormatted: string; dashboardUrl: string;
 }) {
+  const firstName    = escapeHtml(_fn);
+  const orgName      = escapeHtml(_on);
+  const dashboardUrl = sanitizeUrl(_du);
   return `<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -113,7 +126,10 @@ interface WelcomeCommunityEmailProps {
 
 export async function sendWelcomeCommunityEmail(props: WelcomeCommunityEmailProps) {
   if (!resend) return;
-  const { to, firstName, orgName, eventsPerYear, dashboardUrl } = props;
+  const { to, firstName: _fn, orgName: _on, eventsPerYear, dashboardUrl: _du } = props;
+  const firstName    = escapeHtml(_fn);
+  const orgName      = escapeHtml(_on);
+  const dashboardUrl = sanitizeUrl(_du);
 
   const upgradeHint = eventsPerYear && ["11-24", "25+"].includes(eventsPerYear)
     ? `<div style="background:#FFF4EF;border:1px solid #F5D4C4;border-radius:12px;padding:14px 18px;margin:0 0 24px;">
@@ -218,10 +234,13 @@ export async function sendPaymentConfirmationEmail(props: PaymentConfirmationEma
   });
 }
 
-function buildPaymentConfirmationHtml({ firstName, orgName, planLabel, features, amount, expiryFormatted, dashboardUrl }: {
+function buildPaymentConfirmationHtml({ firstName: _fn, orgName: _on, planLabel, features, amount, expiryFormatted, dashboardUrl: _du }: {
   firstName: string; orgName: string; planLabel: string; features: string[];
   amount: string; expiryFormatted: string; dashboardUrl: string;
 }) {
+  const firstName    = escapeHtml(_fn);
+  const orgName      = escapeHtml(_on);
+  const dashboardUrl = sanitizeUrl(_du);
   return `<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -315,7 +334,9 @@ interface WaitlistConfirmationProps {
 
 export async function sendWaitlistConfirmation(props: WaitlistConfirmationProps) {
   if (!resend) return;
-  const { to, name, eventTitle, position } = props;
+  const { to, name: _name, eventTitle: _et, position } = props;
+  const name       = escapeHtml(_name);
+  const eventTitle = escapeHtml(_et);
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
     replyTo: REPLY_TO,
@@ -371,7 +392,10 @@ interface WaitlistPromotionProps {
 
 export async function sendWaitlistPromotion(props: WaitlistPromotionProps) {
   if (!resend) return;
-  const { to, name, eventTitle, registerUrl } = props;
+  const { to, name: _name, eventTitle: _et, registerUrl: _ru } = props;
+  const name        = escapeHtml(_name);
+  const eventTitle  = escapeHtml(_et);
+  const registerUrl = sanitizeUrl(_ru);
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
     replyTo: REPLY_TO,
@@ -434,11 +458,17 @@ interface EventReminderEmailProps {
 
 export async function sendEventReminderEmail(props: EventReminderEmailProps) {
   if (!resend) return;
-  const { to, name, eventTitle, eventDate, eventLocation, qrCode, appUrl, orgName, orgLogo, orgColor } = props;
-  const ticketUrl   = `${appUrl}/ticket/${qrCode}`;
-  const brandColor  = orgColor ?? "#C8522A";
-  const brandDark   = adjustColor(brandColor, -20);
-  const brandHeader = orgLogo
+  const { to, name: _name, eventTitle: _et, eventDate: _ed, eventLocation: _el, qrCode, appUrl, orgName: _on, orgLogo: _ol, orgColor } = props;
+  const name         = escapeHtml(_name);
+  const eventTitle   = escapeHtml(_et);
+  const eventDate    = escapeHtml(_ed);
+  const eventLocation = _el ? escapeHtml(_el) : null;
+  const orgName      = _on ? escapeHtml(_on) : null;
+  const orgLogo      = _ol ? sanitizeUrl(_ol) : null;
+  const ticketUrl    = sanitizeUrl(`${appUrl}/ticket/${qrCode}`);
+  const brandColor   = sanitizeCssColor(orgColor ?? "#C8522A");
+  const brandDark    = adjustColor(brandColor, -20);
+  const brandHeader  = orgLogo
     ? `<img src="${orgLogo}" alt="${orgName ?? "Organisator"}" height="36" style="height:36px;width:auto;display:inline-block;max-width:160px;" />`
     : `<span style="color:#9E9890;font-size:13px;font-weight:600;">${orgName ?? "Bijeen"}</span>`;
 
@@ -504,8 +534,10 @@ interface ThankYouEmailProps {
 
 export async function sendThankYouWithSurveyEmail(props: ThankYouEmailProps) {
   if (!resend) return;
-  const { to, name, eventTitle, eventSlug, attendeeId, appUrl } = props;
-  const surveyUrl = `${appUrl}/e/${eventSlug}/survey?a=${attendeeId}`;
+  const { to, name: _name, eventTitle: _et, eventSlug, attendeeId, appUrl } = props;
+  const name       = escapeHtml(_name);
+  const eventTitle = escapeHtml(_et);
+  const surveyUrl  = sanitizeUrl(`${appUrl}/e/${eventSlug}/survey?a=${attendeeId}`);
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
@@ -598,13 +630,13 @@ function adjustColor(hex: string, amount: number): string {
 }
 
 function buildConfirmationHtml({
-  name,
-  eventTitle,
-  eventDate,
-  eventLocation,
-  ticketUrl,
-  orgName,
-  orgLogo,
+  name: _name,
+  eventTitle: _et,
+  eventDate: _ed,
+  eventLocation: _el,
+  ticketUrl: _tu,
+  orgName: _on,
+  orgLogo: _ol,
   orgColor,
   attendeeId,
 }: {
@@ -618,10 +650,17 @@ function buildConfirmationHtml({
   orgColor?: string | null;
   attendeeId?: string;
 }) {
-  const appUrl      = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
-  const brandColor  = orgColor ?? "#C8522A";
-  const brandDark   = adjustColor(brandColor, -20);
-  const brandHeader = orgLogo
+  const name          = escapeHtml(_name);
+  const eventTitle    = escapeHtml(_et);
+  const eventDate     = escapeHtml(_ed);
+  const eventLocation = _el ? escapeHtml(_el) : null;
+  const ticketUrl     = sanitizeUrl(_tu);
+  const orgName       = _on ? escapeHtml(_on) : null;
+  const orgLogo       = _ol ? sanitizeUrl(_ol) : null;
+  const appUrl        = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const brandColor    = sanitizeCssColor(orgColor ?? "#C8522A");
+  const brandDark     = adjustColor(brandColor, -20);
+  const brandHeader   = orgLogo
     ? `<img src="${orgLogo}" alt="${orgName ?? "Organisator"}" height="40" style="height:40px;width:auto;display:inline-block;max-width:180px;" />`
     : `<span style="color:#9E9890;font-size:13px;font-weight:600;">${orgName ?? "Bijeen"}</span>`;
 
@@ -741,8 +780,14 @@ export async function sendAdminNewAttendeeNotification(props: {
   appUrl: string;
 }) {
   if (!resend) return;
-  const { attendeeName, attendeeEmail, attendeeOrg, attendeeRole, eventTitle, eventDate, eventId, appUrl } = props;
-  const dashboardUrl = `${appUrl}/dashboard/events/${eventId}/deelnemers`;
+  const { attendeeName: _an, attendeeEmail: _ae, attendeeOrg: _ao, attendeeRole: _ar, eventTitle: _et, eventDate: _ed, eventId, appUrl } = props;
+  const attendeeName  = escapeHtml(_an);
+  const attendeeEmail = escapeHtml(_ae);
+  const attendeeOrg   = _ao ? escapeHtml(_ao) : null;
+  const attendeeRole  = _ar ? escapeHtml(_ar) : null;
+  const eventTitle    = escapeHtml(_et);
+  const eventDate     = escapeHtml(_ed);
+  const dashboardUrl  = sanitizeUrl(`${appUrl}/dashboard/events/${eventId}/deelnemers`);
 
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
@@ -828,7 +873,10 @@ export async function sendTeamInviteEmail(props: {
   invitedBy: string;
 }) {
   if (!resend) return;
-  const { to, orgName, inviteUrl, invitedBy } = props;
+  const { to, orgName: _on, inviteUrl: _iu, invitedBy: _ib } = props;
+  const orgName   = escapeHtml(_on);
+  const inviteUrl = sanitizeUrl(_iu);
+  const invitedBy = escapeHtml(_ib);
   await resend.emails.send({
     from: "Bijeen <hello@bijeen.app>",
     replyTo: REPLY_TO,
@@ -863,10 +911,12 @@ export async function sendTeamInviteEmail(props: {
   });
 }
 
-function buildBroadcastHtml({ attendeeName, eventTitle, message }: {
+function buildBroadcastHtml({ attendeeName: _an, eventTitle: _et, message: _msg }: {
   attendeeName: string; eventTitle: string; message: string;
 }) {
-  const paragraphs = message
+  const attendeeName = escapeHtml(_an);
+  const eventTitle   = escapeHtml(_et);
+  const paragraphs   = escapeHtml(_msg)
     .split(/\n\n+/)
     .map(p => `<p style="color:#5C5248;font-size:15px;line-height:1.7;margin:0 0 16px;">${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
@@ -911,8 +961,10 @@ interface VacancyApplicationConfirmationProps {
 
 export async function sendVacancyApplicationConfirmation(props: VacancyApplicationConfirmationProps) {
   if (!resend) return;
-  const { to, name, vacancyTitle, eventTitle } = props;
-  const firstName = name.split(" ")[0];
+  const { to, name: _name, vacancyTitle: _vt, eventTitle: _et } = props;
+  const firstName    = escapeHtml(_name.split(" ")[0]);
+  const vacancyTitle = escapeHtml(_vt);
+  const eventTitle   = escapeHtml(_et);
 
   await resend.emails.send({
     from:    "Bijeen <hello@bijeen.app>",
@@ -975,8 +1027,14 @@ interface VacancyApplicationAcceptedProps {
 
 export async function sendVacancyApplicationAccepted(props: VacancyApplicationAcceptedProps) {
   if (!resend) return;
-  const { to, name, vacancyTitle, eventTitle, shiftDate, shiftStart, shiftEnd, location, eventSlug } = props;
-  const firstName = name.split(" ")[0];
+  const { to, name: _name, vacancyTitle: _vt, eventTitle: _et, shiftDate: _sd, shiftStart: _ss, shiftEnd: _se, location: _loc, eventSlug } = props;
+  const firstName    = escapeHtml(_name.split(" ")[0]);
+  const vacancyTitle = escapeHtml(_vt);
+  const eventTitle   = escapeHtml(_et);
+  const shiftDate    = _sd  ? escapeHtml(_sd)  : null;
+  const shiftStart   = _ss  ? escapeHtml(_ss)  : null;
+  const shiftEnd     = _se  ? escapeHtml(_se)  : null;
+  const location     = _loc ? escapeHtml(_loc) : null;
   const detailsBlock = [
     shiftDate  ? `<tr><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#6B8F73;font-size:12px;font-weight:700;width:100px;">Datum</td><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#1C1814;font-size:14px;">${shiftDate}</td></tr>` : "",
     (shiftStart && shiftEnd) ? `<tr><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#6B8F73;font-size:12px;font-weight:700;">Tijd</td><td style="padding:8px 0;border-bottom:1px solid #E8F4EC;color:#1C1814;font-size:14px;">${shiftStart} – ${shiftEnd}</td></tr>` : "",
@@ -1040,8 +1098,10 @@ interface VacancyApplicationRejectedProps {
 
 export async function sendVacancyApplicationRejected(props: VacancyApplicationRejectedProps) {
   if (!resend) return;
-  const { to, name, vacancyTitle, eventTitle } = props;
-  const firstName = name.split(" ")[0];
+  const { to, name: _name, vacancyTitle: _vt, eventTitle: _et } = props;
+  const firstName    = escapeHtml(_name.split(" ")[0]);
+  const vacancyTitle = escapeHtml(_vt);
+  const eventTitle   = escapeHtml(_et);
 
   await resend.emails.send({
     from:    "Bijeen <hello@bijeen.app>",
@@ -1096,7 +1156,12 @@ interface NewVolunteerApplicationNotificationProps {
 
 export async function sendNewVolunteerApplicationNotification(props: NewVolunteerApplicationNotificationProps) {
   if (!resend) return;
-  const { to, volunteerName, volunteerEmail, vacancyTitle, eventTitle, dashboardUrl } = props;
+  const { to, volunteerName: _vn, volunteerEmail: _ve, vacancyTitle: _vt, eventTitle: _et, dashboardUrl: _du } = props;
+  const volunteerName  = escapeHtml(_vn);
+  const volunteerEmail = escapeHtml(_ve);
+  const vacancyTitle   = escapeHtml(_vt);
+  const eventTitle     = escapeHtml(_et);
+  const dashboardUrl   = sanitizeUrl(_du);
 
   await resend.emails.send({
     from:    "Bijeen <hello@bijeen.app>",
@@ -1155,13 +1220,16 @@ interface VacancyInvitationProps {
 
 export async function sendVacancyInvitation(props: VacancyInvitationProps) {
   if (!resend) return;
-  const { to, name, vacancyTitle, eventTitle, personalMessage, respondUrl, expiresAt } = props;
-  const firstName = name.split(" ")[0];
+  const { to, name: _name, vacancyTitle: _vt, eventTitle: _et, personalMessage: _pm, respondUrl: _ru, expiresAt } = props;
+  const firstName    = escapeHtml(_name.split(" ")[0]);
+  const vacancyTitle = escapeHtml(_vt);
+  const eventTitle   = escapeHtml(_et);
+  const respondUrl   = sanitizeUrl(_ru);
   const expiry = expiresAt.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
-  const msgBlock = personalMessage
+  const msgBlock = _pm
     ? `<div style="background:#FFF4EF;border-left:3px solid #C8522A;border-radius:0 12px 12px 0;padding:16px 20px;margin:0 0 24px;">
         <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Persoonlijk bericht</p>
-        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0;">${personalMessage.replace(/\n/g, "<br>")}</p>
+        <p style="color:#5C5248;font-size:14px;line-height:1.7;margin:0;">${escapeHtml(_pm).replace(/\n/g, "<br>")}</p>
        </div>`
     : "";
 
@@ -1229,11 +1297,16 @@ interface InvitationAcceptedConfirmationProps {
 
 export async function sendInvitationAcceptedConfirmation(props: InvitationAcceptedConfirmationProps) {
   if (!resend) return;
-  const { to, name, vacancyTitle, eventTitle, shiftDate, shiftStart, shiftEnd, location } = props;
-  const firstName = name.split(" ")[0];
+  const { to, name: _name, vacancyTitle: _vt, eventTitle: _et, shiftDate, shiftStart: _ss, shiftEnd: _se, location: _loc } = props;
+  const firstName    = escapeHtml(_name.split(" ")[0]);
+  const vacancyTitle = escapeHtml(_vt);
+  const eventTitle   = escapeHtml(_et);
+  const shiftStart   = _ss  ? escapeHtml(_ss)  : null;
+  const shiftEnd     = _se  ? escapeHtml(_se)  : null;
+  const location     = _loc ? escapeHtml(_loc) : null;
 
   const shiftRow = (shiftDate || shiftStart)
-    ? `<tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Tijdstip</td><td style="padding:6px 0;color:#1C1814;font-size:14px;">${shiftDate ? new Date(shiftDate).toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" }) : ""}${shiftStart ? ` · ${shiftStart}${shiftEnd ? `–${shiftEnd}` : ""}` : ""}</td></tr>`
+    ? `<tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;width:90px;">Tijdstip</td><td style="padding:6px 0;color:#1C1814;font-size:14px;">${shiftDate ? escapeHtml(new Date(shiftDate).toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" })) : ""}${shiftStart ? ` · ${shiftStart}${shiftEnd ? `–${shiftEnd}` : ""}` : ""}</td></tr>`
     : "";
   const locationRow = location
     ? `<tr><td style="padding:6px 0;color:#9E9890;font-size:12px;font-weight:700;">Locatie</td><td style="padding:6px 0;color:#1C1814;font-size:14px;">${location}</td></tr>`
@@ -1305,7 +1378,12 @@ interface InvitationResponseNotificationProps {
 
 export async function sendInvitationResponseNotification(props: InvitationResponseNotificationProps) {
   if (!resend) return;
-  const { to, volunteerName, volunteerEmail, vacancyTitle, eventTitle, action, dashboardUrl } = props;
+  const { to, volunteerName: _vn, volunteerEmail: _ve, vacancyTitle: _vt, eventTitle: _et, action, dashboardUrl: _du } = props;
+  const volunteerName  = escapeHtml(_vn);
+  const volunteerEmail = escapeHtml(_ve);
+  const vacancyTitle   = escapeHtml(_vt);
+  const eventTitle     = escapeHtml(_et);
+  const dashboardUrl   = sanitizeUrl(_du);
   const accepted = action === "accepted";
 
   await resend.emails.send({

@@ -26,7 +26,7 @@ export function UpgradeModal({ open, onClose, featureName }: UpgradeModalProps) 
     setUpgrading(plan);
     setError(null);
     try {
-      const res = await fetch("/api/payments/multisafepay/subscription", {
+      const res = await fetch("/api/payments/stripe/subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan }),

@@ -141,7 +141,7 @@ export default function RegisterPage() {
       const isPaid = selectedTicket && selectedTicket.price > 0;
 
       if (isPaid) {
-        const res = await fetch("/api/payments/multisafepay", {
+        const res = await fetch("/api/payments/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...form, eventId: event.id, slug: params.slug }),

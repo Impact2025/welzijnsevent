@@ -57,6 +57,7 @@
     "react-dom": "^18",
     "recharts": "^2.12.0",
     "resend": "^6.9.3",
+    "stripe": "^22.1.1",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "web-push": "^3.6.7",

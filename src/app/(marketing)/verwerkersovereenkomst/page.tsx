@@ -167,7 +167,7 @@ export default function VerwerkersovereenkomstPage() {
                     <tr><td className="px-3 py-2">Resend Inc.</td><td className="px-3 py-2">Transactionele e-mail</td><td className="px-3 py-2">VS*</td></tr>
                     <tr><td className="px-3 py-2">Pusher Ltd.</td><td className="px-3 py-2">Realtime communicatie</td><td className="px-3 py-2">EU</td></tr>
                     <tr><td className="px-3 py-2">OpenRouter (via Anthropic / Google)</td><td className="px-3 py-2">AI-netwerkkoppelingen</td><td className="px-3 py-2">VS*</td></tr>
-                    <tr><td className="px-3 py-2">MultiSafepay B.V.</td><td className="px-3 py-2">Betalingsverwerking</td><td className="px-3 py-2">NL (EU)</td></tr>
+                    <tr><td className="px-3 py-2">Stripe, Inc.</td><td className="px-3 py-2">Betalingsverwerking</td><td className="px-3 py-2">VS* (SCCs)</td></tr>
                   </tbody>
                 </table>
               </div>
