@@ -8,9 +8,6 @@ import { formatDateTime } from "@/lib/utils";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-// Stripe vereist de ruwe request body voor handtekening-verificatie
-export const config = { api: { bodyParser: false } };
-
 export async function POST(req: Request) {
   const rawBody = await req.text();
   const sig = req.headers.get("stripe-signature");
