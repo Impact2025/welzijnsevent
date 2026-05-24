@@ -15,12 +15,14 @@ const PUBLIC_PREFIXES = [
   "/blog",
   "/kennisbank",
   "/api/pusher",
-  "/api/payments/multisafepay/webhook",
+  "/api/payments/multisafepay",
   "/api/social-wall",
   "/api/survey",
   "/api/custom-fields",
   "/api/public",
   "/api/ai/assistant",
+  "/api/attendees",
+  "/api/waitlist",
 ];
 
 // Interne bijeen.app domeinen — geen custom domain routing
