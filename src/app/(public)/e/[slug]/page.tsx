@@ -16,6 +16,8 @@ type Dict = typeof nlDict;
 type Params = { slug: string };
 type SearchParams = { lang?: string };
 
+const BASE = (process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app").replace(/\/$/, "");
+
 function getDict(lang: string | undefined): Dict {
   return lang === "en" ? enDict : nlDict;
 }
@@ -25,13 +27,19 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const [event] = await db.select().from(events).where(eq(events.slug, params.slug));
   if (!event) return { title: "Event niet gevonden" };
+  const canonicalUrl = `${BASE}/e/${params.slug}`;
   return {
     title: event.title,
     description: event.tagline ?? event.description ?? undefined,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: event.title,
       description: event.tagline ?? event.description ?? undefined,
-      images: event.coverImage ? [event.coverImage] : [],
+      images: event.coverImage && !event.coverImage.startsWith("color:") ? [event.coverImage] : [],
+      url: canonicalUrl,
+      type: "website",
     },
   };
 }
@@ -87,8 +95,7 @@ export default async function PublicEventPage({
     : null;
 
   const langParam = searchParams.lang === "en" ? "?lang=en" : "";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
-  const eventUrl = `${appUrl}/e/${params.slug}`;
+  const eventUrl = `${BASE}/e/${params.slug}`;
 
   // Speakers: prefer DB speakers table, fallback to unique names from sessions
   const sessionSpeakers = eventSessions
@@ -100,8 +107,49 @@ export default async function PublicEventPage({
       return acc;
     }, []);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    ...(event.tagline || event.description
+      ? { description: event.tagline ?? event.description }
+      : {}),
+    startDate: event.startsAt?.toISOString(),
+    ...(event.endsAt ? { endDate: event.endsAt.toISOString() } : {}),
+    url: eventUrl,
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(event.coverImage && !event.coverImage.startsWith("color:")
+      ? { image: event.coverImage }
+      : {}),
+    ...(event.location || event.address
+      ? {
+          location: {
+            "@type": "Place",
+            name: event.location ?? event.address,
+            ...(event.address ? { address: event.address } : {}),
+          },
+        }
+      : {}),
+    ...(tickets.length > 0
+      ? {
+          offers: {
+            "@type": "Offer",
+            url: `${eventUrl}/register`,
+            priceCurrency: "EUR",
+            price: minPrice !== null ? (minPrice / 100).toFixed(2) : "0.00",
+            availability: "https://schema.org/InStock",
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="min-h-screen bg-white" style={{ "--brand": primaryColor } as React.CSSProperties}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Language switcher */}
       <div className="flex justify-end px-4 pt-3 max-w-2xl mx-auto gap-2 text-xs text-gray-500">
         <Link href={`/e/${params.slug}`} className={!searchParams.lang || searchParams.lang === "nl" ? "font-bold underline" : "hover:underline"}>NL</Link>

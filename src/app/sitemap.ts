@@ -101,15 +101,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let eventPages: MetadataRoute.Sitemap = [];
   let vacancyPages: MetadataRoute.Sitemap = [];
   try {
-    const publicEvents = await db
-      .select({
-        id:         events.id,
-        slug:       events.slug,
-        updatedAt:  events.updatedAt,
-        coverImage: events.coverImage,
-      })
-      .from(events)
-      .where(and(eq(events.isPublic, true), gte(events.endsAt, now)));
+    const [publicEvents, openVacancies] = await Promise.all([
+      db
+        .select({
+          id:         events.id,
+          slug:       events.slug,
+          updatedAt:  events.updatedAt,
+          coverImage: events.coverImage,
+        })
+        .from(events)
+        .where(and(eq(events.isPublic, true), gte(events.endsAt, now))),
+      // Open vacatures voor publieke aankomende events
+      db
+        .select({
+          id:        volunteerVacancies.id,
+          eventSlug: events.slug,
+          updatedAt: volunteerVacancies.updatedAt,
+        })
+        .from(volunteerVacancies)
+        .innerJoin(events, eq(volunteerVacancies.eventId, events.id))
+        .where(and(
+          eq(volunteerVacancies.status, "open"),
+          eq(events.isPublic, true),
+          gte(events.endsAt, now),
+        )),
+    ]);
+
+    // Alleen /vacatures-subpagina opnemen als er ook echt vacatures zijn
+    const slugsWithVacancies = new Set(
+      openVacancies.map(v => v.eventSlug).filter(Boolean) as string[]
+    );
 
     eventPages = publicEvents
       .filter(e => e.slug)
@@ -121,28 +142,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           priority: 0.8,
           ...(isImageUrl(e.coverImage) ? { images: [e.coverImage] } : {}),
         },
-        {
+        ...(slugsWithVacancies.has(e.slug!) ? [{
           url: `${BASE}/e/${e.slug}/vacatures`,
           lastModified: e.updatedAt ?? now,
           changeFrequency: "weekly" as const,
           priority: 0.65,
-        },
+        }] : []),
       ]);
-
-    // Open vacatures voor publieke aankomende events
-    const openVacancies = await db
-      .select({
-        id:        volunteerVacancies.id,
-        eventSlug: events.slug,
-        updatedAt: volunteerVacancies.updatedAt,
-      })
-      .from(volunteerVacancies)
-      .innerJoin(events, eq(volunteerVacancies.eventId, events.id))
-      .where(and(
-        eq(volunteerVacancies.status, "open"),
-        eq(events.isPublic, true),
-        gte(events.endsAt, now),
-      ));
 
     vacancyPages = openVacancies
       .filter(v => v.eventSlug)
