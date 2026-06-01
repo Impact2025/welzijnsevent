@@ -20,15 +20,22 @@ const footerLinks = {
     { href: "mailto:hallo@bijeen.nl", label: "hallo@bijeen.nl"  },
     { href: "/over-ons#demo",         label: "Demo aanvragen"   },
   ],
+  Juridisch: [
+    { href: "/algemene-voorwaarden",   label: "Algemene voorwaarden"   },
+    { href: "/gebruiksvoorwaarden",    label: "Deelnemersvoorwaarden"  },
+    { href: "/privacyverklaring",      label: "Privacyverklaring"      },
+    { href: "/cookiebeleid",           label: "Cookiebeleid"           },
+    { href: "/verwerkersovereenkomst", label: "Verwerkersovereenkomst" },
+  ],
 };
 
 export function MarketingFooter() {
   return (
     <footer className="bg-cream border-t border-ink/8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-10 mb-12">
           {/* Brand */}
-          <div className="col-span-2 sm:col-span-1">
+          <div className="col-span-2 sm:col-span-3 lg:col-span-1">
             <Link href="/" className="inline-flex items-center px-1 py-1 mb-3">
               <BijeenWordmark variant="dark" size="md" />
             </Link>
@@ -64,8 +71,9 @@ export function MarketingFooter() {
             © {new Date().getFullYear()} Bijeen — een concept van WeAreImpact.nl
           </p>
           <div className="flex items-center gap-6">
+            <Link href="/algemene-voorwaarden" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Voorwaarden</Link>
             <Link href="/privacyverklaring" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Privacy</Link>
-            <Link href="/verwerkersovereenkomst" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Verwerkersovereenkomst</Link>
+            <Link href="/cookiebeleid" className="text-ink/30 hover:text-ink/60 text-xs transition-colors">Cookies</Link>
           </div>
         </div>
       </div>
