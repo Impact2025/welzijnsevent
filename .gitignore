@@ -33,3 +33,6 @@ yarn-error.log*
 
 .vercel
 .env*.local
+src/db/seed-blogs-2.ts
+src/db/seed-kennisbank-2.ts
+src/scripts/

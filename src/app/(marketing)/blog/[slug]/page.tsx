@@ -1,10 +1,10 @@
 import { db, blogPosts } from "@/db";
-import { eq } from "drizzle-orm";
+import { eq, desc, ne } from "drizzle-orm";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
+import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink, Linkedin, MessageCircle, Zap } from "lucide-react";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +45,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+function extractToc(html: string) {
+  const headings: { level: number; id: string; text: string }[] = [];
+  const re = /<h([23])[^>]*>(.*?)<\/h[23]>/gi;
+  let match;
+  while ((match = re.exec(html)) !== null) {
+    const text = match[2].replace(/<[^>]+>/g, "");
+    const id   = text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-");
+    headings.push({ level: parseInt(match[1]), id, text });
+  }
+  return headings;
+}
+
+function injectHeadingIds(html: string): string {
+  return html.replace(/<h([23])([^>]*)>(.*?)<\/h[23]>/gi, (_m, level, attrs, inner) => {
+    const text = inner.replace(/<[^>]+>/g, "");
+    const id   = text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9\s]/g, "").trim().replace(/\s+/g, "-");
+    return `<h${level}${attrs} id="${id}">${inner}</h${level}>`;
+  });
+}
+
 export default async function BlogPostPage({ params }: Props) {
   const [post] = await db
     .select()
@@ -54,6 +76,25 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post || post.status !== "published") notFound();
 
   const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const blogUrl = `${siteUrl}/blog/${params.slug}`;
+  const shareText = encodeURIComponent(`${post.title} — Bijeen`);
+  const shareUrl = encodeURIComponent(blogUrl);
+
+  const contentWithIds = injectHeadingIds(post.content || "");
+  const toc = extractToc(post.content || "");
+
+  // Related posts
+  const relatedPosts = post.tags && post.tags.length > 0
+    ? await db.select({
+        slug: blogPosts.slug, title: blogPosts.title, excerpt: blogPosts.excerpt,
+        readingTime: blogPosts.readingTime, publishedAt: blogPosts.publishedAt,
+        coverImage: blogPosts.coverImage,
+      })
+      .from(blogPosts)
+      .where(ne(blogPosts.slug, params.slug))
+      .orderBy(desc(blogPosts.publishedAt))
+      .limit(3)
+    : [];
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -147,9 +188,26 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Article body */}
       <div className="max-w-3xl mx-auto px-6 py-8">
+        {/* Table of Contents */}
+        {toc.length > 2 && (
+          <div className="mb-10 bg-[#F5F4F0] rounded-2xl border border-[#E8E4DE] p-5">
+            <p className="text-[10px] font-bold text-[#9E9890] uppercase tracking-widest mb-3">Inhoudsopgave</p>
+            <nav className="space-y-1.5">
+              {toc.map((h, i) => (
+                <a key={i} href={`#${h.id}`}
+                  className={`block text-sm leading-snug transition-colors hover:text-[#C8522A] ${
+                    h.level === 2 ? "font-semibold text-[#1C1814]" : "text-[#6B5E54] ml-4"
+                  }`}>
+                  {h.text}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
+
         <div
           className="tiptap-content prose prose-slate prose-lg max-w-none
-            prose-headings:font-black
+            prose-headings:font-black prose-headings:scroll-mt-28
             prose-h1:text-3xl prose-h1:text-[#1C1814]
             prose-h2:text-2xl prose-h2:text-[#C8522A] prose-h2:mt-10 prose-h2:mb-4
             prose-h3:text-xl prose-h3:text-[#1C1814] prose-h3:border-l-[3px] prose-h3:border-[#C8522A] prose-h3:pl-4
@@ -161,7 +219,7 @@ export default async function BlogPostPage({ params }: Props) {
             prose-pre:bg-[#1C1814] prose-pre:text-[#FAF9F7] prose-pre:rounded-2xl
             prose-img:rounded-2xl prose-img:border prose-img:border-[#E8E4DE]
             prose-hr:border-[#E8E4DE]"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: contentWithIds }}
         />
 
         {/* Internal links block */}
@@ -185,7 +243,7 @@ export default async function BlogPostPage({ params }: Props) {
           <p className="text-xs font-bold text-[#C8522A] uppercase tracking-widest mb-3">Kennisbank</p>
           <h3 className="font-black text-[#1C1814] mb-1">Praktische gidsen voor je evenement</h3>
           <p className="text-sm text-[#6B5E54] mb-4">
-            Van checklist tot GDPR: de Bijeen kennisbank bevat 20 gratis artikelen voor welzijnsorganisaties.
+          Van checklist tot GDPR: de Bijeen kennisbank bevat 24 gratis artikelen voor welzijnsorganisaties.
           </p>
           <Link href="/kennisbank"
             className="inline-flex items-center gap-2 text-sm font-semibold text-[#C8522A] hover:underline">
@@ -193,11 +251,76 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
 
+        {/* Social share */}
+        <div className="mt-10 pt-6 border-t border-[#E8E4DE]">
+          <p className="text-xs font-bold text-[#9E9890] uppercase tracking-widest mb-4 text-center">Dit artikel delen</p>
+          <div className="flex items-center justify-center gap-3">
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#0A66C2] hover:bg-[#004182] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors">
+              <Linkedin size={14} /> LinkedIn
+            </a>
+            <a href={`https://wa.me/?text=${shareText}%20${shareUrl}`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#25D366] hover:bg-[#1DA851] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors">
+              <MessageCircle size={14} /> WhatsApp
+            </a>
+            <a href={`https://x.com/intent/tweet?text=${shareText}&url=${shareUrl}`} target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-[#1C1814] hover:bg-[#3D3330] text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+              X
+            </a>
+          </div>
+        </div>
+
+        {/* Related posts */}
+        {relatedPosts.length > 0 && (
+          <div className="mt-12">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="text-xs font-bold text-[#C8522A] uppercase tracking-widest">Verder lezen</span>
+              <div className="flex-1 h-px bg-[#E8E4DE]" />
+            </div>
+            <div className="grid sm:grid-cols-3 gap-4">
+              {relatedPosts.map(rp => (
+                <Link key={rp.slug} href={`/blog/${rp.slug}`}
+                  className="group bg-white rounded-2xl border border-[#E8E4DE] p-4 hover:border-[#C8522A]/30 hover:shadow-md transition-all">
+                  <h3 className="font-bold text-[#1C1814] group-hover:text-[#C8522A] transition-colors text-xs leading-snug line-clamp-2">{rp.title}</h3>
+                  {rp.excerpt && <p className="text-[11px] text-[#9E9890] mt-1.5 line-clamp-2">{rp.excerpt}</p>}
+                  <div className="flex items-center gap-2 mt-3 text-[10px] text-[#9E9890]">
+                    {rp.readingTime && <span>{rp.readingTime} min</span>}
+                    {rp.publishedAt && <span>{format(new Date(rp.publishedAt), "d MMM yyyy", { locale: nl })}</span>}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Strong CTA */}
+        <div className="mt-12 bg-[#1C1814] rounded-3xl p-8 text-center text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#C8522A]/10 rounded-full -translate-y-16 translate-x-16 pointer-events-none" />
+          <div className="relative">
+            <p className="text-[#C8522A] text-xs font-bold uppercase tracking-widest mb-2">Gratis proberen</p>
+            <h3 className="text-xl font-black mb-2">Klaar om het anders te doen?</h3>
+            <p className="text-white/60 text-xs mb-6 max-w-md mx-auto leading-relaxed">
+              Plan een gratis demo van 30 minuten en ontdek hoe Bijeen je 4 uur per evenement bespaart. ANBI organisaties ontvangen 15% Sociaal Tarief korting.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/demo"
+                className="inline-flex items-center gap-2 bg-[#C8522A] hover:bg-[#B04420] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm">
+                <Zap size={14} className="fill-white" /> Gratis demo plannen
+              </Link>
+              <Link href="/gratis-impactrapport"
+                className="inline-flex items-center gap-2 border border-white/20 hover:border-white/40 text-white/80 hover:text-white font-semibold px-5 py-2.5 rounded-xl transition-all text-sm">
+                Gratis WMO impactrapport
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Back to blog */}
-        <div className="mt-10 pt-8 border-t border-[#E8E4DE] text-center">
+        <div className="mt-8 text-center">
           <Link href="/blog"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#6B5E54] hover:text-[#C8522A] transition-colors">
-            <ArrowLeft size={15} /> Terug naar alle artikelen
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#6B5E54] hover:text-[#C8522A] transition-colors">
+            <ArrowLeft size={13} /> Terug naar alle artikelen
           </Link>
         </div>
       </div>

@@ -34,12 +34,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+const PILLAR_SLUGS: Record<string, string> = {
+  "evenementen-organiseren": "checklist-welzijnsevenement",
+  "deelnemersbeheer": "deelnemersbeheer-grote-evenementen",
+  "impact-en-rapportage": "impact-meten-welzijnsevenement",
+  "digitale-tools": "event-software-nonprofits",
+  "gdpr-en-privacy": "gdpr-evenementen-welzijnsorganisatie",
+  "vrijwilligers": "vrijwilligers-werven-evenementen",
+};
+
 export default async function KennisbankCategoryPage({ params }: Props) {
   const [cat] = await db.select().from(knowledgeBaseCategories)
     .where(eq(knowledgeBaseCategories.slug, params.categorySlug));
   if (!cat) notFound();
 
-  const articles = await db.select({
+  const pillarSlug = PILLAR_SLUGS[params.categorySlug];
+
+  const allArticles = await db.select({
     id:          knowledgeBaseArticles.id,
     slug:        knowledgeBaseArticles.slug,
     title:       knowledgeBaseArticles.title,
@@ -47,6 +58,7 @@ export default async function KennisbankCategoryPage({ params }: Props) {
     readingTime: knowledgeBaseArticles.readingTime,
     publishedAt: knowledgeBaseArticles.publishedAt,
     tags:        knowledgeBaseArticles.tags,
+    coverImage:  knowledgeBaseArticles.coverImage,
   })
   .from(knowledgeBaseArticles)
   .where(and(
@@ -54,6 +66,11 @@ export default async function KennisbankCategoryPage({ params }: Props) {
     eq(knowledgeBaseArticles.status, "published"),
   ))
   .orderBy(desc(knowledgeBaseArticles.publishedAt));
+
+  // Split: pillar first, then rest sorted by date
+  const pillar = allArticles.find(a => a.slug === pillarSlug);
+  const rest = allArticles.filter(a => a.slug !== pillarSlug);
+  const articles = pillar ? [pillar, ...rest] : allArticles;
 
   // Alle andere categorieën voor de navigatiebalk onderaan
   const allCats = await db.select({
@@ -140,28 +157,56 @@ export default async function KennisbankCategoryPage({ params }: Props) {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {articles.map((article, i) => (
+            {articles.map((article, i) => {
+              const isPillar = pillar && i === 0 && article.slug === pillar.slug;
+              return (
               <Link
                 key={article.id}
                 href={`/kennisbank/${params.categorySlug}/${article.slug}`}
-                className="group flex items-start justify-between gap-4 bg-white rounded-2xl border border-[#E8E4DE] p-5 md:p-6 hover:border-[#C8522A]/40 hover:shadow-md transition-all"
+                className={`group flex items-start justify-between gap-4 rounded-2xl border p-5 md:p-6 transition-all ${
+                  isPillar
+                    ? "bg-[#FDF1EC] border-[#C8522A]/30 hover:border-[#C8522A]/60 hover:shadow-md"
+                    : "bg-white border-[#E8E4DE] hover:border-[#C8522A]/40 hover:shadow-md"
+                }`}
               >
                 <div className="flex gap-4 items-start flex-1 min-w-0">
-                  <span className="text-lg text-[#C8C0B8] font-black tabular-nums mt-0.5 shrink-0 w-6 text-right">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
+                  {isPillar ? (
+                    <span className="w-10 h-10 rounded-xl bg-[#C8522A] text-white flex items-center justify-center shrink-0 text-sm">
+                      ⭐
+                    </span>
+                  ) : (
+                    <span className="text-lg text-[#C8C0B8] font-black tabular-nums mt-0.5 shrink-0 w-6 text-right">
+                      {String(i).padStart(2, "0")}
+                    </span>
+                  )}
                   <div className="flex-1 min-w-0">
-                    <h2 className="font-bold text-[#1C1814] group-hover:text-[#C8522A] transition-colors leading-snug">
-                      {article.title}
-                    </h2>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className={`font-bold group-hover:text-[#C8522A] transition-colors leading-snug ${
+                        isPillar ? "text-lg text-[#1C1814]" : ""
+                      }`}>
+                        {article.title}
+                      </h2>
+                      {isPillar && (
+                        <span className="text-[10px] font-bold text-[#C8522A] bg-[#C8522A]/10 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                          Gids
+                        </span>
+                      )}
+                    </div>
+                    {isPillar && (
+                      <p className="text-[11px] text-[#C8522A] font-semibold mt-1">
+                        Start hier — dit is het complete overzichtsartikel in deze categorie
+                      </p>
+                    )}
                     {article.excerpt && (
-                      <p className="text-sm text-[#9E9890] mt-1.5 line-clamp-2 leading-relaxed">{article.excerpt}</p>
+                      <p className={`text-sm text-[#9E9890] mt-1.5 line-clamp-2 leading-relaxed ${isPillar ? "md:pr-12" : ""}`}>
+                        {article.excerpt}
+                      </p>
                     )}
                     <div className="flex flex-wrap items-center gap-3 mt-2.5 text-[11px] text-[#9E9890]">
                       {article.readingTime && (
                         <span className="flex items-center gap-1"><Clock size={11} /> {article.readingTime} min leestijd</span>
                       )}
-                      {article.tags && article.tags.slice(0, 2).map(t => (
+                      {!isPillar && article.tags && article.tags.slice(0, 2).map(t => (
                         <span key={t} className="bg-[#F0EDE8] text-[#6B5E54] px-2 py-0.5 rounded-full font-medium">
                           #{t}
                         </span>
@@ -169,9 +214,11 @@ export default async function KennisbankCategoryPage({ params }: Props) {
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} className="text-[#C8C0B8] group-hover:text-[#C8522A] transition-colors mt-1 shrink-0" />
+                <ChevronRight size={16} className={`transition-colors mt-1 shrink-0 ${
+                  isPillar ? "text-[#C8522A] group-hover:text-[#B04420]" : "text-[#C8C0B8] group-hover:text-[#C8522A]"
+                }`} />
               </Link>
-            ))}
+            )})}
           </div>
         )}
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, KeyRound } from "lucide-react";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
+import { trackEvent } from "@/lib/analytics";
 
 export default function DemoLoginPage() {
   const [code, setCode]       = useState("");
@@ -12,11 +13,18 @@ export default function DemoLoginPage() {
   const [error, setError]     = useState("");
   const router = useRouter();
 
+  // Track page view
+  useEffect(() => {
+    trackEvent("view_demo_page");
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code.trim()) return;
     setLoading(true);
     setError("");
+
+    trackEvent("demo_code_attempted", { code_length: code.trim().length });
 
     const result = await signIn("demo-code", {
       code: code.trim(),
@@ -30,6 +38,7 @@ export default function DemoLoginPage() {
     } else {
       // Reset tour zodat tooltips altijd opnieuw starten bij demo-inloggen
       localStorage.removeItem("bijeen_tour_v2");
+      trackEvent("demo_login_success");
       router.push("/dashboard");
     }
   };

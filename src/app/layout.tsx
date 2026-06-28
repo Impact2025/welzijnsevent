@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   themeColor: "#C8522A",
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.nl";
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -69,8 +69,8 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Bijeen",
-  url: "https://bijeen.nl",
-  logo: "https://bijeen.nl/icons/apple-touch-icon.png",
+  url: "https://bijeen.app",
+  logo: "https://bijeen.app/icons/apple-touch-icon.png",
   description: "Het eerste eventplatform gebouwd voor de welzijnssector.",
   email: "hallo@bijeen.nl",
   foundingDate: "2024",
@@ -82,13 +82,13 @@ const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Bijeen",
-  url: "https://bijeen.nl",
+  url: "https://bijeen.app",
   description: "Het eerste eventplatform gebouwd voor de welzijnssector.",
   potentialAction: {
     "@type": "SearchAction",
     target: {
       "@type": "EntryPoint",
-      urlTemplate: "https://bijeen.nl/ontdek?q={search_term_string}",
+      urlTemplate: "https://bijeen.app/ontdek?q={search_term_string}",
     },
     "query-input": "required name=search_term_string",
   },
@@ -114,6 +114,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        {/* RSS autodiscovery */}
+        <link rel="alternate" type="application/rss+xml" title="Bijeen Blog — Inzichten voor welzijnsorganisaties" href="/blog/rss" />
+        {/* GSC www-verificatie — haal code uit GSC > www.bijeen.app > Instellingen > Eigendom verifiëren > HTML tag */}
+        {/* <meta name="google-site-verification" content="..." /> */}
       </head>
       <body className={`${jakarta.variable} min-h-screen bg-cream font-sans`}>
         <JsonLd data={organizationSchema} />

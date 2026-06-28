@@ -562,7 +562,7 @@ export default async function HomePage() {
                   Gratis gidsen voor de welzijnssector
                 </h2>
                 <p className="mt-3 text-[#6B5E54] max-w-xl">
-                  20 praktische artikelen geschreven door Vincent van Munster — sociaal ondernemer
+                  24 praktische artikelen geschreven door Vincent van Munster — sociaal ondernemer
                   en voormalig directeur van Stichting de Baan.
                 </p>
               </div>
@@ -601,7 +601,7 @@ export default async function HomePage() {
             <div className="mt-8 text-center">
               <Link href="/kennisbank"
                 className="inline-flex items-center gap-2 bg-[#1C1814] hover:bg-[#2D2520] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
-                Bekijk alle 20 artikelen <ArrowRight size={14} />
+                Bekijk alle 24 artikelen <ArrowRight size={14} />
               </Link>
             </div>
           </div>

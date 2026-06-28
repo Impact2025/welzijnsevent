@@ -49,6 +49,34 @@ function extractFaq(html: string): { question: string; answer: string }[] {
   return items;
 }
 
+function extractHowTo(html: string): { step: number; name: string; text: string }[] {
+  const items: { step: number; name: string; text: string }[] = [];
+  // Match headings that contain "stap" or "fase" (case-insensitive)
+  const howToMatch = html.match(/<h[23][^>]*>(?:.*?)(?:stap|fase)[^<]*<\/h[23]>/i);
+  if (!howToMatch) return [];
+
+  // After the heading, find <ol> items
+  const stepRe = /<h[23][^>]*>([\s\S]*?)<\/h[23]>\s*(?:<p[^>]*>([\s\S]*?)<\/p>)?\s*<ol[^>]*>([\s\S]*?)<\/ol>/gi;
+  let match;
+  while ((match = stepRe.exec(html)) !== null) {
+    const sectionName = match[1].replace(/<[^>]+>/g, "").trim();
+    const olContent = match[3];
+    const liRe = /<li[^>]*>([\s\S]*?)<\/li>/g;
+    let liMatch;
+    while ((liMatch = liRe.exec(olContent)) !== null) {
+      const liText = liMatch[1].replace(/<[^>]+>/g, "").trim();
+      if (liText && !liText.startsWith("N") && items.length < 10) {
+        const stepName = liText.split(/[—–\-:]/)[0].trim();
+        const stepDesc = liText.includes(":") || liText.includes("—") || liText.includes("–")
+          ? liText.substring(liText.indexOf(":") + 1).trim()
+          : liText;
+        items.push({ step: items.length + 1, name: stepName || `Stap ${items.length + 1}`, text: stepDesc });
+      }
+    }
+  }
+  return items;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [article] = await db
     .select({ title: knowledgeBaseArticles.title, metaTitle: knowledgeBaseArticles.metaTitle, metaDescription: knowledgeBaseArticles.metaDescription, excerpt: knowledgeBaseArticles.excerpt })
@@ -89,6 +117,7 @@ export default async function KennisbankArticlePage({ params }: Props) {
   const contentWithIds = injectHeadingIds(article.content);
   const toc = extractToc(article.content);
   const faqItems = extractFaq(article.content.toLowerCase() !== article.content ? article.content : article.content);
+  const howToItems = extractHowTo(article.content);
 
   // Related articles
   const related = article.relatedArticles && article.relatedArticles.length > 0
@@ -161,6 +190,19 @@ export default async function KennisbankArticlePage({ params }: Props) {
     })),
   } : null;
 
+  const howToJsonLd = howToItems.length > 2 ? {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: article.title,
+    description: article.excerpt || "",
+    step: howToItems.map(item => ({
+      "@type": "HowToStep",
+      position: item.step,
+      name: item.name,
+      text: item.text,
+    })),
+  } : null;
+
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
       {/* Structured data */}
@@ -168,6 +210,9 @@ export default async function KennisbankArticlePage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {faqJsonLd && (
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
+      {howToJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
       )}
 
       {/* Cover image or color header */}
