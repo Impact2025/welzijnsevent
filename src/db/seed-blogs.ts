@@ -14,7 +14,7 @@ async function seed() {
   const { db } = await import("../db/index.js");
   const { blogPosts } = await import("../db/schema.js");
 
-  console.log("🌱 Seeding 3 blog posts...");
+  console.log("🌱 Seeding 9 blog posts...");
 
   const posts = [
     // ─── BLOG 1: AI-MATCHMAKING ────────────────────────────────────────────────
