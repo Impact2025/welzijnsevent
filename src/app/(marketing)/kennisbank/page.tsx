@@ -335,7 +335,7 @@ export default async function KennisbankPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                href="/demo"
+                href="/demo-aanvragen"
                 className="inline-flex items-center gap-2 bg-[#C8522A] hover:bg-[#B04420] text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
               >
                 Gratis demo plannen <ArrowRight size={15} />

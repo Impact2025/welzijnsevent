@@ -18,7 +18,7 @@ const footerLinks = {
   ],
   Contact: [
     { href: "mailto:hallo@bijeen.nl", label: "hallo@bijeen.nl"  },
-    { href: "/over-ons#demo",         label: "Demo aanvragen"   },
+    { href: "/demo-aanvragen",        label: "Demo aanvragen"   },
   ],
   Juridisch: [
     { href: "/algemene-voorwaarden",   label: "Algemene voorwaarden"   },

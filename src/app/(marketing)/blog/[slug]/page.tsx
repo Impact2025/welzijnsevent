@@ -304,7 +304,7 @@ export default async function BlogPostPage({ params }: Props) {
               Plan een gratis demo van 30 minuten en ontdek hoe Bijeen je 4 uur per evenement bespaart. ANBI organisaties ontvangen 15% Sociaal Tarief korting.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/demo"
+              <Link href="/demo-aanvragen"
                 className="inline-flex items-center gap-2 bg-[#C8522A] hover:bg-[#B04420] text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm">
                 <Zap size={14} className="fill-white" /> Gratis demo plannen
               </Link>

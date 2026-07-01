@@ -45,7 +45,7 @@ const PLANS = [
     badge: null,
     highlight: false,
     hint: "Onbeperkt, dedicated support",
-    demoUrl: "mailto:hello@bijeen.app?subject=Demo aanvragen — Organisatie plan",
+    demoUrl: "/demo-aanvragen",
   },
 ];
 

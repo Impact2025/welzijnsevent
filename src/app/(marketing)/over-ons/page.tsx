@@ -67,13 +67,13 @@ export default function OverOnsPage() {
             Het is gebouwd <em>vánuit</em> de sector, <em>vóór</em> de sector.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
-              href="mailto:hallo@bijeen.nl?subject=Demo aanvragen"
+            <Link
+              href="/demo-aanvragen"
               className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-bold px-6 py-3 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-terra-500/25"
             >
               <Calendar size={16} />
               Plan een gratis demo
-            </a>
+            </Link>
             <Link
               href="/functies"
               className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/14 border border-white/15 text-white font-semibold px-6 py-3 rounded-xl transition-all"
@@ -268,6 +268,20 @@ export default function OverOnsPage() {
             </div>
 
             <div className="space-y-4">
+              <Link
+                href="/demo-aanvragen"
+                className="group flex items-center gap-5 bg-terra-500 hover:bg-terra-600 rounded-2xl p-5 sm:p-6 transition-all shadow-lg shadow-terra-500/20"
+              >
+                <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center text-white shrink-0">
+                  <Calendar size={20} />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-white text-sm mb-0.5">Vul het demoformulier in</p>
+                  <p className="text-white/70 text-sm">4 korte stappen, klaar in 2 minuten</p>
+                </div>
+                <ArrowRight size={16} className="text-white/60 group-hover:translate-x-0.5 transition-transform shrink-0" />
+              </Link>
+
               <a
                 href="mailto:hallo@bijeen.nl?subject=Demo aanvragen"
                 className="group flex items-center gap-5 bg-white/6 hover:bg-white/10 border border-white/10 hover:border-terra-500/40 rounded-2xl p-5 sm:p-6 transition-all"

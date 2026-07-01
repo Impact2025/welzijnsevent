@@ -438,10 +438,10 @@ export default function EvenementenSoftwareWelzijnsorganisatiesPage() {
                   Gratis starten — geen creditcard
                 </Link>
                 <Link
-                  href="#demo"
+                  href="/demo-aanvragen"
                   className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/15 text-white font-semibold px-7 py-4 rounded-xl transition-colors border border-white/10 text-base"
                 >
-                  Bekijk demo van 30 min <ArrowRight size={16} />
+                  Plan demo van 30 min <ArrowRight size={16} />
                 </Link>
               </div>
             </div>
@@ -899,7 +899,10 @@ export default function EvenementenSoftwareWelzijnsorganisatiesPage() {
               <Link href="/faq" className="text-terra-600 hover:underline font-semibold">
                 Bekijk alle veelgestelde vragen
               </Link>{" "}
-              of plan een demo.
+              of{" "}
+              <Link href="/demo-aanvragen" className="text-terra-600 hover:underline font-semibold">
+                plan een demo
+              </Link>.
             </p>
           </div>
         </section>

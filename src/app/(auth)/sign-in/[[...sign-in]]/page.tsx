@@ -253,12 +253,12 @@ export default function SignInPage() {
                 {!isAdmin && (
                   <div className="mt-6 pt-5 border-t border-[#F0E8DC] text-center">
                     <p className="text-xs text-[#9E9890] mb-1.5">Liever eerst kennismaken?</p>
-                    <a
-                      href="mailto:hello@bijeen.app?subject=Demo aanvragen"
+                    <Link
+                      href="/demo-aanvragen"
                       className="text-sm font-semibold text-[#C8522A] hover:underline"
                     >
                       Plan een gratis demo →
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>

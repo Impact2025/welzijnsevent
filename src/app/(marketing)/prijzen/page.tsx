@@ -626,7 +626,7 @@ export default function PrijzenPage() {
               Maak gratis account aan
             </Link>
             <Link
-              href="/over-ons#demo"
+              href="/demo-aanvragen"
               className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/14 border border-white/15 text-white font-semibold px-6 py-3.5 rounded-xl transition-all text-sm"
             >
               Plan een demo

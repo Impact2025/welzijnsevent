@@ -18,6 +18,7 @@ const PUBLIC_PREFIXES = [
   "/blog",
   "/kennisbank",
   "/api/pusher",
+  "/api/leadgen",
   "/api/payments/stripe/webhook",
   "/api/social-wall",
   "/api/survey",
@@ -48,13 +49,6 @@ export default auth((req: NextRequest & { auth: unknown }) => {
   const { pathname } = req.nextUrl;
   const host = req.headers.get("host") ?? "";
   const baseHost = host.split(":")[0]; // strip port
-
-  // ── WWW → non-www redirect (canonical fix) ─────────────────
-  if (baseHost.startsWith("www.") && baseHost.endsWith("bijeen.app")) {
-    const url = req.nextUrl.clone();
-    url.host = "bijeen.app";
-    return NextResponse.redirect(url, 301);
-  }
 
   // ── White-label custom domain routing ─────────────────────
   // Als het verzoek binnenkomt op een onbekend domein → map naar /e/[org-slug]

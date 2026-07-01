@@ -844,6 +844,172 @@ export async function sendAdminNewAttendeeNotification(props: {
   });
 }
 
+// ─── Demo-aanvraag: bevestiging naar aanvrager ───────────────────────────────
+
+interface DemoRequestConfirmationProps {
+  to: string;
+  naam: string;
+  organisatieNaam: string;
+  sociaalTarief: boolean;
+  voorkeursmoment?: string | null;
+}
+
+export async function sendDemoRequestConfirmation(props: DemoRequestConfirmationProps) {
+  if (!resend) return;
+  const { to, naam: _naam, organisatieNaam: _org, sociaalTarief, voorkeursmoment } = props;
+  const naam = escapeHtml(_naam);
+  const org  = escapeHtml(_org);
+  const firstName = naam.split(" ")[0];
+
+  const momentLabel = voorkeursmoment
+    ? { ochtend: "ochtend", middag: "middag", avond: "avond" }[voorkeursmoment] ?? null
+    : null;
+
+  await resend.emails.send({
+    from: "Bijeen <hello@bijeen.app>",
+    replyTo: REPLY_TO,
+    to,
+    subject: "Je demo-aanvraag is ontvangen — Bijeen",
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Demo-aanvraag ontvangen</title></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="40" height="40" style="height:40px;width:40px;border-radius:8px;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:40px 32px;text-align:center;">
+        <h1 style="color:#FFFFFF;font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:-0.3px;">Bedankt voor je aanvraag!</h1>
+        <p style="color:rgba(255,255,255,0.82);font-size:14px;margin:0;">${org}</p>
+      </div>
+      <div style="padding:32px;">
+        <p style="color:#1C1814;font-size:16px;font-weight:700;margin:0 0 8px;">Hoi ${firstName},</p>
+        <p style="color:#6B6560;font-size:14px;line-height:1.75;margin:0 0 24px;">
+          We hebben je aanvraag voor een gratis demo van Bijeen ontvangen. Vincent neemt binnen
+          1 werkdag persoonlijk contact met je op om een moment van 30 minuten in te plannen${momentLabel ? ` (bij voorkeur in de ${momentLabel})` : ""}.
+        </p>
+        <div style="background:#FAF6F0;border-radius:14px;padding:20px 24px;margin:0 0 24px;">
+          <p style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px;">Wat je kunt verwachten</p>
+          <table cellpadding="0" cellspacing="0" width="100%">
+            ${[
+              "Persoonlijke rondleiding door de tool (~30 min)",
+              "Jouw specifieke use case centraal",
+              "Eerlijk antwoord of Bijeen bij jullie past",
+              "Geen verkooppraatje, geen verplichtingen",
+            ].map(f => `
+            <tr>
+              <td style="padding:6px 0;vertical-align:top;">
+                <span style="color:#C8522A;font-size:15px;margin-right:8px;">✓</span>
+                <span style="color:#1C1814;font-size:13px;">${f}</span>
+              </td>
+            </tr>`).join("")}
+          </table>
+        </div>
+        ${sociaalTarief ? `<div style="background:#FFF4EF;border:1px solid #F5D4C4;border-radius:12px;padding:16px 20px;margin:0 0 24px;">
+          <p style="color:#C8522A;font-size:13px;font-weight:700;margin:0 0 4px;">Sociaal Tarief</p>
+          <p style="color:#6B6560;font-size:12px;line-height:1.6;margin:0;">Je gaf aan ANBI- of WMO-gefinancierd te zijn. Vincent neemt het Sociaal Tarief (15% korting) mee in het gesprek.</p>
+        </div>` : ""}
+        <p style="color:#9E9890;font-size:12px;line-height:1.6;margin:0;">
+          Kan het niet wachten? Mail direct naar
+          <a href="mailto:hallo@bijeen.nl" style="color:#C8522A;">hallo@bijeen.nl</a>
+          of app naar
+          <a href="https://wa.me/31614470977" style="color:#C8522A;">Vincent op WhatsApp</a>.
+        </p>
+      </div>
+    </div>
+    <div style="text-align:center;padding:24px 0 0;">
+      <p style="color:#B8B3AC;font-size:12px;margin:0;">
+        <strong style="color:#9E9890;">Bijeen</strong> — het evenementenplatform voor de welzijnssector
+      </p>
+    </div>
+  </div>
+</body>
+</html>`,
+  });
+}
+
+// ─── Demo-aanvraag: notificatie naar intern ──────────────────────────────────
+
+export async function sendAdminDemoRequestNotification(props: {
+  naam: string;
+  email: string;
+  telefoon?: string | null;
+  organisatieNaam: string;
+  organisatieType?: string | null;
+  functie?: string | null;
+  eventsPerJaar?: string | null;
+  interesses?: string[];
+  toelichting?: string | null;
+  sociaalTarief: boolean;
+  voorkeursmoment?: string | null;
+  gewensteWeek?: string | null;
+}) {
+  if (!resend) return;
+  const {
+    naam: _naam, email, telefoon, organisatieNaam: _org, organisatieType, functie,
+    eventsPerJaar, interesses, toelichting: _toelichting, sociaalTarief, voorkeursmoment, gewensteWeek: _gw,
+  } = props;
+  const naam         = escapeHtml(_naam);
+  const org          = escapeHtml(_org);
+  const toelichting  = _toelichting ? escapeHtml(_toelichting) : null;
+  const gewensteWeek = _gw ? escapeHtml(_gw) : null;
+
+  const rows: [string, string | null | undefined][] = [
+    ["Naam", naam],
+    ["E-mail", email],
+    ["Telefoon", telefoon],
+    ["Organisatie", org],
+    ["Type organisatie", organisatieType],
+    ["Functie", functie],
+    ["Events per jaar", eventsPerJaar],
+    ["Interesses", (interesses ?? []).join(", ") || null],
+    ["Toelichting", toelichting],
+    ["Sociaal Tarief (ANBI/WMO)", sociaalTarief ? "Ja" : "Nee"],
+    ["Voorkeursmoment", voorkeursmoment],
+    ["Gewenste week", gewensteWeek],
+  ];
+
+  await resend.emails.send({
+    from: "Bijeen Leads <hello@bijeen.app>",
+    to: ADMIN_NOTIFICATION_EMAIL,
+    replyTo: email,
+    subject: `Nieuwe demo-aanvraag: ${org}`,
+    html: `<!DOCTYPE html>
+<html lang="nl">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#FAF6F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+  <div style="max-width:520px;margin:0 auto;padding:32px 16px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <img src="https://bijeen.app/bijeen-icon.png" alt="Bijeen" width="32" height="32" style="height:32px;width:32px;border-radius:6px;" />
+    </div>
+    <div style="background:#FFFFFF;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <div style="background:linear-gradient(135deg,#C8522A 0%,#A8421F 100%);padding:28px 32px;text-align:center;">
+        <h1 style="color:#FFFFFF;font-size:18px;font-weight:800;margin:0 0 4px;">Nieuwe demo-aanvraag</h1>
+        <p style="color:rgba(255,255,255,0.75);font-size:13px;margin:0;">${org}</p>
+      </div>
+      <div style="padding:28px 32px;">
+        <table cellpadding="0" cellspacing="0" width="100%" style="margin-bottom:24px;">
+          ${rows.filter(([, v]) => v).map(([label, value]) => `
+          <tr><td style="padding:8px 0;border-bottom:1px solid #F0EBE4;">
+            <span style="color:#9E9890;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:2px;">${label}</span>
+            <span style="color:#1C1814;font-size:14px;">${value}</span>
+          </td></tr>`).join("")}
+        </table>
+        <a href="mailto:${email}" style="display:block;text-align:center;background:#C8522A;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:14px;padding:13px 28px;border-radius:10px;">
+          Reageer naar ${naam} →
+        </a>
+      </div>
+    </div>
+    <p style="text-align:center;color:#B8B3AC;font-size:11px;margin-top:20px;">
+      Automatisch bericht van <strong style="color:#9E9890;">Bijeen</strong>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+}
+
 // ─── Custom broadcast ────────────────────────────────────────────────────────
 
 export async function sendCustomBroadcast(props: {

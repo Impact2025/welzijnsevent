@@ -144,11 +144,11 @@ const categories = [
             <a href="mailto:hallo@bijeen.nl" className="text-terra-500 underline underline-offset-2 hover:text-terra-600">
               hallo@bijeen.nl
             </a>{" "}
-            of vul het formulier in op de{" "}
-            <Link href="/over-ons#demo" className="text-terra-500 underline underline-offset-2 hover:text-terra-600">
-              Over ons-pagina
-            </Link>
-            . We plannen een demo in van 30 minuten, inclusief live walk-through van jouw use case.
+            of vul het{" "}
+            <Link href="/demo-aanvragen" className="text-terra-500 underline underline-offset-2 hover:text-terra-600">
+              demoformulier
+            </Link>{" "}
+            in. We plannen een demo in van 30 minuten, inclusief live walk-through van jouw use case.
           </>
         ),
       },
@@ -322,7 +322,7 @@ export default function FaqPage() {
               hallo@bijeen.nl
             </a>
             <Link
-              href="/over-ons#demo"
+              href="/demo-aanvragen"
               className="inline-flex items-center gap-2 bg-terra-500 hover:bg-terra-600 text-white font-semibold px-5 py-3 rounded-xl transition-colors shadow-lg shadow-terra-500/20 text-sm w-full sm:w-auto justify-center"
             >
               Demo aanvragen

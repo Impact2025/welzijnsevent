@@ -554,6 +554,27 @@ export const rapportLeads = pgTable("rapport_leads", {
   createdAt:        timestamp("created_at").defaultNow(),
 });
 
+// ── DEMO AANVRAGEN ───────────────────────────────────────────
+export const demoRequests = pgTable("demo_requests", {
+  id:               uuid("id").defaultRandom().primaryKey(),
+  naam:             text("naam").notNull(),
+  email:            text("email").notNull(),
+  telefoon:         text("telefoon"),
+  organisatieNaam:  text("organisatie_naam").notNull(),
+  organisatieType:  text("organisatie_type"),
+  functie:          text("functie"),
+  eventsPerJaar:    text("events_per_jaar"),
+  interesses:       jsonb("interesses").$type<string[]>().default([]),
+  toelichting:      text("toelichting"),
+  sociaalTarief:    boolean("sociaal_tarief").default(false),
+  voorkeursmoment:  text("voorkeursmoment"),
+  gewensteWeek:     text("gewenste_week"),
+  status:           text("status").default("nieuw"),
+  // nieuw | contacted | scheduled | done
+  emailSent:        boolean("email_sent").default(false),
+  createdAt:        timestamp("created_at").defaultNow(),
+});
+
 // ── KNOWLEDGE BASE ─────────────────────────────────────────
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
 
@@ -643,6 +664,7 @@ export type VacancyApplication    = typeof vacancyApplications.$inferSelect;
 export type VacancyInvitation     = typeof vacancyInvitations.$inferSelect;
 export type VolunteerMessage      = typeof volunteerMessages.$inferSelect;
 export type RapportLead           = typeof rapportLeads.$inferSelect;
+export type DemoRequest           = typeof demoRequests.$inferSelect;
 export type BlogPost                      = typeof blogPosts.$inferSelect;
 export type KnowledgeBaseCategory         = typeof knowledgeBaseCategories.$inferSelect;
 export type KnowledgeBaseArticle          = typeof knowledgeBaseArticles.$inferSelect;
