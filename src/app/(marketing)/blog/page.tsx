@@ -1,16 +1,63 @@
 import { db, blogPosts } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { Clock, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
 export const metadata: Metadata = {
-  title: "Blog — Bijeen",
+  title: "Blog",
   description: "Inzichten, tips en inspiratie voor welzijnsorganisaties die betere bijeenkomsten willen organiseren.",
+  keywords: ["welzijnsevenement organiseren", "sociaal domein blog", "WMO impact", "vrijwilligersbeheer", "event software nonprofit"],
+  authors: [{ name: "Vincent van Munster", url: "https://weareimpact.nl" }],
+  openGraph: {
+    title: "Blog — Bijeen",
+    description: "Inzichten, tips en inspiratie voor welzijnsorganisaties die betere bijeenkomsten willen organiseren.",
+    url: `${siteUrl}/blog`,
+    type: "website",
+    siteName: "Bijeen",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blog — Bijeen",
+    description: "Inzichten, tips en inspiratie voor welzijnsorganisaties die betere bijeenkomsten willen organiseren.",
+  },
+  alternates: { canonical: `${siteUrl}/blog` },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Bijeen Blog",
+  url: `${siteUrl}/blog`,
+  description: "Inzichten, tips en inspiratie voor welzijnsorganisaties die betere bijeenkomsten willen organiseren.",
+  author: {
+    "@type": "Person",
+    name: "Vincent van Munster",
+    url: "https://weareimpact.nl",
+    jobTitle: "Sociaal ondernemer en oprichter Bijeen",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Bijeen",
+    url: siteUrl,
+    logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png` },
+  },
+};
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+    { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
+  ],
 };
 
 export default async function BlogPage() {
@@ -33,6 +80,8 @@ export default async function BlogPage() {
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       {/* ── Hero ───────────────────────────────────────────────── */}
       <section className="relative bg-[#1C1814] text-white py-24 px-6 overflow-hidden">
@@ -70,12 +119,12 @@ export default async function BlogPage() {
             className="group block bg-white rounded-3xl border border-[#E8E4DE] overflow-hidden hover:border-[#C8522A]/50 hover:shadow-xl transition-all duration-300 mb-12">
             <div className="flex flex-col md:flex-row">
               {featured.coverImage ? (
-                <div className="md:w-2/5 shrink-0">
+                <div className="relative md:w-2/5 shrink-0 h-64 md:h-auto">
                   {featured.coverImage.startsWith("color:") ? (
                     <div className="w-full h-64 md:h-full" style={{ backgroundColor: featured.coverImage.slice(6) }} />
                   ) : (
-                    <img src={featured.coverImage} alt={featured.title}
-                      className="w-full h-64 md:h-full object-cover" />
+                    <Image src={featured.coverImage} alt={featured.title} fill priority
+                      sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
                   )}
                 </div>
               ) : (
@@ -132,8 +181,11 @@ export default async function BlogPage() {
                     post.coverImage.startsWith("color:") ? (
                       <div className="w-full h-44" style={{ backgroundColor: post.coverImage.slice(6) }} />
                     ) : (
-                      <img src={post.coverImage} alt={post.title}
-                        className="w-full h-44 object-cover" />
+                      <div className="relative w-full h-44">
+                        <Image src={post.coverImage} alt={post.title} fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover" />
+                      </div>
                     )
                   ) : (
                     <div className="h-44 bg-gradient-to-br from-[#F5F2EE] to-[#EDE8E2] flex items-center justify-center">

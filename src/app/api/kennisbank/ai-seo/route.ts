@@ -61,8 +61,8 @@ ${allCandidates || "(geen andere pagina's beschikbaar)"}
 
 Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 {
-  "metaTitle": "SEO-geoptimaliseerde paginatitel (max 60 tekens)",
-  "metaDescription": "Aansprekende meta omschrijving (max 155 tekens, bevat call-to-action)",
+  "metaTitle": "SEO-geoptimaliseerde paginatitel, bevat hoofdkeyword, MAXIMAAL 60 tekens TOTAAL inclusief de merknaam-suffix ' | Bijeen'",
+  "metaDescription": "Aansprekende meta omschrijving met call-to-action, MAXIMAAL 155 tekens TOTAAL",
   "excerpt": "Korte, pakkende intro voor het kennisbank-overzicht (2-3 zinnen, max 200 tekens)",
   "tags": ["tag1", "tag2", "tag3", "tag4"],
   "relatedArticles": ["slug-van-artikel-1", "slug-van-artikel-2"],
@@ -79,9 +79,9 @@ Regels:
 - internalLinks.text: kopieer een LETTERLIJK aaneengesloten fragment (3-8 woorden) dat EXACT zo in de artikeltekst hierboven staat — verzin NIETS nieuws
 - internalLinks: maximaal 3 links uit de lijst hierboven; gebruik de exacte hrefs uit die lijst
 - Als er geen relevante links zijn, geef een lege array
-- Als er geen relevante links zijn, geef een lege array
 - Alle tekst is in het Nederlands
-- De metaTitle moet het hoofdkeyword bevatten`;
+- De metaTitle moet het hoofdkeyword bevatten en eindigen op " | Bijeen" — tel deze 9 tekens MEE in de limiet van 60, dus de beschrijvende titel zelf is maximaal 51 tekens
+- Tel tekens exact — een metaTitle of metaDescription die de limiet overschrijdt wordt afgekeurd`;
 
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",

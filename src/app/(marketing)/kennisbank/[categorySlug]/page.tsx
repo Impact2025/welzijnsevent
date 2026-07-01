@@ -4,8 +4,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Clock, ChevronRight, ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
+import { truncateMetaTitle, truncateMetaDescription } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
@@ -16,10 +17,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .where(eq(knowledgeBaseCategories.slug, params.categorySlug));
   if (!cat) return { title: "Categorie niet gevonden" };
 
-  const title       = `${cat.name} — Kennisbank voor welzijnsorganisaties | Bijeen`;
-  const description = cat.description
+  const title       = truncateMetaTitle(`${cat.name} — Kennisbank | Bijeen`);
+  const description = truncateMetaDescription(cat.description
     ? `${cat.description} Praktische gidsen geschreven door Vincent van Munster, oprichter van Bijeen.`
-    : `Alle artikelen over ${cat.name} voor welzijnsorganisaties. Praktische gidsen van Bijeen.`;
+    : `Alle artikelen over ${cat.name} voor welzijnsorganisaties. Praktische gidsen van Bijeen.`);
 
   return {
     title,

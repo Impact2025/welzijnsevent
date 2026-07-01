@@ -27,6 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/over-ons`,                   lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/faq`,                        lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/demo`,                       lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/demo-aanvragen`,             lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/gratis-impactrapport`,                              lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE}/evenementen-software-welzijnsorganisaties`,         lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${BASE}/blog`,                       lastModified: now, changeFrequency: "weekly",  priority: 0.8 },

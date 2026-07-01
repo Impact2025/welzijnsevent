@@ -1,12 +1,14 @@
 import { db, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
 import { eq, and, inArray } from "drizzle-orm";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { Clock, ChevronRight, ArrowLeft, Tag } from "lucide-react";
+import { Clock, ChevronRight, ArrowLeft, Tag, ExternalLink } from "lucide-react";
 import { ArticleFeedback } from "@/components/kennisbank/article-feedback";
 import type { Metadata } from "next";
+import { truncateMetaTitle, truncateMetaDescription } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -84,8 +86,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .where(eq(knowledgeBaseArticles.slug, params.articleSlug));
   if (!article) return { title: "Artikel niet gevonden" };
 
-  const title       = article.metaTitle       || article.title;
-  const description = article.metaDescription || article.excerpt || "";
+  const title       = truncateMetaTitle(article.metaTitle || article.title);
+  const description = truncateMetaDescription(article.metaDescription || article.excerpt || "");
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
   return {
@@ -216,12 +218,12 @@ export default async function KennisbankArticlePage({ params }: Props) {
       )}
 
       {/* Cover image or color header */}
-      {(article as any).coverImage && (
-        (article as any).coverImage.startsWith("color:") ? (
-          <div className="w-full h-52 md:h-64" style={{ backgroundColor: (article as any).coverImage.slice(6) }} />
+      {article.coverImage && (
+        article.coverImage.startsWith("color:") ? (
+          <div className="w-full h-52 md:h-64" style={{ backgroundColor: article.coverImage.slice(6) }} />
         ) : (
-          <div className="w-full max-h-[360px] overflow-hidden">
-            <img src={(article as any).coverImage} alt={article.title} className="w-full object-cover max-h-[360px]" />
+          <div className="relative w-full h-52 md:h-64">
+            <Image src={article.coverImage} alt={article.title} fill priority sizes="100vw" className="object-cover" />
           </div>
         )
       )}
@@ -320,6 +322,35 @@ export default async function KennisbankArticlePage({ params }: Props) {
               prose-ul:text-[#3D3330] prose-ol:text-[#3D3330]"
             dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
+
+          {/* Internal links block */}
+          {article.internalLinks && article.internalLinks.length > 0 && (
+            <div className="mt-8 bg-[#F5F4F0] rounded-2xl border border-[#E8E4DE] p-6">
+              <p className="text-xs font-bold text-[#9E9890] uppercase tracking-widest mb-4">Meer lezen</p>
+              <div className="flex flex-col gap-3">
+                {article.internalLinks.map((link, i) => (
+                  <Link key={i} href={link.href}
+                    className="flex items-center justify-between group text-sm font-semibold text-[#1C1814] hover:text-[#C8522A] transition-colors">
+                    {link.text}
+                    <ExternalLink size={14} className="text-[#9E9890] group-hover:text-[#C8522A] transition-colors shrink-0" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Blog crosslink */}
+          <div className="mt-8 bg-[#FDF1EC] rounded-2xl border border-[#C8522A]/15 p-6">
+            <p className="text-xs font-bold text-[#C8522A] uppercase tracking-widest mb-3">Blog</p>
+            <h3 className="font-black text-[#1C1814] mb-1">Inzichten en verdieping</h3>
+            <p className="text-sm text-[#6B5E54] mb-4">
+              Op de Bijeen-blog delen we praktijkverhalen, trends en diepgaandere analyses voor welzijnsorganisaties.
+            </p>
+            <Link href="/blog"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#C8522A] hover:underline">
+              Ga naar de blog <ChevronRight size={13} />
+            </Link>
+          </div>
 
           {/* Was dit nuttig? */}
           <div className="mt-12 pt-8 border-t border-[#E8E4DE]">

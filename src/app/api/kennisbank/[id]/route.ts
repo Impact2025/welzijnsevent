@@ -57,6 +57,7 @@ export async function PATCH(
     if (body.categoryId      !== undefined) patch.categoryId      = body.categoryId;
     if (body.tags            !== undefined) patch.tags            = body.tags;
     if (body.relatedArticles !== undefined) patch.relatedArticles = body.relatedArticles;
+    if (body.internalLinks   !== undefined) patch.internalLinks   = body.internalLinks;
     if (body.metaTitle       !== undefined) patch.metaTitle       = body.metaTitle;
     if (body.metaDescription !== undefined) patch.metaDescription = body.metaDescription;
 

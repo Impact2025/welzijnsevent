@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     const {
       title, content = "", excerpt, coverImage, status = "draft",
       publishedAt: publishedAtRaw,
-      categoryId, tags = [], relatedArticles = [],
+      categoryId, tags = [], relatedArticles = [], internalLinks = [],
       metaTitle, metaDescription,
     } = body;
 
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
       slug, title: title.trim(), content, excerpt: excerpt ?? null,
       coverImage: coverImage ?? null,
       status, categoryId: categoryId ?? null,
-      tags, relatedArticles,
+      tags, relatedArticles, internalLinks,
       metaTitle: metaTitle ?? null, metaDescription: metaDescription ?? null,
       readingTime, publishedAt,
     }).returning();

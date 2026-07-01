@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 /* ─── Metadata ────────────────────────────────────────────────────────────── */
 
 export const metadata: Metadata = {
-  title: "Evenementen software voor welzijnsorganisaties | Bijeen",
+  title: "Evenementen software voor welzijnsorganisaties",
   description:
     "Bijeen is het Nederlandse event platform speciaal voor de welzijnssector. AVG-compliant, met AI-netwerken, WMO-impactrapportage en vrijwilligersbeheer. Gratis starten.",
   alternates: {

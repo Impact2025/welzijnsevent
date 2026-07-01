@@ -62,8 +62,8 @@ ${internalLinkCandidates || "(geen andere pagina's beschikbaar)"}
 
 Geef UITSLUITEND geldige JSON terug in dit exacte formaat:
 {
-  "metaTitle": "SEO-geoptimaliseerde paginatitel (max 60 tekens, bevat hoofdkeyword)",
-  "metaDescription": "Aansprekende meta omschrijving (max 155 tekens, bevat call-to-action)",
+  "metaTitle": "SEO-geoptimaliseerde paginatitel, bevat hoofdkeyword, MAXIMAAL 60 tekens TOTAAL inclusief de merknaam-suffix ' | Bijeen'",
+  "metaDescription": "Aansprekende meta omschrijving met call-to-action, MAXIMAAL 155 tekens TOTAAL",
   "excerpt": "Korte, pakkende intro voor de bloglijst (2-3 zinnen, max 200 tekens)",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
   "internalLinks": [
@@ -79,7 +79,8 @@ Regels:
 - internalLinks: kies maximaal 3 relevante posts uit de lijst hierboven die écht passen bij de inhoud
 - Als er geen relevante interne links zijn, geef een lege array
 - Alle tekst is in het Nederlands
-- De metaTitle moet de blog-URL slug bevatten of de merknaam "Bijeen"`;
+- De metaTitle moet eindigen op " | Bijeen" — tel deze 9 tekens MEE in de limiet van 60, dus de beschrijvende titel zelf is maximaal 51 tekens
+- Tel tekens exact — een metaTitle of metaDescription die de limiet overschrijdt wordt afgekeurd`;
 
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",

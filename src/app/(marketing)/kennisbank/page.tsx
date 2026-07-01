@@ -3,14 +3,15 @@ import { eq, count, desc, sql } from "drizzle-orm";
 import Link from "next/link";
 import { Clock, ArrowRight, BookOpen, Users, Award, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
+import { truncateMetaDescription } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
 export const metadata: Metadata = {
-  title: "Kennisbank voor welzijnsorganisaties | Bijeen",
-  description: "Praktische gidsen, checklists en vergelijkingen voor welzijnsorganisaties die evenementen organiseren. Geschreven door Vincent van Munster, oprichter van Bijeen en voormalig directeur van Stichting de Baan.",
+  title: "Kennisbank voor welzijnsorganisaties",
+  description: truncateMetaDescription("Praktische gidsen, checklists en vergelijkingen voor welzijnsorganisaties die evenementen organiseren. Geschreven door Vincent van Munster, oprichter van Bijeen en voormalig directeur van Stichting de Baan."),
   keywords: ["welzijnsevenement organiseren", "event software nonprofit", "deelnemersbeheer evenement", "WMO impactrapportage", "GDPR evenementen"],
   authors: [{ name: "Vincent van Munster", url: "https://weareimpact.nl" }],
   openGraph: {

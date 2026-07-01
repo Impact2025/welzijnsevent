@@ -39,6 +39,7 @@ interface Article {
   categoryId: string | null;
   tags: string[] | null;
   relatedArticles: string[] | null;
+  internalLinks: { text: string; href: string }[] | null;
   metaTitle: string | null;
   metaDescription: string | null;
   readingTime: number | null;
@@ -100,6 +101,7 @@ export default function EditKennisbankPage() {
       setCategoryId(article.categoryId ?? "");
       setTags(article.tags ?? []);
       setRelatedArticles(article.relatedArticles ?? []);
+      setInternalLinks(article.internalLinks ?? []);
       setMetaTitle(article.metaTitle ?? "");
       setMetaDescription(article.metaDescription ?? "");
       setCoverImage((article as unknown as Record<string, string>).coverImage ?? "");
@@ -121,11 +123,11 @@ export default function EditKennisbankPage() {
     title, slug, content, excerpt: excerpt || null,
     coverImage: coverImage || null,
     status, categoryId: categoryId || null,
-    tags, relatedArticles,
+    tags, relatedArticles, internalLinks,
     metaTitle: metaTitle || null,
     metaDescription: metaDescription || null,
     publishedAt: publishedAt || null,
-  }), [title, slug, content, excerpt, coverImage, status, categoryId, tags, relatedArticles, metaTitle, metaDescription, publishedAt]);
+  }), [title, slug, content, excerpt, coverImage, status, categoryId, tags, relatedArticles, internalLinks, metaTitle, metaDescription, publishedAt]);
 
   async function save(overrideStatus?: "draft" | "published") {
     if (!title.trim()) { showToast("Titel is verplicht", "err"); return; }

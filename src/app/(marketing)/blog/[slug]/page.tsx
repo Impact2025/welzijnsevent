@@ -1,13 +1,15 @@
 import { db, blogPosts } from "@/db";
-import { eq, desc, ne } from "drizzle-orm";
+import { eq, desc, ne, and } from "drizzle-orm";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink, Linkedin, MessageCircle, Zap } from "lucide-react";
 import type { Metadata } from "next";
+import { truncateMetaTitle, truncateMetaDescription } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface Props {
   params: { slug: string };
@@ -21,8 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!post) return { title: "Artikel niet gevonden" };
 
-  const title       = post.metaTitle       || post.title;
-  const description = post.metaDescription || post.excerpt || "";
+  const title       = truncateMetaTitle(post.metaTitle || post.title);
+  const description = truncateMetaDescription(post.metaDescription || post.excerpt || "");
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
   return {
@@ -83,18 +85,21 @@ export default async function BlogPostPage({ params }: Props) {
   const contentWithIds = injectHeadingIds(post.content || "");
   const toc = extractToc(post.content || "");
 
-  // Related posts
-  const relatedPosts = post.tags && post.tags.length > 0
-    ? await db.select({
-        slug: blogPosts.slug, title: blogPosts.title, excerpt: blogPosts.excerpt,
-        readingTime: blogPosts.readingTime, publishedAt: blogPosts.publishedAt,
-        coverImage: blogPosts.coverImage,
-      })
-      .from(blogPosts)
-      .where(ne(blogPosts.slug, params.slug))
-      .orderBy(desc(blogPosts.publishedAt))
-      .limit(3)
-    : [];
+  // Related posts — geef voorrang aan posts met overlappende tags, vul aan met de nieuwste
+  const otherPosts = await db.select({
+      slug: blogPosts.slug, title: blogPosts.title, excerpt: blogPosts.excerpt,
+      readingTime: blogPosts.readingTime, publishedAt: blogPosts.publishedAt,
+      coverImage: blogPosts.coverImage, tags: blogPosts.tags,
+    })
+    .from(blogPosts)
+    .where(and(ne(blogPosts.slug, params.slug), eq(blogPosts.status, "published")))
+    .orderBy(desc(blogPosts.publishedAt));
+
+  const postTags = new Set(post.tags ?? []);
+  const relatedPosts = otherPosts
+    .map(p => ({ ...p, sharedTags: (p.tags ?? []).filter(t => postTags.has(t)).length }))
+    .sort((a, b) => b.sharedTags - a.sharedTags)
+    .slice(0, 3);
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -138,8 +143,8 @@ export default async function BlogPostPage({ params }: Props) {
         post.coverImage.startsWith("color:") ? (
           <div className="w-full h-52 md:h-72" style={{ backgroundColor: post.coverImage.slice(6) }} />
         ) : (
-          <div className="w-full max-h-[420px] overflow-hidden">
-            <img src={post.coverImage} alt={post.title} className="w-full object-cover max-h-[420px]" />
+          <div className="relative w-full h-[280px] md:h-[420px] overflow-hidden">
+            <Image src={post.coverImage} alt={post.title} fill priority sizes="100vw" className="object-cover" />
           </div>
         )
       )}

@@ -602,6 +602,7 @@ export const knowledgeBaseArticles = pgTable("knowledge_base_articles", {
   categoryId:      uuid("category_id").references(() => knowledgeBaseCategories.id, { onDelete: "set null" }),
   tags:            jsonb("tags").$type<string[]>().default([]),
   relatedArticles: jsonb("related_articles").$type<string[]>().default([]),  // slugs
+  internalLinks:   jsonb("internal_links").$type<{ text: string; href: string }[]>().default([]),
   metaTitle:       text("meta_title"),
   metaDescription: text("meta_description"),
   readingTime:     integer("reading_time"),

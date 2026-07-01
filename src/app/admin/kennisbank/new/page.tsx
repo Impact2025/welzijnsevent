@@ -7,7 +7,7 @@ import { BlogEditor } from "@/components/blog/blog-editor";
 import { CoverPicker } from "@/components/blog/cover-picker";
 import {
   ArrowLeft, Save, Globe, FileText, Sparkles, Tag, X,
-  AlertCircle, CheckCircle2, Loader2, Clock, Calendar,
+  AlertCircle, CheckCircle2, Loader2, Clock, Link as LinkIcon, Calendar,
 } from "lucide-react";
 
 interface Category {
@@ -23,6 +23,7 @@ interface SeoResult {
   excerpt?: string;
   tags?: string[];
   relatedArticles?: string[];
+  internalLinks?: { text: string; href: string }[];
   focusKeyword?: string;
   readabilityTips?: string[];
 }
@@ -58,6 +59,7 @@ export default function NewKennisbankPage() {
   const [categoryId,      setCategoryId]      = useState("");
   const [tags,            setTags]            = useState<string[]>([]);
   const [relatedArticles, setRelatedArticles] = useState<string[]>([]);
+  const [internalLinks,   setInternalLinks]   = useState<{ text: string; href: string }[]>([]);
   const [metaTitle,       setMetaTitle]       = useState("");
   const [metaDescription, setMetaDescription] = useState("");
 
@@ -91,7 +93,7 @@ export default function NewKennisbankPage() {
         status: finalStatus,
         publishedAt: publishedAt || null,
         categoryId: categoryId || null,
-        tags, relatedArticles,
+        tags, relatedArticles, internalLinks,
         metaTitle: metaTitle || null,
         metaDescription: metaDescription || null,
       }),
@@ -121,6 +123,7 @@ export default function NewKennisbankPage() {
     if (seo.excerpt)           setExcerpt(seo.excerpt);
     if (seo.tags?.length)      setTags(prev => Array.from(new Set([...prev, ...seo.tags!])));
     if (seo.relatedArticles?.length) setRelatedArticles(prev => Array.from(new Set([...prev, ...seo.relatedArticles!])));
+    if (seo.internalLinks?.length) setInternalLinks(seo.internalLinks);
     showToast("SEO geoptimaliseerd!", "ok");
   }
 
@@ -340,6 +343,19 @@ export default function NewKennisbankPage() {
               className="w-full text-xs bg-[#F5F4F0] rounded-xl px-3 py-2 border border-[#E8E4DE] outline-none focus:border-[#C8522A] transition-colors font-mono" />
             <p className="text-[10px] text-[#9E9890] mt-1">AI vult dit automatisch in bij SEO-analyse</p>
           </div>
+
+          {internalLinks.length > 0 && (
+            <div className="bg-white rounded-2xl border border-[#E8E4DE] p-4">
+              <p className="text-xs font-bold text-[#6B5E54] uppercase tracking-wide mb-2 flex items-center gap-1.5"><LinkIcon size={12} /> Interne links (AI)</p>
+              {internalLinks.map((link, i) => (
+                <div key={i} className="flex items-center gap-2 group">
+                  <span className="flex-1 text-[11px] text-blue-600 truncate">{link.text}</span>
+                  <button type="button" onClick={() => setInternalLinks(l => l.filter((_, j) => j !== i))}
+                    className="text-[#C8C0B8] hover:text-red-500 opacity-0 group-hover:opacity-100"><X size={11} /></button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex flex-col gap-2">
