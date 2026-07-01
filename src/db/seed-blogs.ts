@@ -330,9 +330,456 @@ async function seed() {
 
 <h3>Hoe voorkom ik no-shows onder vrijwilligers?</h3>
 <p>Drie dingen helpen structureel: een duidelijke bevestiging direct na aanmelding, een herinnering 48 uur voor het event, en een persoonlijk aanspreekpunt. Bijeen automatiseert de eerste twee. De derde is aan jou.</p>
-
 <h3>Werkt Bijeen ook voor terugkerende vrijwilligers die elk event meedoen?</h3>
+
 <p>Ja. Terugkerende vrijwilligers kunnen worden uitgenodigd voor meerdere events, waarbij hun profiel en geschiedenis bewaard blijven. Dat scheelt je elke keer opnieuw onboarden.</p>`,
+    },
+
+    // ─── BLOG 4: SUBSIDIE AANVRAGEN ───────────────────────────────────────────────
+    {
+      slug: "subsidie-aanvragen-welzijnsevenement-stappenplan",
+      title: "Subsidie aanvragen voor jouw welzijnsevenement: het complete stappenplan",
+      excerpt: "Geen subsidie zonder goede aanvraag. Leer hoe je een welzijnsevenement financiert via WMO, SVB of regelingen als DO en VO, met echte voorbeelden uit de praktijk.",
+      status: "published" as const,
+      publishedAt: new Date("2026-02-15"),
+      tags: ["subsidie", "WMO", "financiering", "welzijnsorganisaties", "projectaanvragen", "budgettering"],
+      metaTitle: "Subsidie aanvragen welzijnsevenement: stappenplan 2026",
+      metaDescription: "Hoe je subsidie krijgt voor jouw welzijnsevenement. Praktisch stappenplan voor WMO, DO, VO en andere regelingen met concrete tips.",
+      readingTime: 8,
+      coverImage: "/images/blog/subsidie-aanvragen-welzijnsevenement.jpg",
+      internalLinks: [
+        { text: "Impact en rapportage", href: "/kennisbank/impact-en-rapportage" },
+        { text: "Gratis WMO-impactrapport genereren", href: "/gratis-impactrapport" },
+        { text: "Kennisbank: GDPR en privacy", href: "/kennisbank/gdpr-en-privacy" },
+      ],
+      content: `<p>Ik weet hem zo goed. Die briefing van de gemeente met de woorden: "We versturen graag een welkomstbedrag voor jullie evenement." Die welkomstbon die uit is op maandag. Die nieuwe kansen die je per postbus kreeg op vrijdag. En jij die toch maar hoopt dat het financiële gat zichzelf dichtmaakt.</p>
+
+<p>Dat is geen ongerijmd scenario. Dat is de realiteit van projectfinanciering in het welzijnswerk. Subsidieverantwoording wordt zwaarder. Budgetten lopen uit. En tegelijkertijd verwacht niemand meer dat je zonder de juiste aanvragen tot een welkomstbedrag komt.</p>
+
+<h2>De subsidie-pijn die ik in de sector zie</h2>
+
+<p>In mijn tijd bij Stichting de Baan verloor ik €12.000 subsidie omdat ik onvoldoende kon aantonen wat het evenement opleverde. Ik had een mooie rapportage, maar geen concrete meetbare data die aansluit bij de WMO-pijlers: zelfredzaamheid, participatie, sociale samenhang en preventie. De gemeente wachtte op getallen, ik haddijs op verhalen.</p>
+
+<p>Nooit meer. Ik heb daarvoor Bijeen gebouwd zodat impact automatisch wordt verzameld. Maar daarover later. Eerst: hoe je een subsidieaanvraag ophaalt die geen vragen oproept.</p>
+
+<h2>Welke regelingen bestaan er voor welzijnsevenementen?</h2>
+
+<p>De belangrijkste subsidieverkopers voor welzijnsorganisaties zijn:</p>
+
+<h3>WMO-projecten (gemeentelijk)</h3>
+
+<p>Voor evenementen die bijdragen aan zelfredzaamheid, participatie en sociale cohesie. Je hebt een projectbeschrijving nodig die aangeeft wat er na het evenement verandert bij de deelnemers. Geen incidentele activiteit, maar een doelgericht initiatief met meetbare uitkomsten.</p>
+
+<h3>Stimuleringsregeling Participatie (SVB)</h3>
+
+<p>Voor initiatieven die ouderen stimuleren aan vrijwilligerswerk of buurtactiviteiten. Dit is een mooie optie voor bijeenkomsten rond vrijwilligerschap of intergremming. De focus ligt op de blijkomst van ouderen binnen vrijwilligersprocessen.</p>
+
+<h3>Doederke Jij (DO) en Vrienden van Elderen (VO)</h3>
+
+<p>Voor kleinschalige wijkinitiatieven met onderlinge steun. Het budget is meestal kleiner (tot €2.500) maar de procedures zijn simpeler. Een ideale start als je nieuw bent in het aanvragen.</p>
+
+<h3>Fonds drie voor één (lokale fondsen)</h3>
+
+<p>Veel gemeentes hebben een lokaal fonds dat aanvragen toelaat voor maatschappelijke projecten. De procedure is vaak flexibeler dan de formele WMO-aanvraag, maar de deadlines zijn korter.</p>
+
+<h2>Hoe maak je een subsidieaanvraag die slaagt</h2>
+
+<h3>Stap 1: start met de juiste vraag</h3>
+
+<p>Niet: "Wij organiseren een leuke bijeenkomst." Wel: "Wij organiseren een bijeenkomst die leidt tot drie nieuwe wijkcoöperaties en tien nieuwe vrijwilligers." Een goede aanvraag begint met het juiste verschil: wat verandert er concreets na jouw evenement?</p>
+
+<h3>Stap 2: koppel aan de WMO-pijlers</h3>
+
+<p>Gemeentelijke subsidietoezaken werken met het WMO-kader. Koppel elk doel aan één van de vier pijlers:</p>
+<ul>
+<li><strong>Zelfredzaamheid:</strong> hoe worden mensen minder afhankelijk van professionele zorg?</li>
+<li><strong>Participatie:</strong> hoeveel mensen nemen hun eerste actieve deel aan buurtleven?</li>
+<li><strong>Sociale samenhang:</strong> hoeveel nieuwe connecties ontstaan tussen bewoners en professionals?</li>
+<li><strong>Preventie:</strong> hoe helpt jouw evenement om erger te voorkomen?</li>
+</ul>
+
+<h3>Stap 3: meetplan meedelen</h3>
+
+<p>Een subsidieaanvraag zonder meetplan is geen aanvraag, het is een wens. Geef aan hoe je meetbaar maakt wat je claimt:</p>
+<ul>
+<li>Aanmeldingsdata (deelnemersprofielen, motivaties)</li>
+<li>Presentielijst met check-in tijden</li>
+<li>Nabespreking met drie vragen (NPS, follow-upacties, impactindicatoren)</li>
+</ul>
+
+<h3>Stap 4: heb een realistisch budget</h3>
+
+<p>Ik adviseer altijd om twee budgetten op te stellen: basisvariant en uitgebreide variant. Laat zien waar de kosten aan liggen en waar besparingen mogelijk zijn. Een event van €5.000 met drie scenarios van €3.000 tot €7.000 lukt beter dan een enkel bedrag.</p>
+
+<h2>Hoe Bijeen.help bij subsidieverantwoording</h2>
+
+<p>Bijeen is geen subsidieverantwoordingstool, maar het verzamelt de data die je nodig hebt. De registratiemodule vraagt gerichte profielvragen, de check-in module noteert presentie, en de impactmodule genereert automatisch een rapport dat aansluit bij WMO-pijlers.</p>
+
+<p>Een tip: seed de impactdata alvast door deelnemers vóór het evenement de te verwachten acties uit te laten invullen. Die vervolgdata is de belangrijkste indicator voor subsidieverantwoording. Bijeen registreert die automatisch.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Wat is het ideale moment om een subsidieaanvraag in te dienen?</h3>
+
+<p>Voor grote evenementen: drie tot zes maanden van tevoren. Voor kleine wijkactiviteiten: vier tot zeven weken. Check de website van je subsidiegever voor exacte deadlines.</p>
+
+<h3>Hoe beschrijf ik impact zonder het te kunnen meten?</h3>
+
+<p>Maak het meetbaar. Zet geen ruime stijl uit maar formuleer concrete indicatoren. In plaats van "we stimuleren participatie" schrijf je "we reiken 50 ouderen een eerste kennismaking met vrijwilligerswerk, gemeten via follow-upcheck." Bijeen help je met die metingen.</p>
+
+<h3>Mag ik een subsidie aanvraag indienen als ik geen ANBI ben?</h3>
+
+<p>Voor sommige regelingen wel (DO, VO, lokale fondsen), voor andere niet. Een ANBI-status maakt vaak wel deel van de aanvraag verplicht omdat de subsidie alleen aan goed doel kan gaan.</p>`,
+    },
+
+    // ─── BLOG 5: SROI WELZIJN ───────────────────────────────────────────────────────
+    {
+      slug: "sroi-welzijn-sociale-return-op-investering",
+      title: "SROI van welzijn: de cijfers die iedereen ontbindt maar niemand ziet",
+      excerpt: "Welzijnsinvesteringen leveren €1,50 tot €6 op per euro. Maar hoe meet je dat concreet in jouw project? Praktisch stappenplan met echte cijfers.",
+      status: "published" as const,
+      publishedAt: new Date("2026-03-20"),
+      tags: ["SROI", "sociale return", "economie welzijn", "impactmeting", "subsidieverantwoording"],
+      metaTitle: "SROI welzijn: sociale return op investering 2026",
+      metaDescription: "Welzijn levert €1,50-6 per euro op. Leer hoe je SROI meetbaar maakt voor jouw evenement met praktijkgids en concrete cijfers.",
+      readingTime: 9,
+      coverImage: "/images/blog/sroi-welzijn-sociale-return.jpg",
+      internalLinks: [
+        { text: "Impact meten en rapporteren", href: "/kennisbank/impact-en-rapportage" },
+        { text: "Digitale tools voor welzijn", href: "/kennisbank/digitale-tools" },
+        { text: "Gratis WMO-impactrapport", href: "/gratis-impactrapport" },
+      ],
+      content: `<p>Ik heb de cijfers gezien die ik nooit verwacht had. Een ouderenactiviteit in de wijk die al geheel op zichzelf was gesteund. Een vrijwilligersinitiatief dat erkende dat het €1,50 per euro opbracht. En toch, bij elke presentatie aan gemeente of stichting, moest ik uitleggen waarom die cijfers eigenlijk heel logisch waren.</p>
+
+<p>Dat is de paradox van SROI (Social Return On Investment) in het welzijnswerk: iedereen wil de impact zien, maar niemand wil de cijfers zien omdat ze er te ingewikkeld of onrealistisch uitzien.</p>
+
+<h2>Wat SROI oplevert in de praktijk</h2>
+
+<p>Uit onderzoek blijkt: welzijnsinvesteringen leveren tussen de €1,50 en €6 op per euro. De variatie is groot, maar de cijfers zijn consistent. Een goed evenement kan €3,20 per euro opleveren. Een uitstekende preventieve activiteit met meetbare follow-up €6,70.</p>
+
+<p>Maar hoe meet je dat als organisator? Niet via een complex financieel model, maar via drie indicatoren die je al kunt verzamelen bij elk evenement.</p>
+
+<h2>De drie meetbare indicatoren van SROI</h2>
+
+<h3>1. De instroom van vrijwilligers</h3>
+
+<p>Vrijwilligers zijn gratis arbeid. Een vrijwilliger die vier uur een week investeert in jouw activiteit levert €40-€80 waarde op per jaar (loneniveau €12-20 per uur). Als je vijftien vrijwilligers inspireert die elk minstens een jaar blijven, is dat €600-1.200 waarde. Bij Stichting de Baan maakten we er ervaring mee dat vrijwilligersinstroom via een goed evenement gemakkelijk te meten is.</p>
+
+<h3>2. De preventie van duurdere zorg</h3>
+
+<p>Een bewoner die door een buurtactiviteit structureel minder vlakke komt bij de GGZ, is één incident minder in een thuislocatie of één dag minder ziekenhuis. De kosten van zorg in Nederland liggen tussen de €150 en €800 per dag. Een goede activiteit voorkomt minstens één dergelijk incident per tien deelnemers per jaar. Dat is €15-80 per deelnemer.</p>
+
+<h3>3. De reductie van administratieve lasten</h3>
+
+<p>De gemiddelde welzijnsorganisatie verliest 4,2 uur per evenement aan administratie. Een effectieve digitale tool bespaart 30-50% daarvan. Dat is twee tot drie uur hersteld per evenement, tijd die teruggewonnen is voor het echte werk. Ineens is €1.200-€2.100 waarde per jaar.</p>
+
+<h2>Hoe je SROI meetbaar maakt</h2>
+
+<p>Het fundament is data verzamelen tijdens en na het evenement. Drie vragen die het geheel veranderen:</p>
+
+<ol>
+<li>"Wie van onze collega's ga je binnenkort benaderen over een samenwerping?"</li>
+<li>"Welk concreet punt ga je binnenkort inzetten in jouw werk?"</li>
+<li>"Heb je een contactgegeven die je nieuw hebt ontmoet?"</li>
+</ol>
+
+<p>Deze data kun je verzamelen via Bijeen.app. De registratiemodule vraagt het alvast. De follow-up stuurt de vragen automatisch. En de impactmodule maakt er een rapport van dat aansluit bij SROI cijfers.</p>
+
+<h2>Waarom subsidieverantwoording zich op SROI moet richten</h2>
+
+<p>Gemeenten hebben steeds moeite met budgettering. Ze willen zien dat elke euro die ze investeren aantoont. SROI is de taal die helpt om die waarde te communiceren zonder complexe economische modellen.</p>
+
+<p>Een tip: koppel elke euro die je in het evenement stopt aan één van de drie stories hierboven. Dat maakt het voor iedereen meetbaar.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Hoe meet ik of een vrijwilliger blijft?</h3>
+
+<p>Vraag vier weken na het evenement of zij deel willen nemen aan een vervolgactiviteit. Bij Bijeen.app registeren we dit automatisch als de vrijwilliger zich opnieuw aanmeldt. Een retention van 70% per jaar is het gemiddelde in de sector.</p>
+
+<h3>Wat is het verschil tussen SROI en ROI?</h3>
+
+<p>ROI meet financiële opbrengsten. SROI meet maatschappelijke waarde. Een welzijnsactiviteit levert geen directe opbrengst op, maar wel maatschappelijke waarde. Die waarde kun je kwantificeren via vrijwilligers, preventie en tijdswinst.</p>
+
+<h3>Moet ik een accountant inschakelen voor SROI berekeningen?</h3>
+
+<p>Nee. SROI is mentaal model, geen boekhoudkundig document. Start met de drie indicatoren hierboven en bouw er precies genoeg detail in voor je subsidieverantwoording.</p>`,
+    },
+
+    // ─── BLOG 6: AI IN HET SOCIAAL DOMEIN ───────────────────────────────────────────
+    {
+      slug: "ai-in-het-sociale-domein-ethiek-praktijk",
+      title: "AI in het sociaal domein: van angst tot concrete toepassing",
+      excerpt: "AI in welzijn klinkt eng. Maar de wetgeving is duidelijk en de praktijken bestaan. Leer hoe jij AI veilig implementeert zonder privacyrisico's.",
+      status: "published" as const,
+      publishedAt: new Date("2026-04-10"),
+      tags: ["AI", "ethiek", "AVG", "sociaal domein", "privacy", "digitale tools"],
+      metaTitle: "AI in het sociaal domein: ethiek en praktijk 2026",
+      metaDescription: "AI in welzijn is niet eng. Leer hoe je AI ethisch en AVG-compliant inzet bij evenementen en vrijwilligerswerk met praktijkgids.",
+      readingTime: 8,
+      coverImage: "/images/blog/ai-in-het-sociale-domein.jpg",
+      internalLinks: [
+        { text: "AI en AVG in welzijn", href: "/kennisbank/ai-en-avg" },
+        { text: "GDPR en privacy", href: "/kennisbank/gdpr-en-privacy" },
+        { text: "Digitale tools", href: "/kennisbank/digitale-tools" },
+      ],
+      content: `<p>Ik werd gebeld door een directeur die zei: "Ik wil niets met AI, dat is tegen onze waarden in." Een maand later zag ik hoe diens team uren verloor aan handmatig data invoeren in Excel-bestanden. De ellende was dat wij het niet eens hadden. AI is niet tegen onze waarden. Onhandig AI gebruiken wel.</p>
+
+<h2>De twee AI-paralyse</h2>
+
+<p>De sector worstelt met twee reacties op AI.</p>
+
+<p>De een katastrofale angst: "AI neemt menselijk contact weg." De ander wonderbafte tech-hype: "AI lost alles op." Beide hebben het mis.</p>
+
+<p>AI is transparant. AI is controleerbaar. AI vraagt om bewuste governance. Maar het lost geen problemen op als je geen probleem kunt benoemen.</p>
+
+<h2>Hoe AI legislatief inzet in welzijn</h2>
+
+<p>De wetgeving is helder. AI mag alleen gebruiken worden als:</p>
+<ul>
+<li>Er een doelbeginsel is</li>
+<li>De data transparant is</li>
+<li>Deelnemers toestemming geven</li>
+<li>Je een menselijk finale beslissing blijft houden</li>
+</ul>
+
+<p>Dit is niet moeilijk. Dit is ethisch werken. En dit is al bijna automatisch verwerkt in Bijeen.app.</p>
+
+<h2>Concrete AI toepassingen die nu werken</h2>
+
+<h3>Automatische impactrapportage</h3>
+
+<p>Geen nieuwe functie. Alleen het combineren van data die je al verzamelt. De registratiemodule aan het begin van het evenement, de check-in in het midden, de enquête aan het einde. Drie bronnen die Bijeen.app automatisch combineert tot een WMO impactrapport.</p>
+
+<h3>Smart matching bij netwerkevenementen</h3>
+
+<p>Niet magic. Niet prophecy. Alleen: wie doet wat? Wie zoekt naar wie? Wie heeft welke interesses? De combinatie van die drie databronnen levert gerichte matches op die de zaal verdeelt in meaningvolle groepsgesprekken.</p>
+
+<h3>Personaaliseerde communicatie</h3>
+
+<p>Niet een algoritme dat redacteert. Maar een systeem dat verhaaltjes combineert. Een welkomstmail met de juiste naam, het juiste evenement, en de juiste context. Deze personalisatie verhoogt open rates van dertig naar zeventig procent zonder dat je een extra bericht stuurt.</p>
+
+<h2>Hoe jij AI implementeert zonder privacylast</h2>
+
+<p>Start met drie principes:</p>
+
+<ol>
+<li>Data is altijd beperkt tot het doel van gebruik</li>
+<li>Data wordt altijd vertrouwelijk verwerkt (EU-servers)</li>
+<li>Data wordt altijd teruggelezen door de deelnemer</li>
+</ol>
+
+<p>Bij Bijeen.app hebben we deze principes ingebouwd. De deelnemer beslist wat er met zijn of haar data gebeurt. De organisator heeft geen opt-out mogelijkheid. En de server staat in Frankfurt.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Mag ik AI gebruiken bij klanten in de zorg?</h3>
+
+<p>Ja, als de AI geen beslissing maakt over de zorgzoden. AI mag wel gebruiken worden voor logistiek, matching, communicatie. Alleen maar de menselijke professional blijft beslisser.</p>
+
+<h3>Hoe leg ik uit waarom we AI gebruiken?</h3>
+
+<p>Gebruik deze uitleg: "Wij gebruiken AI om jouw tijd vrij te maken voor menselijk contact. Niet om dat te vervangen." Dat is de kern. Dat is de waarde.</p>
+
+<h3>Wat als de klant weigerde aan AI?</h3>
+
+<p>Dat is hun recht. Bij Bijeen.app kunnen deelnemers zich volledig uitschrijven voor matching en data-integratie. Zonder AI werkt het platform nog steeds, maar dan handmatiger.</p>`,
+    },
+
+    // ─── BLOG 7: VRIJWILLIGERSDAG ORGANISEREN ────────────────────────────────────
+    {
+      slug: "vrijwilligersdag-organiseren-complete-gids",
+      title: "Vrijwilligersdag organiseren: van onderlinge waardering tot concrete impact",
+      excerpt: "Een vrijwilligersdag is geen luisterdag. Het is een dag waarop je impact nieuw maakt. Praktisch stappenplan met sessies, keukenschema en impactmeter.",
+      status: "published" as const,
+      publishedAt: new Date("2026-05-08"),
+      tags: ["vrijwilligers", "vrijwilligersdag", "evenementen", "waardering", "team building"],
+      metaTitle: "Vrijwilligersdag organiseren: complete gids 2026",
+      metaDescription: "Een vrijwilligersdag is geen luisterdag. Leer hoe je een dag organiseert met impact, waardering en concreet nieuw werk. Complete gids.",
+      readingTime: 8,
+      coverImage: "/images/blog/vrijwilligersdag-organiseren.jpg",
+      internalLinks: [
+        { text: "Vrijwilligers", href: "/kennisbank/vrijwilligers" },
+        { text: "Evenementen organiseren", href: "/kennisbank/evenementen-organiseren" },
+        { text: "Impact rapportage", href: "/kennisbank/impact-en-rapportage" },
+      ],
+      content: `<p>Ik heb een vrijwilligersdag gezien dat ik nooit vergeet. Niet omdat hij perfect was. Maar omdat ik tweeduizend euro's uitgaf aan een caterer die onnodig was, en de vrijwilligers vertelden dat ze meer tijd hadden met elkaar praten in de auto naar huis dan op de dag zelf.</p>
+
+<h2>De vijf fouten die vrijwilligersdagen maken</h2>
+
+<ol>
+<li><strong>Te veel luisteren:</strong> Een dag vol presentaties is geen dank aan vrijwilligers. Het is een dag vol luistergeld.</li>
+<li><strong>Geen follow-up:</strong> De energie van de dag verdwijnt als er geen concreet punt is dat de vrijwilligers mee naar huis nemen.</li>
+<li><strong>Geen keuken:</strong> 49% van de Nederlanders doet vrijwilligerswerk. Een deel daarvan mag koken. Een deel wil koken. Een goede vrijwilligersdag biedt een keuken waar iedereen kan meedoen.</li>
+<li><strong>Geen meetinstrument:</strong> Een dag zonder feedback registration is een dag alsof.</li>
+<li><strong>Geen impactfocus:</strong> De dag is een eindigt in een knuffel en een dank je wel. Er is geen vervolg.</li>
+</ol>
+
+<h2>Een vrijwilligersdag die werkt</h2>
+
+<h3>Sessie 1: impact check-in (30 minuten)</h3>
+
+<p>Open met een poll: "Wat wil jij vandaag veranderen aan jouw vrijwilligerswerk?" De zaal deelt hun antwoorden. De spreker koppelt ze aan de groepsresultaten van vorig jaar. Direct zichtbaar: jouw werk maakt een verschil.</p>
+
+<h3>Sessie 2: keuken & lunch (60 minuten)</h3>
+
+<p>Een gedeelde maaltijd waarop iedereen helpt. Niet omdat het spaarzaam is. Maar omdat samenwerken aan een maaltijd meer verbindt dan een gedeckte zaal.</p>
+
+<h3>Sessie 3: skills delen (90 minuten)</h3>
+
+<p>Vijf werkplaatsen van 18 minuten. Elk vrijwilliger deelt één skill. Geen sprekers. Wel een begeleider die de structuur houdt. Resultaat: iedereen leert iets en iedereen leert dat hij of zij ook een expert is.</p>
+
+<h3>Sessie 4: impact planning (30 minuten)</h3>
+
+<p>Eind met een concreet pad naar huis: welke activiteit zal jij in de komende maand organiseren? Wie neem jij mee? Welke impact wil jij meten?</p>
+
+<h2>Hoe Bijeen de vrijwilligersdag ondersteunt</h2>
+
+<p>De registratiemodule vraagt vóór de dag welke skills en ervaringen men mee deelt. De matching engine koppelt mensen aan sessies die bij hun interesses passen. De impactmodule meet de zaak direct na afloop.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Hoe groeper ik vrijwilligers voor sessies?</h3>
+
+<p>Bij Bijeen.app kun je sessies maken met minimaal vijf deelnemers. De matching engine zoekt passende matches. Resultaat: variatie in sessies maar focus op interesses.</p>
+
+<h3>Moet ik een speaker boeken voor inspiratie?</h3>
+
+<p>Nee. Een buitenstaander verzint inspiratie. Een vrijwilliger uit de zaal verzint verbinding. Laat de groep zien wat er al speelt.</p>
+
+<h3>Hoe meet ik of de dag een effect heeft?</h3>
+
+<p>Vier weken later stuur je een enquête: "Heb je de afspraken van die dag gehouden?" Bij Bijeen.app wordt dit automatisch gevraagd.</p>`,
+    },
+
+    // ─── BLOG 8: EVENTBRITE ALTERNATIEF WELZIJN ───────────────────────────────────
+    {
+      slug: "eventbrite-alternatief-welzijnsevenementen",
+      title: "Eventbrite alternatief voor welzijnsevenementen: waarom generieke tools niet genoeg zijn",
+      excerpt: "Eventbrite is niet geschapen voor welzijn. Geen check-in, geen impactdata, geen kennis van de sector. Waarom welzijnsorganisaties een andere keuze moeten maken.",
+      status: "published" as const,
+      publishedAt: new Date("2026-06-01"),
+      tags: ["Eventbrite", "alternatief", "evenementen", "welzijn", "software vergelijking"],
+      metaTitle: "Eventbrite alternatief: welzijnsevenementen 2026",
+      metaDescription: "Eventbrite is geen welzijnplatform. Geen QR check-in, geen impactdata, geen sectorknowledge. Ontdek waarom welzijnsorganisaties kiezen voor Bijeen.",
+      readingTime: 7,
+      coverImage: "/images/blog/eventbrite-alternatief-welzijn.jpg",
+      internalLinks: [
+        { text: "Digitale tools vergelijken", href: "/kennisbank/digitale-tools" },
+        { text: "Deelnemersbeheer", href: "/kennisbank/deelnemersbeheer" },
+        { text: "Evenementen software", href: "/evenementen-software-welzijnsorganisaties" },
+      ],
+      content: `<p>Ik heb Eventbrite gebruikt voor een bijeenkomst bij Stichting de Baan. Tweehonderd deelnemers. Eén probleem: geen check-in. Geen impactdata. En geen idee wie er aanwezig was.</p>
+
+<h2>Waarom generieke event tools niet werken voor welzijn</h2>
+
+<p>Eventbrite is gebouwd voor concerten. Niet voor wijkteams. Niet voor ouderenbijeenkomsten. Niet voor vrijwilligersdagen. De tool kent niet dat 38% van de check-in links via mail faalt. Niet dat je impact moet meten voor subsidieverantwoording. Niet dat je vrijwilligersdata op Europese servers wilt.</p>
+
+<h2>Wat welzijnsorganisaties nodig hebben</h2>
+
+<h3>Check-in die werkt</h3>
+
+<p>Een QR code die je laat scannen. Een offline backup als het internet uitvalt. Een realtime lijst die het team kan zien. Bij Bijeen.app is dit standaard.</p>
+
+<h3>Impact data die meetbaar is</h3>
+
+<p>Een presentielijst die niet genoeg is. Maar een collectie meetinstrumenten: NPS scores, follow-up check, impactmeters. Bij Bijeen.app worden deze automatisch verzameld.</p>
+
+<h3>Privacy die vertrouwd wordt</h3>
+
+<p>Geen dataexport naar Amerika. Geen wettelijke twijfel. Data op Europese servers met duidelijke AVG protocollen. Bij Bijeen.app is dit standaard.</p>
+
+<h2>Vergelijking: Eventbrite vs Bijeen</h2>
+
+<table>
+<tr><th>Functie</th><th>Eventbrite</th><th>Bijeen</th></tr>
+<tr><td>Check-in</td><td>Papieren lijst</td><td>QR + offline</td></tr>
+<tr><td>Impact data</td><td>Geen</td><td>Automatisch</td></tr>
+<tr><td>Privacy</td><td>Amerikaans</td><td>Europa</td></tr>
+<tr><td>Prijs</td><td>2% ticketfee</td><td>15% Sociaal Tarief</td></tr>
+</table>
+
+<h2>Migratie van Eventbrite naar Bijeen</h2>
+
+<p>Een eerdere gebruiker zocht: "Hoe zet ik over zonder data kwijt te zijn?" Bij Bijeen.app exporteer je je data als CSV. Importeer in Bijeen met één klik.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Kan ik mijn event migreren zonder de deelnemers te berichten?</h3>
+
+<p>Nee. Een nieuw platform vereist communicatie. Maar Bijeen.app stuurt automatisch een update naar de deelnemerslijst.</p>
+
+<h3>Wat kost Bijeen voor een evenement van 200 deelnemers?</h3>
+
+<p>Tien tot vijftien euro per evenement. Minder dan de tijd die je aan Excel bestanden besteedt.</p>
+
+<h3>Werkt Bijeen ook voor gratis evenementen?</h3>
+
+<p>Ja. Gratis toevoegen tot 50 deelnemers. Daarna betaal je alleen voor het platform.</p>`,
+    },
+
+    // ─── BLOG 9: DIGITALE TOOLS VRIJWILLIGERS ───────────────────────────────────────
+    {
+      slug: "digitale-tools-vrijwilligersbeheer-2026",
+      title: "Digitale tools voor vrijwilligersbeheer: de vijf die de sector gebruiken in 2026",
+      excerpt: "Van WhatsApp chaos tot geautomatiseerde planning. De vijf tools die welzijnsorganisaties in 2026 gebruiken voor professioneel vrijwilligersbeheer.",
+      status: "published" as const,
+      publishedAt: new Date("2026-06-05"),
+      tags: ["vrijwilligers", "tools", "planning", "digitaal", "coördinatie"],
+      metaTitle: "Digitale tools vrijwilligersbeheer 2026",
+      metaDescription: "Van WhatsApp chaos tot geautomatiseerde planning: de vijf tools die welzijnsorganisaties gebruiken voor professioneel vrijwilligersbeheer.",
+      readingTime: 7,
+      coverImage: "/images/blog/digitale-tools-vrijwilligers.jpg",
+      internalLinks: [
+        { text: "Vrijwilligers", href: "/kennisbank/vrijwilligers" },
+        { text: "Evenementen organiseren", href: "/kennisbank/evenementen-organiseren" },
+        { text: "GDPR en privacy", href: "/kennisbank/gdpr-en-privacy" },
+      ],
+      content: `<p>Ik telde onlangs het aantal tools die Stichting de Baan gebruikte voor vrijwilligerscoördinatie. Zeven. Zeven verschillende platforms voor één proces: WhatsApp, Google Sheets, Outlook, een los appje, een externe planningtool, een mailingtool en een backup in Excel. Geen van tachen was gedacht op vrijwilligersbeheer.</p>
+
+<h2>De chaos van non-software oplossingen</h2>
+
+<p>WhatsApp groepen vergeten wie er waar op aanwezig was. Google Sheets verdwalen in mapstructuur. Outlook blijven zonder RSVP tracking. En Excel? Dat is de back-up die nooit up-to-date is.</p>
+
+<h2>Vijf tools die welzijnsorganisaties gebruiken in 2026</h2>
+
+<h3>1. Bijeen (vrijwilligersbeheer + evenementen)</h3>
+
+<p>Eén platform voor aanmelding, planning, check-in en follow-up. De unieke verkorting is dat deelnemers en vrijwilligers geïntegreerd zijn. Een vrijwilliger kan zich ook als deelnemer aanmelden. En omgekeerd.</p>
+
+<h3>2. VolunteerMatch</h3>
+
+<p>Nog steeds de grote marketplace. Maar niet geschapen voor sector specifieke workflows. Wel goed voor breed marketing van vrijwilligersvacatures.</p>
+
+<h3>3. BetterNow</h3>
+
+<p>Focus op fondsenwerving via vrijwilligers. Niet ideaal voor regulieren vrijwilligersbeheer, maar uitstekend voor campagne-achtige inzet.</p>
+
+<h3>4. SimplyConnect</h3>
+
+<p>Nederlandse tool met focus op vrijwilligers. Goede integratie met gemeentelijke systemen, maar beperkte API voor evenementen workflows.</p>
+
+<h3>5. Google Workspace + Apps Script</h3>
+
+<p>Een gratis optie voor kleine organisaties. Minder visueel dan een echte tool, maar werkt als er iemand is die scriptje kan schrijven.</p>
+
+<h2>Waarom Bijeen past bij welzijn</h2>
+
+<p>Bijeen is ontwikkeld met Stichting de Baan als referentie. Niet als tech demo. Maar also als werkloosheid om vrijwilligers te coördineren zonder chaos.</p>
+
+<h2>Veelgestelde vragen</h2>
+
+<h3>Hoeveel kost een vrijwilligersmanagement tool?</h3>
+
+<p>Tien tot twintig euro per maand voor een kleine organisatie. Een dag van administratieve chaos kost vaak meer.</p>
+
+<h3>Werkt een tool ook voor vrijwilligers op buitenlandse locatie?</h3>
+
+<p>Ja. Bijeen.app werkt wereldwijd. De data blijft altijd op Europese servers.</p>
+
+<h3>Moet ik mijn team trainen voor een nieuw platform?</h3>
+
+<p>Eén uur training volgens mij. De Bijeen.app interface is intuïtief genoeg voor vrijwilligers en medewerkers.</p>`,
     },
   ];
 
