@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title       = truncateMetaTitle(post.metaTitle || post.title);
   const description = truncateMetaDescription(post.metaDescription || post.excerpt || "");
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  const ogImage     = post.coverImage && !post.coverImage.startsWith("color:") ? post.coverImage : undefined;
 
   return {
     title,
@@ -35,13 +36,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `${siteUrl}/blog/${params.slug}`,
       type: "article",
-      images: post.coverImage ? [{ url: post.coverImage }] : [],
+      images: ogImage ? [{ url: ogImage }] : [],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: post.coverImage ? [post.coverImage] : [],
+      images: ogImage ? [ogImage] : [],
     },
     alternates: { canonical: `${siteUrl}/blog/${params.slug}` },
   };
@@ -127,7 +128,7 @@ export default async function BlogPostPage({ params }: Props) {
         description: post.metaDescription || post.excerpt,
         datePublished: post.publishedAt?.toISOString(),
         dateModified: post.updatedAt?.toISOString(),
-        image: post.coverImage ?? undefined,
+        image: post.coverImage && !post.coverImage.startsWith("color:") ? post.coverImage : undefined,
         url: `${siteUrl}/blog/${post.slug}`,
         author: {
           "@type": "Person",
