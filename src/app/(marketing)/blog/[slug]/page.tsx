@@ -69,6 +69,21 @@ function injectHeadingIds(html: string): string {
   });
 }
 
+function extractFaq(html: string): { question: string; answer: string }[] {
+  const items: { question: string; answer: string }[] = [];
+  const faqMatch = html.match(/<h2[^>]*>[^<]*(?:veelgestelde|faq)[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i);
+  if (!faqMatch) return items;
+  const section = faqMatch[1];
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*(?:<p[^>]*>([\s\S]*?)<\/p>)?/gi;
+  let m;
+  while ((m = re.exec(section)) !== null) {
+    const q = m[1].replace(/<[^>]+>/g, "").trim();
+    const a = m[2] ? m[2].replace(/<[^>]+>/g, "").trim() : "";
+    if (q && a) items.push({ question: q, answer: a });
+  }
+  return items;
+}
+
 export default async function BlogPostPage({ params }: Props) {
   const [post] = await db
     .select()
@@ -84,6 +99,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const contentWithIds = injectHeadingIds(post.content || "");
   const toc = extractToc(post.content || "");
+  const faqItems = extractFaq(post.content || "");
 
   // Related posts — geef voorrang aan posts met overlappende tags, vul aan met de nieuwste
   const otherPosts = await db.select({
@@ -137,6 +153,17 @@ export default async function BlogPostPage({ params }: Props) {
           { "@type": "ListItem", position: 3, name: post.title, item: `${siteUrl}/blog/${post.slug}` },
         ],
       }) }} />
+      {faqItems.length > 0 && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqItems.map(item => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: { "@type": "Answer", text: item.answer },
+          })),
+        }) }} />
+      )}
 
       {/* Cover image of kleur-header */}
       {post.coverImage && (

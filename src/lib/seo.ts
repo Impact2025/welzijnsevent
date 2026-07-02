@@ -11,7 +11,7 @@ export function truncateMetaTitle(title: string, maxLength = 60): string {
   const base = title.replace(/\s*[|—-]\s*Bijeen(\s+Kennisbank)?\s*$/i, "").trim();
   const budget = maxLength - TEMPLATE_SUFFIX_LENGTH;
   if (base.length <= budget) return base;
-  return base.slice(0, budget).replace(/\s+\S*$/, "").trim();
+  return base.slice(0, budget).replace(/\s+\S*$/, "").replace(/[:,;.\-—]+$/, "").trim();
 }
 
 /**
