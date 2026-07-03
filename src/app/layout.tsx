@@ -75,7 +75,12 @@ const organizationSchema = {
   email: "hallo@bijeen.nl",
   foundingDate: "2024",
   areaServed: "NL",
-  sameAs: ["https://bijeen.app"],
+  sameAs: [
+    "https://www.facebook.com/bijeenapp/",
+    "https://x.com/bijeenapp",
+    "https://www.linkedin.com/company/bijeen-app",
+    "https://www.instagram.com/bijeenapp/",
+  ],
 };
 
 const websiteSchema = {

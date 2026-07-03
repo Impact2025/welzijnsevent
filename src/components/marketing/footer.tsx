@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
+import { FacebookIcon, XIcon, LinkedinIcon, InstagramIcon } from "@/components/ui/social-icons";
+
+const socialLinks = [
+  { href: "https://www.facebook.com/bijeenapp/",         label: "Facebook",  Icon: FacebookIcon  },
+  { href: "https://x.com/bijeenapp",                      label: "X",         Icon: XIcon         },
+  { href: "https://www.linkedin.com/company/bijeen-app",  label: "LinkedIn",  Icon: LinkedinIcon  },
+  { href: "https://www.instagram.com/bijeenapp/",         label: "Instagram", Icon: InstagramIcon },
+];
 
 const footerLinks = {
   Product: [
@@ -39,9 +47,23 @@ export function MarketingFooter() {
             <Link href="/" className="inline-flex items-center px-1 py-1 mb-3">
               <BijeenWordmark variant="dark" size="md" />
             </Link>
-            <p className="text-ink/45 text-sm leading-relaxed">
+            <p className="text-ink/45 text-sm leading-relaxed mb-5">
               Eventplatform voor de welzijnssector. Gebouwd door WeAreImpact.nl.
             </p>
+            <div className="flex items-center gap-2">
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Bijeen op ${label}`}
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-ink/5 text-ink/45 hover:bg-terra-500 hover:text-white transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Links */}
