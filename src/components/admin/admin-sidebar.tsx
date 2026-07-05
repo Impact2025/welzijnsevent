@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   LayoutDashboard, Building2, Sparkles, ArrowLeft, Shield, Menu, X,
   Euro, BarChart2, BookOpen, LibraryBig,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
@@ -19,6 +20,7 @@ const navItems = [
   { href: "/admin/platform",     icon: BarChart2,       label: "Platform stats"            },
   { href: "/admin/ai-inzichten", icon: Sparkles,        label: "AI Inzichten"              },
   { href: "/admin/audit-log",    icon: Shield,          label: "Audit Log"                 },
+  { href: "/admin/lead-machine", icon: Zap, label: "Lead Machine" }, 
 ];
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {

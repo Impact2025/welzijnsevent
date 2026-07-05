@@ -554,6 +554,32 @@ export const rapportLeads = pgTable("rapport_leads", {
   createdAt:        timestamp("created_at").defaultNow(),
 });
 
+// ── PROSPECT LEADS (Lead Machine) ──────────────────────
+export const prospectLeads = pgTable("prospect_leads", {
+  id:              uuid("id").defaultRandom().primaryKey(),
+  organisatie:     text("organisatie"),
+  naam:            text("naam"),
+  email:           text("email").notNull(),
+  telefoon:        text("telefoon"),
+  website:         text("website"),
+  kvkNummer:       text("kvk_nummer"),
+  sbiCode:         text("sbi_code"),
+  sbiBeschrijving: text("sbi_beschrijving"),
+  plaats:          text("plaats"),
+  postcode:        text("postcode"),
+  adres:           text("adres"),
+  contactPersoon:  text("contact_persoon"),
+  notitie:         text("notitie"),
+  aiScore:         integer("ai_score"),
+  aiRationale:     text("ai_rationale"),
+  status:          text("status").default("nieuw"),
+  starred:         boolean("starred").default(false),
+  bron:            text("bron").default("websearch"),
+  scrapedAt:       timestamp("scraped_at"),
+  scoredAt:        timestamp("scored_at"),
+  createdAt:       timestamp("created_at").defaultNow(),
+  updatedAt:       timestamp("updated_at").defaultNow(),
+});
 // ── DEMO AANVRAGEN ───────────────────────────────────────────
 export const demoRequests = pgTable("demo_requests", {
   id:               uuid("id").defaultRandom().primaryKey(),
@@ -666,6 +692,7 @@ export type VacancyInvitation     = typeof vacancyInvitations.$inferSelect;
 export type VolunteerMessage      = typeof volunteerMessages.$inferSelect;
 export type RapportLead           = typeof rapportLeads.$inferSelect;
 export type DemoRequest           = typeof demoRequests.$inferSelect;
+export type ProspectLead = typeof prospectLeads.$inferSelect;
 export type BlogPost                      = typeof blogPosts.$inferSelect;
 export type KnowledgeBaseCategory         = typeof knowledgeBaseCategories.$inferSelect;
 export type KnowledgeBaseArticle          = typeof knowledgeBaseArticles.$inferSelect;
