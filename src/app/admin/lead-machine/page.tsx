@@ -222,7 +222,7 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
             onClick={saveHighScoring}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/8 hover:bg-amber-500/20 text-white/80 hover:text-amber-300 text-xs font-semibold transition-colors"
           >
-            <Database size={13} />Sla score >=6 op
+            <Database size={13} />Sla score {'>='}6 op
           </button>
           <a
             href="/api/admin/lead-machine/export"
