@@ -1,7 +1,26 @@
 import { NextResponse } from "next/server";
+import { createHash, timingSafeEqual } from "crypto";
 import { auth } from "@/auth";
 import { db, blogPosts } from "@/db";
 import { eq, desc, sql } from "drizzle-orm";
+
+// Machine-auth voor volautomatische publicatie (Agent OS → live), naast de
+// admin-sessie. Auth: Authorization: Bearer <BLOG_PUBLISH_API_KEY>.
+function hasValidPublishKey(req: Request): boolean {
+  const key = process.env.BLOG_PUBLISH_API_KEY;
+  const authHeader = req.headers.get("authorization");
+  if (!key || !authHeader?.startsWith("Bearer ")) return false;
+  // Vergelijk hashes: timing-safe én ongevoelig voor lengteverschil
+  const a = createHash("sha256").update(authHeader.slice(7)).digest();
+  const b = createHash("sha256").update(key).digest();
+  return timingSafeEqual(a, b);
+}
+
+async function isAdminSession(): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user?.id) return false;
+  return session.user.email === process.env.ADMIN_EMAIL;
+}
 
 function slugify(str: string): string {
   return str
@@ -54,11 +73,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const adminEmail = process.env.ADMIN_EMAIL;
-    if (session.user.email !== adminEmail) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    if (!hasValidPublishKey(req) && !(await isAdminSession())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await req.json();
     const { title, content = "", excerpt, coverImage, status = "draft",
