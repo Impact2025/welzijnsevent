@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  LayoutDashboard, Building2, Sparkles, ArrowLeft, Shield, Menu, X,
-  Euro, BarChart2, BookOpen, LibraryBig,
-  Zap,
+  LayoutDashboard, Building2, Sparkles, ArrowLeft, Shield, Menu, X, LogOut,
+  Euro, BarChart2, BookOpen, LibraryBig, Zap,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 
@@ -20,7 +20,7 @@ const navItems = [
   { href: "/admin/platform",     icon: BarChart2,       label: "Platform stats"            },
   { href: "/admin/ai-inzichten", icon: Sparkles,        label: "AI Inzichten"              },
   { href: "/admin/audit-log",    icon: Shield,          label: "Audit Log"                 },
-  { href: "/admin/lead-machine", icon: Zap, label: "Lead Machine" }, 
+  { href: "/admin/lead-machine", icon: Zap,             label: "Lead Machine"              },
 ];
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
@@ -66,8 +66,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         })}
       </nav>
 
-      {/* Back to app */}
-      <div className="border-t border-white/10 pt-4 mt-2">
+      {/* Bottom section: Back + Logout */}
+      <div className="border-t border-white/10 pt-4 mt-2 space-y-1">
         <Link
           href="/dashboard"
           onClick={onClose}
@@ -76,6 +76,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <ArrowLeft size={16} />
           Terug naar app
         </Link>
+        <button
+          onClick={() => signOut({ callbackUrl: "/sign-in" })}
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all w-full text-left"
+        >
+          <LogOut size={16} />
+          Uitloggen
+        </button>
       </div>
     </>
   );
