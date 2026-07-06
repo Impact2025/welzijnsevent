@@ -1,11 +1,10 @@
 'use client';
+import React from "react";
 
 import { useState, useEffect, useCallback } from 'react';
 import {
   Search, Star, StarOff, Download, ExternalLink, Mail, Phone,
-  MapPin, Zap, Loader2, Trash2, CheckCircle2, RefreshCw,
-  Database, TrendingUp, ChevronDown, ChevronUp, Clock,
-  Building2, Users, Sparkles,
+  MapPin, Zap, Trash2, CheckCircle2, RefreshCw, Database, Users, Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -42,22 +41,24 @@ interface SavedLead {
 // ── Score badge ─────────────────────────────────────────────────────────────
 
 function ScoreBadge({ score }: { score?: number | null }) {
-  if (score == null) return <span className="text-xs text-white/30">–</span>;
-  const color = score >= 8 ? 'bg-emerald-500/20 text-emerald-300'
-    : score >= 5 ? 'bg-amber-500/20 text-amber-300'
-    : 'bg-red-500/20 text-red-300';
+  if (score == null) return <span className="text-xs text-[#9E9890]">–</span>;
+  const color = score >= 8
+    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+    : score >= 5
+      ? 'bg-amber-50 text-amber-700 border-amber-200'
+      : 'bg-red-50 text-red-700 border-red-200';
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${color}`}>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border ${color}`}>
       {score}/10
     </span>
   );
 }
 
 const STATUS_META: Record<string, { label: string; className: string }> = {
-  nieuw: { label: 'Nieuw', className: 'bg-blue-500/20 text-blue-300' },
-  benaderd: { label: 'Benaderd', className: 'bg-amber-500/20 text-amber-300' },
-  klant: { label: 'Klant', className: 'bg-emerald-500/20 text-emerald-300' },
-  niet_relevant: { label: 'Niet relevant', className: 'bg-white/10 text-white/40' },
+  nieuw: { label: 'Nieuw', className: 'bg-blue-50 text-blue-700 border-blue-200' },
+  benaderd: { label: 'Benaderd', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+  klant: { label: 'Klant', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  niet_relevant: { label: 'Niet relevant', className: 'bg-white text-[#9E9890] border-black/10' },
 };
 
 const LOAD_STEPS = [
@@ -102,14 +103,14 @@ function SearchForm({ onResults }: { onResults: (results: SearchResultItem[]) =>
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+    <div className="bg-white border border-black/8 rounded-2xl p-5 shadow-sm space-y-4">
       <div className="flex gap-2">
         <input
           placeholder="bijv. welzijnsorganisaties Amsterdam"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && !loading && handleSearch()}
-          className="flex-1 px-3 py-2.5 rounded-xl bg-white/8 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+          className="flex-1 px-3 py-2.5 rounded-xl border border-black/10 text-sm text-[#1C1814] placeholder:text-[#9E9890] focus:outline-none focus:ring-2 focus:ring-[#C8522A]/30 focus:border-[#C8522A]"
         />
       </div>
 
@@ -125,7 +126,7 @@ function SearchForm({ onResults }: { onResults: (results: SearchResultItem[]) =>
             key={p.q}
             onClick={() => { setQuery(p.q); handleSearch(p.q); }}
             disabled={loading}
-            className="px-2.5 py-1 text-xs bg-white/8 hover:bg-amber-500/20 hover:text-amber-300 rounded-full transition-colors disabled:opacity-50 text-white/60"
+            className="px-2.5 py-1 text-xs bg-[#F5F4F0] hover:bg-[#C8522A]/10 hover:text-[#C8522A] rounded-full transition-colors disabled:opacity-50 text-[#9E9890] font-medium"
           >
             {p.label}
           </button>
@@ -133,11 +134,11 @@ function SearchForm({ onResults }: { onResults: (results: SearchResultItem[]) =>
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-white/60">Aantal:</label>
+        <label className="text-sm font-medium text-[#6B5E54]">Aantal:</label>
         <select
           value={maxResults}
           onChange={(e) => setMaxResults(e.target.value)}
-          className="text-xs bg-white/8 border border-white/10 rounded-lg px-2 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+          className="text-xs border border-black/10 rounded-lg px-2 py-1.5 text-[#1C1814] focus:outline-none focus:ring-2 focus:ring-[#C8522A]/30"
         >
           <option value="10">10 (~15s)</option>
           <option value="20">20 (~25s)</option>
@@ -148,7 +149,7 @@ function SearchForm({ onResults }: { onResults: (results: SearchResultItem[]) =>
       <button
         onClick={() => handleSearch()}
         disabled={loading || !query.trim()}
-        className="w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-sm bg-amber-600 hover:bg-amber-500 text-white disabled:opacity-50 transition-all"
+        className="w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-sm bg-[#C8522A] hover:bg-[#B04622] text-white disabled:opacity-50 transition-all shadow-sm"
       >
         {loading ? (
           <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />{LOAD_STEPS[step]}</>
@@ -158,7 +159,7 @@ function SearchForm({ onResults }: { onResults: (results: SearchResultItem[]) =>
       </button>
 
       {loading && (
-        <p className="text-xs text-white/30 text-center">
+        <p className="text-xs text-[#9E9890] text-center">
           Websites worden live bezocht — dit duurt ~15-40 seconden
         </p>
       )}
@@ -214,61 +215,60 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
-        <span className="text-white/60"><strong className="text-white">{results.length}</strong> gevonden</span>
-        <span className="text-white/60"><strong className="text-white">{withEmail}</strong> met e-mail</span>
-        <span className="text-white/60">Gem. score <strong className="text-white">{avgScore}</strong></span>
+        <span className="text-[#9E9890]"><strong className="text-[#1C1814]">{results.length}</strong> gevonden</span>
+        <span className="text-[#9E9890]"><strong className="text-[#1C1814]">{withEmail}</strong> met e-mail</span>
+        <span className="text-[#9E9890]">Gem. score <strong className="text-[#1C1814]">{avgScore}</strong></span>
         <div className="ml-auto flex gap-2">
           <button
             onClick={saveHighScoring}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/8 hover:bg-amber-500/20 text-white/80 hover:text-amber-300 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 hover:bg-[#C8522A]/10 text-[#6B5E54] hover:text-[#C8522A] text-xs font-semibold transition-colors"
           >
-            <Database size={13} />Sla score {'>='}6 op
+            <Database size={13} />Sla score {`>`}=6 op
           </button>
           <a
             href="/api/admin/lead-machine/export"
             download
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/8 hover:bg-white/15 text-white/60 text-xs font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 hover:bg-black/5 text-[#9E9890] text-xs font-semibold transition-colors"
           >
             <Download size={13} />CSV
           </a>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+      <div className="rounded-2xl border border-black/8 bg-white overflow-hidden shadow-sm">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-white/10 bg-white/[0.03]">
-              <th className="px-4 py-3 text-left text-xs font-bold text-white/40 uppercase w-16">Score</th>
-              <th className="px-4 py-3 text-left text-xs font-bold text-white/40 uppercase">Organisatie</th>
-              <th className="px-4 py-3 text-left text-xs font-bold text-white/40 uppercase hidden lg:table-cell">Contact</th>
-              <th className="px-4 py-3 text-left text-xs font-bold text-white/40 uppercase hidden md:table-cell w-28">Website</th>
-              <th className="px-4 py-3 text-right text-xs font-bold text-white/40 uppercase w-24">Actie</th>
+            <tr className="border-b border-black/6 bg-[#F5F4F0]">
+              <th className="px-4 py-3 text-left text-xs font-bold text-[#9E9890] uppercase w-16">Score</th>
+              <th className="px-4 py-3 text-left text-xs font-bold text-[#9E9890] uppercase">Organisatie</th>
+              <th className="px-4 py-3 text-left text-xs font-bold text-[#9E9890] uppercase hidden lg:table-cell">Contact</th>
+              <th className="px-4 py-3 text-left text-xs font-bold text-[#9E9890] uppercase hidden md:table-cell w-28">Website</th>
+              <th className="px-4 py-3 text-right text-xs font-bold text-[#9E9890] uppercase w-24">Actie</th>
             </tr>
           </thead>
           <tbody>
             {results.map((r) => (
-              <>
+              <React.Fragment key={r.kvkNumber}>
                 <tr
-                  key={r.kvkNumber}
-                  className="border-b border-white/5 cursor-pointer hover:bg-white/[0.03] transition-colors"
+                  className="border-b border-black/6 cursor-pointer hover:bg-[#F5F4F0] transition-colors"
                   onClick={() => setExpanded(expanded === r.kvkNumber ? null : r.kvkNumber)}
                 >
                   <td className="px-4 py-3"><ScoreBadge score={r.aiScore} /></td>
                   <td className="px-4 py-3">
-                    <div className="font-semibold text-white leading-tight">{r.name}</div>
+                    <div className="font-semibold text-[#1C1814] leading-tight">{r.name}</div>
                     {r.sbiDescription && (
-                      <div className="text-xs text-white/30 mt-0.5 line-clamp-1">{r.sbiDescription}</div>
+                      <div className="text-xs text-[#9E9890] mt-0.5 line-clamp-1">{r.sbiDescription}</div>
                     )}
                   </td>
                   <td className="px-4 py-3 hidden lg:table-cell">
                     {r.email ? (
-                      <a href={`mailto:${r.email}`} className="text-amber-400 hover:underline text-sm" onClick={(e) => e.stopPropagation()}>
+                      <a href={`mailto:${r.email}`} className="text-[#C8522A] hover:underline text-sm" onClick={(e) => e.stopPropagation()}>
                         {r.email}
                       </a>
                     ) : r.phone ? (
-                      <a href={`tel:${r.phone}`} className="text-white/60 text-sm" onClick={(e) => e.stopPropagation()}>{r.phone}</a>
+                      <a href={`tel:${r.phone}`} className="text-[#6B5E54] text-sm" onClick={(e) => e.stopPropagation()}>{r.phone}</a>
                     ) : (
-                      <span className="text-white/20 text-sm">–</span>
+                      <span className="text-[#9E9890] text-sm">–</span>
                     )}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell">
@@ -277,7 +277,7 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
                         href={r.website.startsWith('http') ? r.website : `https://${r.website}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs text-white/40 hover:text-white/80 truncate max-w-[110px]"
+                        className="flex items-center gap-1 text-xs text-[#9E9890] hover:text-[#6B5E54] truncate max-w-[110px]"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <ExternalLink size={12} className="shrink-0" />
@@ -287,26 +287,26 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
                   </td>
                   <td className="px-4 py-3 text-right">
                     {saved.has(r.kvkNumber) ? (
-                      <span className="text-xs text-emerald-400 flex items-center justify-end gap-1 font-medium">
+                      <span className="text-xs text-emerald-600 flex items-center justify-end gap-1 font-medium">
                         <CheckCircle2 size={13} /> Opgeslagen
                       </span>
                     ) : (
                       <button
                         disabled={saving.has(r.kvkNumber)}
                         onClick={(e) => { e.stopPropagation(); saveLead(r); }}
-                        className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/8 hover:bg-amber-600 hover:text-white text-white/70 disabled:opacity-50 transition-colors"
+                        className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-black/10 hover:bg-[#C8522A] hover:text-white hover:border-[#C8522A] text-[#6B5E54] disabled:opacity-50 transition-colors"
                       >
-                        {saving.has(r.kvkNumber) ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" /> : 'Opslaan'}
+                        {saving.has(r.kvkNumber) ? <span className="w-3 h-3 border-2 border-[#C8522A]/30 border-t-[#C8522A] rounded-full animate-spin inline-block" /> : 'Opslaan'}
                       </button>
                     )}
                   </td>
                 </tr>
                 {expanded === r.kvkNumber && (
-                  <tr key={`${r.kvkNumber}-exp`} className="bg-white/[0.02]">
+                  <tr className="bg-[#F5F4F0]">
                     <td colSpan={5} className="px-4 py-3">
                       <div className="space-y-2 text-sm">
-                        {r.aiRationale && <p className="text-white/60 italic">{r.aiRationale}</p>}
-                        <div className="flex flex-wrap gap-4 text-xs text-white/40">
+                        {r.aiRationale && <p className="text-[#6B5E54] italic">{r.aiRationale}</p>}
+                        <div className="flex flex-wrap gap-4 text-xs text-[#9E9890]">
                           {r.email && <span className="flex items-center gap-1"><Mail size={11} />{r.email}</span>}
                           {r.phone && <span className="flex items-center gap-1"><Phone size={11} />{r.phone}</span>}
                         </div>
@@ -314,7 +314,7 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>
@@ -382,12 +382,12 @@ function SavedLeads({ refreshKey }: { refreshKey: number }) {
           placeholder="Zoeken op naam, plaats of e-mail..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-xl bg-white/8 border border-white/10 text-white text-sm placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+          className="flex-1 px-3 py-2 rounded-xl border border-black/10 text-sm text-[#1C1814] placeholder:text-[#9E9890] focus:outline-none focus:ring-2 focus:ring-[#C8522A]/30 focus:border-[#C8522A]"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="text-sm bg-white/8 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+          className="text-sm border border-black/10 rounded-xl px-3 py-2 text-[#1C1814] focus:outline-none focus:ring-2 focus:ring-[#C8522A]/30"
         >
           <option value="all">Alle statussen</option>
           <option value="nieuw">Nieuw</option>
@@ -398,30 +398,30 @@ function SavedLeads({ refreshKey }: { refreshKey: number }) {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12"><span className="w-6 h-6 border-2 border-white/20 border-t-amber-400 rounded-full animate-spin" /></div>
+        <div className="flex justify-center py-12"><span className="w-6 h-6 border-2 border-black/10 border-t-[#C8522A] rounded-full animate-spin" /></div>
       ) : leads.length === 0 ? (
-        <div className="text-center py-16 text-white/30">
-          <Users size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium text-white/50">Nog geen leads</p>
-          <p className="text-sm mt-1">Zoek naar organisaties via de Lead Machine en sla ze op.</p>
+        <div className="text-center py-16">
+          <Users size={40} className="mx-auto mb-3 text-black/15" />
+          <p className="font-medium text-[#6B5E54]">Nog geen leads</p>
+          <p className="text-sm text-[#9E9890] mt-1">Zoek naar organisaties via de Lead Machine en sla ze op.</p>
         </div>
       ) : (
         <div className="space-y-2">
           {leads.map((lead) => {
             const meta = STATUS_META[lead.status] ?? STATUS_META.nieuw;
             return (
-              <div key={lead.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/[0.06] transition-colors">
+              <div key={lead.id} className="bg-white border border-black/8 rounded-2xl p-4 shadow-sm hover:shadow-md hover:border-black/15 transition-all">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => toggleStar(lead)} className="text-white/20 hover:text-amber-400 transition-colors">
-                        {lead.starred ? <Star size={14} className="text-amber-400 fill-amber-400" /> : <StarOff size={14} />}
+                      <button onClick={() => toggleStar(lead)} className="text-[#9E9890] hover:text-amber-500 transition-colors">
+                        {lead.starred ? <Star size={14} className="text-amber-500 fill-amber-500" /> : <StarOff size={14} />}
                       </button>
-                      <h3 className="font-semibold text-white truncate">{lead.organisatie ?? lead.email}</h3>
+                      <h3 className="font-semibold text-[#1C1814] truncate">{lead.organisatie ?? lead.email}</h3>
                       <ScoreBadge score={lead.aiScore} />
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${meta.className}`}>{meta.label}</span>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${meta.className}`}>{meta.label}</span>
                     </div>
-                    <p className="text-sm text-white/50 mt-0.5">
+                    <p className="text-sm text-[#9E9890] mt-0.5">
                       {lead.email}
                       {lead.telefoon && <span> · {lead.telefoon}</span>}
                       {lead.plaats && <span> · {lead.plaats}</span>}
@@ -429,21 +429,21 @@ function SavedLeads({ refreshKey }: { refreshKey: number }) {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     {lead.website && (
-                      <a href={lead.website} target="_blank" rel="noopener" className="p-1.5 text-white/20 hover:text-white/60">
+                      <a href={lead.website} target="_blank" rel="noopener" className="p-1.5 text-[#9E9890] hover:text-[#6B5E54]">
                         <ExternalLink size={14} />
                       </a>
                     )}
                     <select
                       value={lead.status}
                       onChange={(e) => updateStatus(lead.id, e.target.value)}
-                      className="text-xs bg-white/8 border border-white/10 rounded-lg px-2 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                      className="text-xs border border-black/10 rounded-lg px-2 py-1.5 text-[#1C1814] focus:outline-none focus:ring-2 focus:ring-[#C8522A]/30"
                     >
                       <option value="nieuw">Nieuw</option>
                       <option value="benaderd">Benaderd</option>
                       <option value="klant">Klant</option>
                       <option value="niet_relevant">Niet relevant</option>
                     </select>
-                    <button onClick={() => deleteLead(lead.id)} className="p-1.5 text-white/20 hover:text-red-400 transition-colors">
+                    <button onClick={() => deleteLead(lead.id)} className="p-1.5 text-[#9E9890] hover:text-red-500 transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -465,20 +465,24 @@ export default function LeadMachinePage() {
   const [savedRefreshKey, setSavedRefreshKey] = useState(0);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-white">Lead Machine</h1>
-          <p className="text-sm text-white/50 mt-0.5">Vind en beoordeel welzijnsorganisaties met AI</p>
-        </div>
+    <div className="px-6 py-7 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <p className="text-[10px] font-black text-[#C8522A] uppercase tracking-widest mb-1">Lead Machine</p>
+        <h1 className="text-2xl font-extrabold text-[#1C1814] tracking-tight">
+          Prospectie & AI-scoring
+        </h1>
+        <p className="text-sm text-[#9E9890] mt-1">
+          Vind en beoordeel welzijnsorganisaties met AI
+        </p>
       </div>
 
-      <div className="flex gap-1 bg-white/5 p-1 rounded-xl w-fit border border-white/10">
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6">
         <button
           onClick={() => setTab('search')}
           className={cn(
             'px-4 py-2 rounded-lg text-sm font-semibold transition-colors',
-            tab === 'search' ? 'bg-amber-600 text-white shadow-sm' : 'text-white/50 hover:text-white/80',
+            tab === 'search' ? 'bg-white border border-black/8 shadow-sm text-[#1C1814]' : 'text-[#9E9890] hover:text-[#6B5E54]',
           )}
         >
           <Zap size={14} className="inline mr-1.5" />
@@ -488,7 +492,7 @@ export default function LeadMachinePage() {
           onClick={() => setTab('saved')}
           className={cn(
             'px-4 py-2 rounded-lg text-sm font-semibold transition-colors',
-            tab === 'saved' ? 'bg-amber-600 text-white shadow-sm' : 'text-white/50 hover:text-white/80',
+            tab === 'saved' ? 'bg-white border border-black/8 shadow-sm text-[#1C1814]' : 'text-[#9E9890] hover:text-[#6B5E54]',
           )}
         >
           <Database size={14} className="inline mr-1.5" />
