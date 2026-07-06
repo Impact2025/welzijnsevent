@@ -67,6 +67,13 @@ export default auth((req: NextRequest & { auth: unknown }) => {
   }
 
   // ── Auth protection ────────────────────────────────────────
+  // Machine-clients (Agent OS) authenticeren met een Bearer-key; de blog-API
+  // valideert die zelf (timing-safe). Laat die requests door i.p.v. naar
+  // /sign-in te redirecten.
+  if (pathname.startsWith("/api/blog") && req.headers.get("authorization")?.startsWith("Bearer ")) {
+    return NextResponse.next();
+  }
+
   const isPublic =
     pathname === "/" ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
