@@ -20,7 +20,7 @@ const footerLinks = {
   Bedrijf: [
     { href: "/over-ons",             label: "Over ons"       },
     { href: "/over-ons#contact",     label: "Contact"        },
-    { href: "/over-ons#weareimpact", label: "WeAreImpact.nl" },
+    { href: "https://weareimpact.nl/ai-consultant-sociaal-domein", label: "WeAreImpact — AI & innovatie" },
     { href: "/blog",                 label: "Blog"           },
     { href: "/kennisbank",           label: "Kennisbank"     },
   ],
