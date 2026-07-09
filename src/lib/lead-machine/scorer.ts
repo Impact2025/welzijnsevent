@@ -44,7 +44,7 @@ export async function scoreProspect(
         'X-Title': 'Bijeen Lead Machine',
       },
       body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001',
+        model: process.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: `${scoringContext}\n\n${BASE_PROMPT}` },
           { role: 'user', content: userMsg },

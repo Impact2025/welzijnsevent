@@ -153,7 +153,7 @@ Analyseer dit platform grondig en geef een JSON response met EXACT deze structuu
 
 Max 5 churnRisicos, max 5 groeikansen, max 4 aanbevelingen. Antwoord ALLEEN met valid JSON.`;
 
-  const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+  const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",

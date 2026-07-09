@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
     const internalLinkCandidates = [blogCandidates, kbCandidates].filter(Boolean).join("\n");
 
-    const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+    const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
     const prompt = `Je bent een expert SEO-copywriter en content strateeg die gespecialiseerd is in Nederlandse welzijnsorganisaties.
 
 Analyseer deze blogtekst en geef een volledige SEO-optimalisatie terug als JSON.
@@ -85,7 +85,7 @@ Regels:
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://bijeen.app",
         "X-Title": "Bijeen Blog SEO",

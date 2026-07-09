@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         "X-Title": "Bijeen Assistent",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.0-flash-001",
+        model: process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash",
         stream: true,
         max_tokens: 400,
         temperature: 0.7,

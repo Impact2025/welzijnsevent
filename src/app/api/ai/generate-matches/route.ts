@@ -107,7 +107,7 @@ export async function POST(req: Request) {
       .join("\n");
 
     const maxMatches = Math.min(25, Math.floor(sorted.length * 1.2));
-    const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+    const model = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
 
     const prompt = `Je bent een expert netwerk-matcher voor de Nederlandse welzijnssector. Je taak is zinvolle verbindingen te leggen tussen deelnemers.
 

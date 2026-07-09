@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) return new Response("AI niet geconfigureerd", { status: 500 });
 
-  const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.0-flash-001";
+  const model  = process.env.OPENROUTER_MODEL ?? "google/gemini-2.5-flash";
   const prompt = buildPrompt(parsed.data);
 
   const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
