@@ -92,6 +92,15 @@ export async function POST(req: Request) {
     let   counter   = 2;
     while (usedSlugs.has(slug)) slug = `${baseSlug}-${counter++}`;
 
+    // Agent OS-posted artikelen sturen (nog) geen coverImage mee → geef ze een
+    // huisstijl-kleur (warm Bijeen-palet) zodat ze geen lege ✍️-placeholder
+    // tonen maar een gekleurd blok, net als handmatig aangemaakte kleur-posts.
+    // Blijft deterministisch per slug zodat dezelfde post altijd dezelfde kleur houdt.
+    const COVER_COLORS = ["#C8522A", "#E08A3C", "#B5651D", "#A23E48", "#C2410C"];
+    const coverImageValue = (coverImage && String(coverImage).trim())
+      ? coverImage
+      : `color:${COVER_COLORS[slug.length % COVER_COLORS.length]}`;
+
     const readingTime = calcReadingTime(content);
     const publishedAt = status === "published"
       ? (publishedAtRaw ? new Date(publishedAtRaw) : new Date())
@@ -99,7 +108,7 @@ export async function POST(req: Request) {
 
     const [post] = await db.insert(blogPosts).values({
       slug, title: title.trim(), content, excerpt: excerpt ?? null,
-      coverImage: coverImage ?? null, status, metaTitle: metaTitle ?? null,
+      coverImage: coverImageValue, status, metaTitle: metaTitle ?? null,
       metaDescription: metaDescription ?? null, tags, internalLinks,
       readingTime, publishedAt,
     }).returning();
