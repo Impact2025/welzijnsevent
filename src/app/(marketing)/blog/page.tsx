@@ -47,7 +47,7 @@ const websiteJsonLd = {
     "@type": "Organization",
     name: "Bijeen",
     url: siteUrl,
-    logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png` },
+    logo: { "@type": "ImageObject", url: `${siteUrl}/Bijeen-logo.png` },
   },
 };
 

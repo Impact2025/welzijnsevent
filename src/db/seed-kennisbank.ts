@@ -1,5 +1,14 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import { injectKbInternalLinks } from "../lib/kb-internal-links.js";
+
+/**
+ * Verrijkt artikelen met contextuele interne links uit de gedeelde anker-map,
+ * zodat de linkstructuur DRY blijft (de content-strings zelf blijven schoon).
+ */
+function withKbLinks<T extends { slug: string; content: string }>(rows: T[]): T[] {
+  return rows.map(r => ({ ...r, content: injectKbInternalLinks(r.content, r.slug).html }));
+}
 
 // Laad .env en .env.local vóór db-import (static imports worden gehoist)
 for (const f of [".env", ".env.local"]) {
@@ -33,7 +42,7 @@ async function seed() {
   const c: Record<string, string> = {};
   for (const cat of cats) c[cat.slug] = cat.id;
 
-  await db.insert(knowledgeBaseArticles).values([
+  await db.insert(knowledgeBaseArticles).values(withKbLinks([
 
     // ─── ARTIKEL 1: Checklist welzijnsevenement (pillar) ───────────────────────
     {
@@ -502,12 +511,12 @@ async function seed() {
 <p>De QR code is persoonsgebonden en eenmalig bruikbaar. Zodra een code is gescand wordt hij gemarkeerd als gebruikt en kan hij niet opnieuw worden ingezet. Dat voorkomt misbruik en geeft je een accurate presentielijst.</p>`,
     },
 
-  ]);
+  ]));
 
   console.log("✅ Batch 1 (artikelen 1-7) geseed.");
 
   // ─── BATCH 2: artikelen 8-14 ──────────────────────────────────────────────
-  await db.insert(knowledgeBaseArticles).values([
+  await db.insert(knowledgeBaseArticles).values(withKbLinks([
 
     // ARTIKEL 8: Digitaal vs papier
     {
@@ -897,12 +906,12 @@ async function seed() {
 <p>Eventbrite heeft een nonprofit korting maar die is beperkt en wordt niet automatisch verstrekt. Je moet een aanvraag indienen en de korting geldt alleen voor specifieke abonnementstypes. Bijeen biedt een structureel Sociaal Tarief van 15% korting voor alle ANBI gecertificeerde organisaties.</p>`,
     },
 
-  ]);
+  ]));
 
   console.log("✅ Batch 2 (artikelen 8-14) geseed.");
 
   // ─── BATCH 3: artikelen 15-20 ──────────────────────────────────────────────
-  await db.insert(knowledgeBaseArticles).values([
+  await db.insert(knowledgeBaseArticles).values(withKbLinks([
 
     // ARTIKEL 15: Gratis event software stichtingen
     {
@@ -1222,7 +1231,7 @@ async function seed() {
 <p>Via Bijeen.app is de koppeling tussen evenementdeelname en vrijwilligersprofiel automatisch. Je kunt per vrijwilliger zien via welk evenement hij of zij is ingestroomd, wat de match was en hoe actief ze sindsdien zijn geweest. Dat is waardevolle data voor je vrijwilligersbeleid en je impactrapportage.</p>`,
     },
 
-  ]);
+  ]));
 
   console.log("✅ Batch 3 (artikelen 15-20) geseed.");
   console.log("🎉 Alle 20 kennisbank artikelen succesvol aangemaakt!");
