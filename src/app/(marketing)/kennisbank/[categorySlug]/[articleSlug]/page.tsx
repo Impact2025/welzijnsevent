@@ -41,11 +41,13 @@ function extractFaq(html: string): { question: string; answer: string }[] {
   const faqMatch = html.match(/<h2[^>]*>[^<]*(?:veelgestelde|faq)[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i);
   if (!faqMatch) return items;
   const section = faqMatch[1];
-  const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*(?:<p[^>]*>([\s\S]*?)<\/p>)?/gi;
+  // De kop (<h3>) is de vraag; álles tot de volgende <h3> is het antwoord.
+  // Zo matcht het FAQ-schema het volledige, zichtbare antwoord (ook meerledig).
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3|$)/gi;
   let m;
   while ((m = re.exec(section)) !== null) {
     const q = m[1].replace(/<[^>]+>/g, "").trim();
-    const a = m[2] ? m[2].replace(/<[^>]+>/g, "").trim() : "";
+    const a = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     if (q && a) items.push({ question: q, answer: a });
   }
   return items;
@@ -67,7 +69,7 @@ function extractHowTo(html: string): { step: number; name: string; text: string 
     let liMatch;
     while ((liMatch = liRe.exec(olContent)) !== null) {
       const liText = liMatch[1].replace(/<[^>]+>/g, "").trim();
-      if (liText && !liText.startsWith("N") && items.length < 10) {
+      if (liText && items.length < 10) {
         const stepName = liText.split(/[—–\-:]/)[0].trim();
         const stepDesc = liText.includes(":") || liText.includes("—") || liText.includes("–")
           ? liText.substring(liText.indexOf(":") + 1).trim()
@@ -81,7 +83,7 @@ function extractHowTo(html: string): { step: number; name: string; text: string 
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const [article] = await db
-    .select({ title: knowledgeBaseArticles.title, metaTitle: knowledgeBaseArticles.metaTitle, metaDescription: knowledgeBaseArticles.metaDescription, excerpt: knowledgeBaseArticles.excerpt })
+    .select({ title: knowledgeBaseArticles.title, metaTitle: knowledgeBaseArticles.metaTitle, metaDescription: knowledgeBaseArticles.metaDescription, excerpt: knowledgeBaseArticles.excerpt, coverImage: knowledgeBaseArticles.coverImage })
     .from(knowledgeBaseArticles)
     .where(eq(knowledgeBaseArticles.slug, params.articleSlug));
   if (!article) return { title: "Artikel niet gevonden" };
@@ -89,6 +91,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title       = truncateMetaTitle(article.metaTitle || article.title);
   const description = truncateMetaDescription(article.metaDescription || article.excerpt || "");
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
+  // Eigen cover als die er is (geen kleur-placeholder), anders de dynamische merk-OG-image.
+  const ogImage     = article.coverImage && !article.coverImage.startsWith("color:")
+    ? article.coverImage
+    : `${siteUrl}/opengraph-image`;
 
   return {
     title,
@@ -97,6 +103,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title, description,
       url: `${siteUrl}/kennisbank/${params.categorySlug}/${params.articleSlug}`,
       type: "article",
+      images: [{ url: ogImage }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title, description,
+      images: [ogImage],
     },
     alternates: { canonical: `${siteUrl}/kennisbank/${params.categorySlug}/${params.articleSlug}` },
   };
@@ -118,7 +130,7 @@ export default async function KennisbankArticlePage({ params }: Props) {
 
   const contentWithIds = injectHeadingIds(article.content);
   const toc = extractToc(article.content);
-  const faqItems = extractFaq(article.content.toLowerCase() !== article.content ? article.content : article.content);
+  const faqItems = extractFaq(article.content);
   const howToItems = extractHowTo(article.content);
 
   // Related articles
@@ -165,7 +177,7 @@ export default async function KennisbankArticlePage({ params }: Props) {
       "@type": "Organization",
       name: "Bijeen",
       url: siteUrl,
-      logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png` },
+      logo: { "@type": "ImageObject", url: `${siteUrl}/Bijeen-logo.png` },
     },
     keywords: article.tags?.join(", "),
     mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },

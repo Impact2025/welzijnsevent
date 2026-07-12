@@ -8,6 +8,7 @@ import {
   volunteerVacancies,
 } from "@/db";
 import { eq, and, gte, desc } from "drizzle-orm";
+import { canonicalizedAwayBlogSlugs } from "@/lib/seo";
 
 const BASE = (process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app").replace(/\/$/, "");
 
@@ -50,7 +51,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .where(eq(blogPosts.status, "published"))
       .orderBy(desc(blogPosts.publishedAt));
 
-    blogPages = posts.map(p => ({
+    blogPages = posts
+      // Geconsolideerde duplicaten wijzen via canonical naar een ander artikel;
+      // die horen niet zelfstandig in de sitemap.
+      .filter(p => !canonicalizedAwayBlogSlugs.has(p.slug))
+      .map(p => ({
       url: `${BASE}/blog/${p.slug}`,
       lastModified: p.updatedAt ?? p.publishedAt ?? now,
       changeFrequency: "monthly" as const,

@@ -30,6 +30,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title, description,
       url: `${siteUrl}/kennisbank/${params.categorySlug}`,
       type: "website",
+      images: [{ url: `${siteUrl}/opengraph-image` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title, description,
+      images: [`${siteUrl}/opengraph-image`],
     },
     alternates: { canonical: `${siteUrl}/kennisbank/${params.categorySlug}` },
   };

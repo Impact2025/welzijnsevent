@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink, Linkedin, MessageCircle, Zap } from "lucide-react";
 import type { Metadata } from "next";
-import { truncateMetaTitle, truncateMetaDescription } from "@/lib/seo";
+import { truncateMetaTitle, truncateMetaDescription, BLOG_CANONICAL_OVERRIDES } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -28,13 +28,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
   const ogImage     = post.coverImage && !post.coverImage.startsWith("color:") ? post.coverImage : undefined;
 
+  // Kannibalisatie: laat een zwakker duplicaat naar het canonieke artikel wijzen.
+  const canonicalSlug = BLOG_CANONICAL_OVERRIDES[params.slug] ?? params.slug;
+
   return {
     title,
     description,
     openGraph: {
       title,
       description,
-      url: `${siteUrl}/blog/${params.slug}`,
+      url: `${siteUrl}/blog/${canonicalSlug}`,
       type: "article",
       images: ogImage ? [{ url: ogImage }] : [],
     },
@@ -44,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       images: ogImage ? [ogImage] : [],
     },
-    alternates: { canonical: `${siteUrl}/blog/${params.slug}` },
+    alternates: { canonical: `${siteUrl}/blog/${canonicalSlug}` },
   };
 }
 
@@ -75,11 +78,13 @@ function extractFaq(html: string): { question: string; answer: string }[] {
   const faqMatch = html.match(/<h2[^>]*>[^<]*(?:veelgestelde|faq)[^<]*<\/h2>([\s\S]*?)(?=<h2|$)/i);
   if (!faqMatch) return items;
   const section = faqMatch[1];
-  const re = /<h3[^>]*>([\s\S]*?)<\/h3>\s*(?:<p[^>]*>([\s\S]*?)<\/p>)?/gi;
+  // De kop (<h3>) is de vraag; álles tot de volgende <h3> is het antwoord.
+  // Zo matcht het FAQ-schema het volledige, zichtbare antwoord (ook meerledig).
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3|$)/gi;
   let m;
   while ((m = re.exec(section)) !== null) {
     const q = m[1].replace(/<[^>]+>/g, "").trim();
-    const a = m[2] ? m[2].replace(/<[^>]+>/g, "").trim() : "";
+    const a = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
     if (q && a) items.push({ question: q, answer: a });
   }
   return items;

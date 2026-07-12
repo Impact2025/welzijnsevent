@@ -45,7 +45,7 @@ const websiteJsonLd = {
     "@type": "Organization",
     name: "Bijeen",
     url: siteUrl,
-    logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png` },
+    logo: { "@type": "ImageObject", url: `${siteUrl}/Bijeen-logo.png` },
   },
   potentialAction: {
     "@type": "SearchAction",
@@ -61,6 +61,36 @@ const breadcrumbJsonLd = {
     { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
     { "@type": "ListItem", position: 2, name: "Kennisbank", item: `${siteUrl}/kennisbank` },
   ],
+};
+
+// FAQ-content: zowel zichtbaar op de pagina als aangeboden als FAQPage rich snippet.
+const indexFaqs = [
+  {
+    q: "Voor wie is deze kennisbank bedoeld?",
+    a: "Voor iedereen die welzijnsevenementen organiseert: stichtingen, gemeentelijke welzijnsorganisaties, WMO uitvoerders en coordinatoren in de zorg en welzijnssector in Nederland.",
+  },
+  {
+    q: "Zijn de artikelen gratis?",
+    a: "Ja, alle kennisbank artikelen zijn volledig gratis en zonder registratie toegankelijk. We geloven dat kennis over goed evenementenmanagement beschikbaar moet zijn voor de hele sector.",
+  },
+  {
+    q: "Wat is het verschil tussen de kennisbank en de blog?",
+    a: "De kennisbank bevat tijdloze praktische gidsen, checklists en vergelijkingen. De blog bevat actuele updates, nieuws en persoonlijke observaties over de welzijnssector.",
+  },
+  {
+    q: "Hoe kan ik een gratis demo aanvragen van Bijeen?",
+    a: "Via bijeen.app kun je een gratis demo van 30 minuten plannen. ANBI gecertificeerde organisaties ontvangen automatisch 15% Sociaal Tarief korting op elk abonnement.",
+  },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: indexFaqs.map(item => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
 };
 
 // Category accent colors
@@ -115,6 +145,7 @@ export default async function KennisbankPage() {
       {/* Structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="bg-[#1C1814] text-white overflow-hidden relative">
@@ -295,24 +326,7 @@ export default async function KennisbankPage() {
       <section className="max-w-5xl mx-auto px-6 py-8">
         <h2 className="text-xl font-black text-[#1C1814] mb-6">Veelgestelde vragen over de kennisbank</h2>
         <div className="grid md:grid-cols-2 gap-4">
-          {[
-            {
-              q: "Voor wie is deze kennisbank bedoeld?",
-              a: "Voor iedereen die welzijnsevenementen organiseert: stichtingen, gemeentelijke welzijnsorganisaties, WMO uitvoerders en coordinatoren in de zorg en welzijnssector in Nederland.",
-            },
-            {
-              q: "Zijn de artikelen gratis?",
-              a: "Ja, alle kennisbank artikelen zijn volledig gratis en zonder registratie toegankelijk. We geloven dat kennis over goed evenementenmanagement beschikbaar moet zijn voor de hele sector.",
-            },
-            {
-              q: "Wat is het verschil tussen de kennisbank en de blog?",
-              a: "De kennisbank bevat tijdloze praktische gidsen, checklists en vergelijkingen. De blog bevat actuele updates, nieuws en persoonlijke observaties over de welzijnssector.",
-            },
-            {
-              q: "Hoe kan ik een gratis demo aanvragen van Bijeen?",
-              a: "Via bijeen.app kun je een gratis demo van 30 minuten plannen. ANBI gecertificeerde organisaties ontvangen automatisch 15% Sociaal Tarief korting op elk abonnement.",
-            },
-          ].map(item => (
+          {indexFaqs.map(item => (
             <div key={item.q} className="bg-white rounded-2xl border border-[#E8E4DE] p-5">
               <h3 className="font-bold text-[#1C1814] text-sm mb-2">{item.q}</h3>
               <p className="text-sm text-[#6B5E54] leading-relaxed">{item.a}</p>

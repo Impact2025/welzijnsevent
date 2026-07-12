@@ -22,3 +22,21 @@ export function truncateMetaDescription(description: string, maxLength = 155): s
   const cut = description.slice(0, maxLength - 1).replace(/\s+\S*$/, "").trim();
   return `${cut}…`;
 }
+
+/**
+ * Keyword-kannibalisatie: twee blogartikelen die op dezelfde zoekintentie
+ * mikken splitsen hun ranking-signalen. We houden beide artikelen live (geen
+ * content weggooien), maar laten het zwakkere exemplaar via rel=canonical naar
+ * het sterkere wijzen. Zo consolideert Google de signalen op één URL.
+ *
+ * key = slug van het zwakkere (te consolideren) artikel
+ * value = slug van het canonieke doel (het sterkere, diepere artikel)
+ */
+export const BLOG_CANONICAL_OVERRIDES: Record<string, string> = {
+  "sroi-welzijn-sociale-return-op-investering": "sroi-welzijnsevenement-maatschappelijke-waarde",
+  "ai-in-het-sociale-domein-ethiek-praktijk":   "ai-in-het-sociaal-domein-wat-mag-wel-niet",
+  "eventbrite-alternatief-welzijnsevenementen": "eventbrite-alternatief-welzijnsorganisaties",
+};
+
+/** Slugs die naar een ander artikel canonicaliseren; niet zelfstandig in de sitemap opnemen. */
+export const canonicalizedAwayBlogSlugs = new Set(Object.keys(BLOG_CANONICAL_OVERRIDES));
