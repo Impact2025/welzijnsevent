@@ -39,9 +39,11 @@ export const KB_ANCHORS: Record<string, KbLink[]> = {
     { target: "aanmeldformulier-evenement-maken", categorySlug: "deelnemersbeheer", anchor: "aanmeldformulier" },
     { target: "qr-code-check-in-evenement", categorySlug: "deelnemersbeheer", anchor: "QR code" },
     { target: "automatische-bevestigingen-herinneringen", categorySlug: "deelnemersbeheer", anchor: "bevestigingsmail" },
+    { target: "gdpr-evenementen-welzijnsorganisatie", categorySlug: "gdpr-en-privacy", anchor: "GDPR" },
   ],
   "aanmeldformulier-evenement-maken": [
     { target: "automatische-bevestigingen-herinneringen", categorySlug: "deelnemersbeheer", anchor: "bevestigingsmail" },
+    { target: "gdpr-evenementen-welzijnsorganisatie", categorySlug: "gdpr-en-privacy", anchor: "AVG" },
   ],
   "digitaal-inchecken-vs-papieren-lijst": [
     { target: "qr-code-check-in-evenement", categorySlug: "deelnemersbeheer", anchor: "QR code" },
