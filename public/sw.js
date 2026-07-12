@@ -2,6 +2,16 @@ const CACHE_VERSION = "v1";
 const STATIC_CACHE  = `bijeen-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `bijeen-dynamic-${CACHE_VERSION}`;
 
+// ── Safe cache helper: clone() fails if body already consumed ──
+function cacheResponseIfBodyUsable(cacheName, request, response) {
+  try {
+    const cloned = response.clone();
+    caches.open(cacheName).then((c) => c.put(request, cloned));
+  } catch {
+    // silently ignore — cache miss is better than a crash
+  }
+}
+
 // ── Install: pre-cache shell ──────────────────────────────────
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -42,7 +52,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(request).then(
         (hit) => hit ?? fetch(request).then((res) => {
-          caches.open(STATIC_CACHE).then((c) => c.put(request, res.clone()));
+          cacheResponseIfBodyUsable(STATIC_CACHE, request, res);
           return res;
         })
       )
@@ -55,7 +65,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       caches.match(request).then(
         (hit) => hit ?? fetch(request).then((res) => {
-          if (res.ok) caches.open(STATIC_CACHE).then((c) => c.put(request, res.clone()));
+          if (res.ok) cacheResponseIfBodyUsable(STATIC_CACHE, request, res);
           return res;
         })
       )
@@ -68,7 +78,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          if (res.ok) caches.open(DYNAMIC_CACHE).then((c) => c.put(request, res.clone()));
+          if (res.ok) cacheResponseIfBodyUsable(DYNAMIC_CACHE, request, res);
           return res;
         })
         .catch(() => caches.match(request).then((hit) => hit ?? caches.match("/offline")))
@@ -80,7 +90,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(request)
       .then((res) => {
-        if (res.ok) caches.open(DYNAMIC_CACHE).then((c) => c.put(request, res.clone()));
+        if (res.ok) cacheResponseIfBodyUsable(DYNAMIC_CACHE, request, res);
         return res;
       })
       .catch(() => caches.match(request).then((hit) => hit ?? caches.match("/offline")))

@@ -121,6 +121,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         {/* RSS autodiscovery */}
         <link rel="alternate" type="application/rss+xml" title="Bijeen Blog — Inzichten voor welzijnsorganisaties" href="/blog/rss" />
+        {/* PWA: moderne equivalent van apple-mobile-web-app-capable */}
+        <meta name="mobile-web-app-capable" content="yes" />
         {/* GSC www-verificatie — haal code uit GSC > www.bijeen.app > Instellingen > Eigendom verifiëren > HTML tag */}
         {/* <meta name="google-site-verification" content="..." /> */}
       </head>
