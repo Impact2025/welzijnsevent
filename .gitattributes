@@ -1,0 +1,6 @@
+# Line endings: preserve the project's CRLF convention on checkout (Windows),
+# keep text normalization off so we don't churn every file on clone.
+* text=auto eol=crlf
+
+# Build artifacts / generated files that must never be committed
+*.tsbuildinfo linguist-generated
