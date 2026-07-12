@@ -36,3 +36,6 @@ yarn-error.log*
 src/db/seed-blogs-2.ts
 src/db/seed-kennisbank-2.ts
 src/scripts/
+
+# TypeScript build info (generated artifact)
+*.tsbuildinfo
