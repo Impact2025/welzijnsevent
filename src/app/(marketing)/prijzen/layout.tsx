@@ -50,10 +50,20 @@ const softwareSchema = {
   ],
 };
 
+const prijzenBreadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://bijeen.app" },
+    { "@type": "ListItem", position: 2, name: "Prijzen", item: "https://bijeen.app/prijzen" },
+  ],
+};
+
 export default function PrijzenLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <JsonLd data={softwareSchema} />
+      <JsonLd data={prijzenBreadcrumb} />
       {children}
     </>
   );

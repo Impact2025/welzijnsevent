@@ -5,6 +5,7 @@ import {
   Calendar,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Over ons",
@@ -20,6 +21,58 @@ export const metadata: Metadata = {
     title: "Over ons — Bijeen",
     description: "Bijeen is gebouwd door iemand die de welzijnssector van binnenuit kent.",
   },
+};
+
+const aboutSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "Over Bijeen",
+  url: "https://bijeen.app/over-ons",
+  description:
+    "Bijeen is het Nederlandse eventplatform voor de welzijnssector, gebouwd door Vincent van Munster op basis van 15+ jaar praktijkervaring in het sociaal domein.",
+  mainEntity: {
+    "@type": "Organization",
+    name: "Bijeen",
+    url: "https://bijeen.app",
+    description:
+      "Eventplatform speciaal voor de Nederlandse welzijnssector: aanmelding, check-in, AI-netwerkkoppeling, vrijwilligersbeheer en WMO-impactrapportage. AVG-compliant, data binnen de EU.",
+    founder: {
+      "@type": "Person",
+      name: "Vincent van Munster",
+      jobTitle: "Oprichter",
+      description:
+        "Sociaal ondernemer en oud-directeur van Stichting de Baan (700+ deelnemers, 180 vrijwilligers). Oprichter van WeAreImpact, strategisch adviesbureau voor het sociaal domein.",
+      url: "https://www.weareimpact.nl",
+      worksFor: {
+        "@type": "Organization",
+        name: "WeAreImpact",
+        url: "https://www.weareimpact.nl",
+      },
+    },
+    parentOrganization: {
+      "@type": "Organization",
+      name: "WeAreImpact",
+      url: "https://www.weareimpact.nl",
+    },
+    areaServed: "NL",
+    knowsAbout: [
+      "welzijnssector",
+      "evenementenbeheer",
+      "WMO-rapportage",
+      "vrijwilligersbeheer",
+      "sociaal domein",
+      "AVG-compliance",
+    ],
+  },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://bijeen.app" },
+    { "@type": "ListItem", position: 2, name: "Over ons", item: "https://bijeen.app/over-ons" },
+  ],
 };
 
 const stats = [
@@ -48,6 +101,8 @@ const demoExpect = [
 export default function OverOnsPage() {
   return (
     <div className="bg-cream min-h-screen pt-16">
+      <JsonLd data={aboutSchema} />
+      <JsonLd data={breadcrumbSchema} />
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="bg-[#12100E] pt-20 pb-24 sm:pt-28 sm:pb-32 relative overflow-hidden">

@@ -7,6 +7,7 @@ import {
   Check, X, Users, Clock, Shield,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
   title: "Functies",
@@ -117,9 +118,52 @@ const testimonials = [
   },
 ];
 
+const functiesSchema = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Bijeen",
+  url: "https://bijeen.app",
+  applicationCategory: "BusinessApplication",
+  applicationSubCategory: "EventManagement",
+  operatingSystem: "Web",
+  inLanguage: "nl-NL",
+  description:
+    "Bijeen is het Nederlandse eventplatform voor de welzijnssector met check-in via QR, AI-netwerkkoppeling, live Q&A en polls, vrijwilligersbeheer en WMO-impactrapportage. AVG-compliant, data binnen de EU.",
+  featureList: [
+    "Aanmelding en check-in via QR-code",
+    "AI-netwerkkoppeling tussen deelnemers",
+    "Live Q&A en polls",
+    "Vrijwilligersbeheer",
+    "WMO- en IZA-impactrapportage (print-ready PDF)",
+    "AVG-compliant deelnemersbeheer met data binnen de EU",
+  ],
+  creator: {
+    "@type": "Organization",
+    name: "WeAreImpact",
+    url: "https://www.weareimpact.nl",
+  },
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "EUR",
+    description: "Gratis starten — eerste event gratis tot 50 deelnemers.",
+  },
+};
+
+const functiesBreadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://bijeen.app" },
+    { "@type": "ListItem", position: 2, name: "Functies", item: "https://bijeen.app/functies" },
+  ],
+};
+
 export default function FunctiesPage() {
   return (
     <div className="bg-cream min-h-screen pt-16">
+      <JsonLd data={functiesSchema} />
+      <JsonLd data={functiesBreadcrumb} />
 
       {/* ── HERO ─────────────────────────────────────────────────── */}
       <section className="bg-[#12100E] pt-16 pb-0 relative overflow-hidden">
