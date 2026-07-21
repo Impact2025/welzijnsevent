@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { Clock, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import { canonicalizedAwayBlogSlugs } from "@/lib/seo";
 
 export const revalidate = 60;
 
@@ -76,7 +77,10 @@ export default async function BlogPage() {
     .where(eq(blogPosts.status, "published"))
     .orderBy(desc(blogPosts.publishedAt));
 
-  const [featured, ...rest] = posts;
+  // Duplicaten die via rel=canonical naar een ander artikel wijzen horen niet
+  // ook nog eens als apart kaartje in de listing te staan.
+  const visiblePosts = posts.filter(p => !canonicalizedAwayBlogSlugs.has(p.slug));
+  const [featured, ...rest] = visiblePosts;
 
   return (
     <main className="min-h-screen bg-[#FAF9F7]">
@@ -107,7 +111,7 @@ export default async function BlogPage() {
       </section>
 
       <div className="max-w-5xl mx-auto px-6 py-16">
-        {posts.length === 0 && (
+        {visiblePosts.length === 0 && (
           <div className="text-center py-20 text-[#9E9890]">
             <p className="text-lg font-semibold">Binnenkort verschijnen hier de eerste artikelen.</p>
           </div>

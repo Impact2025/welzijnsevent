@@ -36,6 +36,18 @@ export const BLOG_CANONICAL_OVERRIDES: Record<string, string> = {
   "sroi-welzijn-sociale-return-op-investering": "sroi-welzijnsevenement-maatschappelijke-waarde",
   "ai-in-het-sociale-domein-ethiek-praktijk":   "ai-in-het-sociaal-domein-wat-mag-wel-niet",
   "eventbrite-alternatief-welzijnsevenementen": "eventbrite-alternatief-welzijnsorganisaties",
+
+  // "Wat is Bijeen?" werd 4x gepubliceerd (automation-bug, 2x zelfs bit-voor-bit
+  // identiek). Consolideer op de laatste/volledigste versie.
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-":   "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--2": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--3": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
+
+  // "Vrijwilligersdag organiseren" 4x gepubliceerd. Consolideer op de "-2"
+  // versie: die rankt in GSC al op positie 8,7 (de rest 9,3-33,5 of nog geen data).
+  "vrijwilligersdag-organiseren-complete-gids":                                     "vrijwilligersdag-organiseren-complete-gids-2",
+  "complete-gids-van-programmering-tot-nazorg-voor-een-vrijwilligersdag-die-mensen-": "vrijwilligersdag-organiseren-complete-gids-2",
+  "vrijwilligersdag-organiseren-complete-gids-van-programmering-tot-nazorg":         "vrijwilligersdag-organiseren-complete-gids-2",
 };
 
 /** Slugs die naar een ander artikel canonicaliseren; niet zelfstandig in de sitemap opnemen. */

@@ -385,6 +385,16 @@ export default function FunctiesPage() {
                     </li>
                   ))}
                 </ul>
+                <p className="mt-6 text-sm text-white/40">
+                  Meer weten? Lees{" "}
+                  <Link href="/kennisbank/deelnemersbeheer/aanmeldformulier-evenement-maken" className="text-terra-400 hover:text-terra-300 underline underline-offset-2">
+                    hoe je een aanmeldformulier maakt dat werkt
+                  </Link>{" "}
+                  of hoe je{" "}
+                  <Link href="/kennisbank/vrijwilligers/vrijwilligersbeheer-aanmelding-tot-bedankje" className="text-terra-400 hover:text-terra-300 underline underline-offset-2">
+                    vrijwilligers beheert van aanmelding tot bedankje
+                  </Link>.
+                </p>
               </div>
               <div className="border-l border-white/8 p-8 sm:p-10 flex items-center justify-center bg-white/3 order-1 lg:order-2">
                 <PhoneFrame src="/screenshots/deelnemersbeheer.png" alt="Deelnemersbeheer met QR scanner" />

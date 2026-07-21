@@ -1,5 +1,6 @@
 import { db, blogPosts } from "@/db";
 import { eq, desc } from "drizzle-orm";
+import { canonicalizedAwayBlogSlugs } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET() {
     .orderBy(desc(blogPosts.publishedAt))
     .limit(50);
 
-  const items = posts.map(p => {
+  const items = posts.filter(p => !canonicalizedAwayBlogSlugs.has(p.slug)).map(p => {
     const url = `${SITE_URL}/blog/${p.slug}`;
     const cleanBody = (p.content || "")
       .replace(/<[^>]+>/g, "")
