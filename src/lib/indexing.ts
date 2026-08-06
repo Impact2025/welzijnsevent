@@ -15,11 +15,22 @@ export async function pingIndexNow(urls: string[]): Promise<void> {
       body: JSON.stringify({
         host,
         key,
-        keyLocation: `${origin}/api/indexnow-key`,
+        // De conventionele locatie: public/<key>.txt. Wees hier voorzichtig met
+        // een route onder /api/ — die valt onder de auth-middleware en gaf een
+        // 307 naar /sign-in, waardoor IndexNow de sleutel niet kon ophalen en
+        // élke ping met 422 werd afgewezen.
+        keyLocation: `${origin}/${key}.txt`,
         urlList: urls,
       }),
     });
-    console.log(`[IndexNow] status=${res.status} urls=${urls.join(", ")}`);
+
+    if (!res.ok) {
+      // Niet stil laten falen: dit heeft maandenlang onopgemerkt 422 gegeven.
+      const body = await res.text().catch(() => "");
+      console.error(`[IndexNow] AFGEWEZEN status=${res.status} ${body.slice(0, 200)} (${urls.length} urls)`);
+      return;
+    }
+    console.log(`[IndexNow] status=${res.status} — ${urls.length} urls aangemeld`);
   } catch (err) {
     console.error("[IndexNow] Fout bij aanmelden:", err);
   }
