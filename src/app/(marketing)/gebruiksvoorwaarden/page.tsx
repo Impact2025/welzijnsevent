@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Gebruiksvoorwaarden Deelnemers — Bijeen",
+  title: "Gebruiksvoorwaarden deelnemers",
   description:
     "Gebruiksvoorwaarden voor deelnemers aan evenementen die worden georganiseerd via het Bijeen-platform.",
 };

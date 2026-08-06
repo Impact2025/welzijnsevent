@@ -3,7 +3,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { RapportGenerator } from "./rapport-generator";
 
 export const metadata: Metadata = {
-  title: "Gratis WMO Impactrapport genereren — Bijeen",
+  title: "Gratis WMO-impactrapport genereren",
   description:
     "Genereer in 2 minuten een professioneel WMO-impactrapport voor uw evenement. " +
     "Direct bruikbaar voor subsidieaanvraag bij gemeente of fonds. Gratis, geen account nodig.",

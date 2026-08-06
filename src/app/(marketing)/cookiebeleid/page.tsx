@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ConsentManager } from "./consent-manager";
 
 export const metadata: Metadata = {
-  title: "Cookiebeleid — Bijeen",
+  title: "Cookiebeleid",
   description: "Welke cookies Bijeen gebruikt en hoe u uw voorkeur kunt beheren.",
 };
 

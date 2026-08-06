@@ -16,8 +16,11 @@ export const revalidate = 3600;
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
 
 export const metadata: Metadata = {
-  title: "Bijeen — Eventplatform voor welzijnsorganisaties",
-  description: "Het eerste eventplatform gebouwd voor de welzijnssector. Van aanmelding tot WMO rapportage — Bijeen regelt het, zodat jij je kunt focussen op de mensen.",
+  // `absolute` omzeilt de title.template uit de root layout. Zonder dit werd de
+  // homepage-title "Bijeen — Eventplatform voor welzijnsorganisaties — Bijeen":
+  // de merknaam stond er twee keer in en Google kapte de zin af.
+  title: { absolute: "Bijeen — eventplatform voor de welzijnssector" },
+  description: "Regel aanmeldingen, check-in en WMO-rapportage van je bijeenkomst in één tool. Gebouwd voor welzijnsorganisaties, stichtingen en gemeenten. Eerste event gratis.",
   keywords: ["event management welzijnsorganisatie", "WMO rapportage evenement", "deelnemersbeheer nonprofit", "QR check-in evenement", "evenementenplatform stichting"],
   authors: [{ name: "Vincent van Munster", url: "https://weareimpact.nl" }],
   alternates: { canonical: siteUrl },

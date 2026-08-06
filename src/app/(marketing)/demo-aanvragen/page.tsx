@@ -3,7 +3,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { DemoRequestForm } from "./demo-request-form";
 
 export const metadata: Metadata = {
-  title: "Plan een gratis demo — Bijeen",
+  title: "Plan een gratis demo",
   description:
     "Plan een gratis demo van 30 minuten met Bijeen. Persoonlijke rondleiding, " +
     "jouw use case centraal, geen verkooppraatje. ANBI/WMO-gefinancierd? 15% Sociaal Tarief.",

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Verwerkersovereenkomst — Bijeen",
+  title: "Verwerkersovereenkomst",
   description: "AVG-conforme verwerkersovereenkomst voor gebruik van het Bijeen evenementenplatform.",
 };
 

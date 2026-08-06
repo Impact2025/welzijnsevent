@@ -24,31 +24,21 @@ export function truncateMetaDescription(description: string, maxLength = 155): s
 }
 
 /**
- * Keyword-kannibalisatie: twee blogartikelen die op dezelfde zoekintentie
- * mikken splitsen hun ranking-signalen. We houden beide artikelen live (geen
- * content weggooien), maar laten het zwakkere exemplaar via rel=canonical naar
- * het sterkere wijzen. Zo consolideert Google de signalen op één URL.
+ * Keyword-kannibalisatie: meerdere blogartikelen die op dezelfde zoekintentie
+ * mikken splitsen hun ranking-signalen. De duplicaten worden sinds augustus 2026
+ * met een 301 naar het overgebleven artikel gestuurd (zie next.config.js, dat
+ * dezelfde map inleest). De rel=canonical hieronder blijft als vangnet staan
+ * voor het geval een URL de redirect omzeilt, bijvoorbeeld uit een oude cache.
  *
- * key = slug van het zwakkere (te consolideren) artikel
- * value = slug van het canonieke doel (het sterkere, diepere artikel)
+ * De map zelf staat in ./blog-canonical-map.js — bewust CommonJS, zodat
+ * next.config.js hem óók kan inlezen.
  */
-export const BLOG_CANONICAL_OVERRIDES: Record<string, string> = {
-  "sroi-welzijn-sociale-return-op-investering": "sroi-welzijnsevenement-maatschappelijke-waarde",
-  "ai-in-het-sociale-domein-ethiek-praktijk":   "ai-in-het-sociaal-domein-wat-mag-wel-niet",
-  "eventbrite-alternatief-welzijnsevenementen": "eventbrite-alternatief-welzijnsorganisaties",
+export {
+  BLOG_CANONICAL_OVERRIDES,
+  OFF_TOPIC_BLOG_SLUGS,
+} from "./blog-canonical-map.js";
 
-  // "Wat is Bijeen?" werd 4x gepubliceerd (automation-bug, 2x zelfs bit-voor-bit
-  // identiek). Consolideer op de laatste/volledigste versie.
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-":   "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--2": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--3": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
+import { BLOG_CANONICAL_OVERRIDES as OVERRIDES } from "./blog-canonical-map.js";
 
-  // "Vrijwilligersdag organiseren" 4x gepubliceerd. Consolideer op de "-2"
-  // versie: die rankt in GSC al op positie 8,7 (de rest 9,3-33,5 of nog geen data).
-  "vrijwilligersdag-organiseren-complete-gids":                                     "vrijwilligersdag-organiseren-complete-gids-2",
-  "complete-gids-van-programmering-tot-nazorg-voor-een-vrijwilligersdag-die-mensen-": "vrijwilligersdag-organiseren-complete-gids-2",
-  "vrijwilligersdag-organiseren-complete-gids-van-programmering-tot-nazorg":         "vrijwilligersdag-organiseren-complete-gids-2",
-};
-
-/** Slugs die naar een ander artikel canonicaliseren; niet zelfstandig in de sitemap opnemen. */
-export const canonicalizedAwayBlogSlugs = new Set(Object.keys(BLOG_CANONICAL_OVERRIDES));
+/** Slugs die naar een ander artikel wijzen; niet zelfstandig in sitemap/listing/RSS opnemen. */
+export const canonicalizedAwayBlogSlugs = new Set(Object.keys(OVERRIDES));

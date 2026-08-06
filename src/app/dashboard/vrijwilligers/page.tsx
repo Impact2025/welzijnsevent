@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { VolunteerFilters } from "@/components/vrijwilligers/VolunteerFilters";
 import { VolunteerList } from "@/components/vrijwilligers/VolunteerList";
 
-export const metadata = { title: "Vrijwilligers — Bijeen" };
+export const metadata = { title: "Vrijwilligers" };
 
 export default async function VrijwilligersPage({
   searchParams,

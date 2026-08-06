@@ -1,3 +1,5 @@
+const { BLOG_CANONICAL_OVERRIDES } = require('./src/lib/blog-canonical-map.js');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
@@ -17,27 +19,28 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // Content-merges (keyword cannibalization opgelost, juli 2026)
+      // ── www → non-www ─────────────────────────────────────────────────────
+      // bijeen.app en www.bijeen.app serveerden allebei de volledige site, met
+      // twee sitemaps in Search Console. Google zag daardoor van elke pagina
+      // twee versies en verdeelde de ranking-signalen over allebei. Deze regel
+      // staat bewust in next.config (niet in de middleware): de middleware-
+      // matcher slaat .xml/.txt over, waardoor www/sitemap.xml en www/robots.txt
+      // anders bereikbaar zouden blijven.
       {
-        source: '/blog/eventbrite-alternatief-welzijnsevenementen',
-        destination: '/blog/eventbrite-alternatief-welzijnsorganisaties',
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.bijeen.app' }],
+        destination: 'https://bijeen.app/:path*',
         permanent: true,
       },
-      {
-        source: '/blog/sroi-welzijn-sociale-return-op-investering',
-        destination: '/blog/sroi-welzijnsevenement-maatschappelijke-waarde',
+
+      // ── Blog-consolidatie ─────────────────────────────────────────────────
+      // Gegenereerd uit dezelfde map die seo.ts gebruikt voor rel=canonical en
+      // de sitemap-filter, zodat de drie mechanismen niet uit elkaar lopen.
+      ...Object.entries(BLOG_CANONICAL_OVERRIDES).map(([from, to]) => ({
+        source: `/blog/${from}`,
+        destination: `/blog/${to}`,
         permanent: true,
-      },
-      {
-        source: '/blog/ai-in-het-sociale-domein-ethiek-praktijk',
-        destination: '/blog/ai-in-het-sociaal-domein-wat-mag-wel-niet',
-        permanent: true,
-      },
-      {
-        source: '/blog/waarom-traditionele-eventsoftware-faalt-in-het-sociaal-domein-de-noodzaak-van-ee',
-        destination: '/blog/waarom-commerciele-ticketsystemen-falen-in-het-sociaal-domein',
-        permanent: true,
-      },
+      })),
     ];
   },
 

@@ -35,6 +35,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/kennisbank`,                 lastModified: now, changeFrequency: "weekly",  priority: 0.9 },
     { url: `${BASE}/privacyverklaring`,          lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
     { url: `${BASE}/verwerkersovereenkomst`,     lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/algemene-voorwaarden`,       lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/gebruiksvoorwaarden`,        lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
+    { url: `${BASE}/cookiebeleid`,               lastModified: now, changeFrequency: "yearly",  priority: 0.3 },
   ];
 
   // ── Blog posts ────────────────────────────────────────────────────────────

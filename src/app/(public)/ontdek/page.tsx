@@ -9,7 +9,7 @@ import { BijeenWordmark } from "@/components/ui/bijeen-wordmark";
 import { OntdekSearchForm } from "@/components/public/ontdek-search-form";
 
 export const metadata: Metadata = {
-  title: "Ontdek evenementen | Bijeen",
+  title: "Ontdek evenementen",
   description: "Vind en bezoek professionele evenementen in de welzijnssector.",
 };
 

@@ -17,7 +17,7 @@ async function getOrgId(userId: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const [event] = await db.select({ title: events.title }).from(events).where(eq(events.id, params.id));
-  return { title: `Pipeline — ${event?.title ?? "Evenement"} — Bijeen` };
+  return { title: `Pipeline — ${event?.title ?? "Evenement"}` };
 }
 
 export type PipelineApplication = {

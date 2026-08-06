@@ -10,7 +10,7 @@ import {
 import { getInitials, avatarColor, cn } from "@/lib/utils";
 import { VolunteerDetailActions } from "@/components/vrijwilligers/VolunteerDetailActions";
 
-export const metadata = { title: "Vrijwilliger — Bijeen" };
+export const metadata = { title: "Vrijwilliger" };
 
 const SKILL_COLORS = [
   "bg-blue-50 text-blue-700 border-blue-100",

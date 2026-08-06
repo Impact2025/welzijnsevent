@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Algemene Voorwaarden — Bijeen",
+  title: "Algemene voorwaarden",
   description:
     "Algemene voorwaarden voor organisaties die gebruikmaken van het Bijeen evenementenplatform.",
 };

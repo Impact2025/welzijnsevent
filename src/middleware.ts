@@ -17,6 +17,16 @@ const PUBLIC_PREFIXES = [
   "/evenementen-software-welzijnsorganisaties",
   "/blog",
   "/kennisbank",
+  "/ontdek",
+  // Juridische pagina's. Deze stonden hier niet, waardoor de middleware ze naar
+  // /sign-in stuurde: een 307 voor iedere uitgelogde bezoeker én voor Googlebot,
+  // terwijl /privacyverklaring en /verwerkersovereenkomst wél in de sitemap
+  // staan en de cookiebanner er direct naartoe linkt.
+  "/privacyverklaring",
+  "/verwerkersovereenkomst",
+  "/algemene-voorwaarden",
+  "/gebruiksvoorwaarden",
+  "/cookiebeleid",
   "/api/pusher",
   "/api/leadgen",
   "/api/payments/stripe/webhook",
