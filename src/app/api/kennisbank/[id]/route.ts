@@ -81,8 +81,8 @@ export async function PATCH(
       const catSlug = cat?.[0]?.slug ?? "algemeen";
       const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
       const fullUrl = `${siteUrl}/kennisbank/${catSlug}/${updated.slug}`;
-      const { pingIndexNow, pingGoogleIndexingAPI } = await import("@/lib/indexing");
-      await Promise.allSettled([pingIndexNow([fullUrl]), pingGoogleIndexingAPI(fullUrl)]);
+      const { pingIndexNow } = await import("@/lib/indexing");
+      await pingIndexNow([fullUrl]);
     }
 
     return NextResponse.json({ article: updated });

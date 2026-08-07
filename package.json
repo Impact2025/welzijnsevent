@@ -19,7 +19,11 @@
     "seo:cleanup": "npx tsx src/db/seo-cleanup.ts",
     "seo:cleanup:dry": "npx tsx src/db/seo-cleanup.ts --dry",
     "seo:ping": "npx tsx src/db/ping-indexnow.ts",
-    "seo:ping:dry": "npx tsx src/db/ping-indexnow.ts --dry"
+    "seo:ping:dry": "npx tsx src/db/ping-indexnow.ts --dry",
+    "seo:inspect": "npx tsx src/db/seo-inspect.ts",
+    "seo:content": "npx tsx src/db/seo-content-update.ts",
+    "seo:content:dry": "npx tsx src/db/seo-content-update.ts --dry",
+    "test:publish-guard": "npx tsx src/db/test-publish-guard.ts"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.1",

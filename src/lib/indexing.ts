@@ -36,6 +36,19 @@ export async function pingIndexNow(urls: string[]): Promise<void> {
   }
 }
 
+/**
+ * LET OP — beperkt inzetbaar. Google's Indexing API ondersteunt officieel
+ * alléén pagina's met JobPosting- of BroadcastEvent-structured data. Voor
+ * blog- en kennisbankartikelen is dit geen ondersteund gebruik: die aanroepen
+ * deden niets nuttigs en zaten in een Promise.allSettled, dus ze faalden stil.
+ * Ze zijn in augustus 2026 uit de publicatie-routes gehaald.
+ *
+ * De functie blijft staan omdat de vrijwilligersvacatures
+ * (/e/[slug]/vacatures/[id]) wél binnen het bereik van deze API vallen zodra
+ * die pagina's JobPosting-structured data krijgen — nu hebben ze die nog niet.
+ * Roep dit dus niet aan voor gewone content; gebruik daarvoor pingIndexNow plus
+ * de sitemap.
+ */
 export async function pingGoogleIndexingAPI(url: string): Promise<void> {
   const json = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (!json) { console.warn("[Google Indexing] GOOGLE_SERVICE_ACCOUNT_JSON niet ingesteld — sla over"); return; }

@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, knowledgeBaseArticles, knowledgeBaseCategories } from "@/db";
-import { eq, desc, sql } from "drizzle-orm";
-
-function slugify(str: string): string {
-  return str.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-").slice(0, 80);
-}
+import { eq, desc } from "drizzle-orm";
+import { slugify, decideSlug } from "@/lib/publish-guard";
 
 function calcReadingTime(html: string): number {
   const words = html.replace(/<[^>]+>/g, " ").trim().split(/\s+/).filter(Boolean).length;
@@ -64,45 +60,76 @@ export async function POST(req: Request) {
       publishedAt: publishedAtRaw,
       categoryId, tags = [], relatedArticles = [], internalLinks = [],
       metaTitle, metaDescription,
+      slug: slugRaw, allowDuplicate = false,
     } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: "Titel is verplicht" }, { status: 422 });
 
-    const baseSlug  = slugify(title);
-    const existing  = await db.select({ slug: knowledgeBaseArticles.slug })
-      .from(knowledgeBaseArticles)
-      .where(sql`${knowledgeBaseArticles.slug} LIKE ${baseSlug + "%"}`);
-    const usedSlugs = new Set(existing.map(r => r.slug));
-    let   slug      = baseSlug;
-    let   counter   = 2;
-    while (usedSlugs.has(slug)) slug = `${baseSlug}-${counter++}`;
+    // Zelfde guard als bij de blog: een bestaande slug is een update, geen
+    // nieuwe "-2". Zie src/lib/publish-guard.ts.
+    const requestedSlug = slugify(slugRaw?.trim() || title);
+    const decision = await decideSlug(
+      requestedSlug,
+      async s => (await db.select({ slug: knowledgeBaseArticles.slug })
+        .from(knowledgeBaseArticles).where(eq(knowledgeBaseArticles.slug, s))).length > 0,
+      Boolean(allowDuplicate),
+    );
 
+    if (decision.action === "reject") {
+      return NextResponse.json({ error: decision.reason }, { status: 409 });
+    }
+
+    const slug = decision.slug;
     const readingTime = calcReadingTime(content);
     const publishedAt = status === "published"
       ? (publishedAtRaw ? new Date(publishedAtRaw) : new Date())
       : null;
 
-    const [article] = await db.insert(knowledgeBaseArticles).values({
-      slug, title: title.trim(), content, excerpt: excerpt ?? null,
-      coverImage: coverImage ?? null,
-      status, categoryId: categoryId ?? null,
-      tags, relatedArticles, internalLinks,
-      metaTitle: metaTitle ?? null, metaDescription: metaDescription ?? null,
-      readingTime, publishedAt,
-    }).returning();
+    let article;
+    if (decision.action === "update") {
+      const patch: Record<string, unknown> = { title: title.trim(), content, readingTime, updatedAt: new Date() };
+      if (excerpt !== undefined)              patch.excerpt = excerpt;
+      if (coverImage !== undefined)           patch.coverImage = coverImage;
+      if (categoryId !== undefined)           patch.categoryId = categoryId;
+      if (metaTitle !== undefined)            patch.metaTitle = metaTitle;
+      if (metaDescription !== undefined)      patch.metaDescription = metaDescription;
+      if (body.tags !== undefined)            patch.tags = tags;
+      if (body.relatedArticles !== undefined) patch.relatedArticles = relatedArticles;
+      if (body.internalLinks !== undefined)   patch.internalLinks = internalLinks;
+      if (body.status !== undefined) {
+        patch.status = status;
+        if (publishedAt) patch.publishedAt = publishedAt;
+      }
+      [article] = await db.update(knowledgeBaseArticles).set(patch)
+        .where(eq(knowledgeBaseArticles.slug, slug)).returning();
+    } else {
+      [article] = await db.insert(knowledgeBaseArticles).values({
+        slug, title: title.trim(), content, excerpt: excerpt ?? null,
+        coverImage: coverImage ?? null,
+        status, categoryId: categoryId ?? null,
+        tags, relatedArticles, internalLinks,
+        metaTitle: metaTitle ?? null, metaDescription: metaDescription ?? null,
+        readingTime, publishedAt,
+      }).returning();
+    }
 
-    if (status === "published") {
-      const cat = categoryId
-        ? await db.select({ slug: knowledgeBaseCategories.slug }).from(knowledgeBaseCategories).where(eq(knowledgeBaseCategories.id, categoryId))
+    if (article.status === "published") {
+      // Lees de categorie van het opgeslagen artikel, niet uit de body: bij een
+      // update stuurt de aanroeper categoryId lang niet altijd mee.
+      const cat = article.categoryId
+        ? await db.select({ slug: knowledgeBaseCategories.slug }).from(knowledgeBaseCategories).where(eq(knowledgeBaseCategories.id, article.categoryId))
         : null;
       const catSlug = cat?.[0]?.slug ?? "algemeen";
       const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
       const fullUrl = `${siteUrl}/kennisbank/${catSlug}/${article.slug}`;
-      const { pingIndexNow, pingGoogleIndexingAPI } = await import("@/lib/indexing");
-      await Promise.allSettled([pingIndexNow([fullUrl]), pingGoogleIndexingAPI(fullUrl)]);
+      const { pingIndexNow } = await import("@/lib/indexing");
+      await pingIndexNow([fullUrl]);
     }
 
-    return NextResponse.json({ article }, { status: 201 });
+    return NextResponse.json(
+      { article, action: decision.action },
+      { status: decision.action === "update" ? 200 : 201 },
+    );
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

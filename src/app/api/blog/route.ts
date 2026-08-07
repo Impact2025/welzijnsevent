@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createHash, timingSafeEqual } from "crypto";
 import { auth } from "@/auth";
 import { db, blogPosts } from "@/db";
-import { eq, desc, sql } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
+import { slugify, decideSlug } from "@/lib/publish-guard";
 
 // Machine-auth voor volautomatische publicatie (Agent OS → live), naast de
 // admin-sessie. Auth: Authorization: Bearer <BLOG_PUBLISH_API_KEY>.
@@ -20,18 +21,6 @@ async function isAdminSession(): Promise<boolean> {
   const session = await auth();
   if (!session?.user?.id) return false;
   return session.user.email === process.env.ADMIN_EMAIL;
-}
-
-function slugify(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
 }
 
 function calcReadingTime(html: string): number {
@@ -80,17 +69,27 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { title, content = "", excerpt, coverImage, status = "draft",
             metaTitle, metaDescription, tags = [], internalLinks = [],
-            publishedAt: publishedAtRaw } = body;
+            publishedAt: publishedAtRaw,
+            slug: slugRaw, allowDuplicate = false } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: "Titel is verplicht" }, { status: 422 });
 
-    const baseSlug  = slugify(title);
-    const existing  = await db.select({ slug: blogPosts.slug }).from(blogPosts)
-      .where(sql`${blogPosts.slug} LIKE ${baseSlug + "%"}`);
-    const usedSlugs = new Set(existing.map(r => r.slug));
-    let   slug      = baseSlug;
-    let   counter   = 2;
-    while (usedSlugs.has(slug)) slug = `${baseSlug}-${counter++}`;
+    // Een bestaande slug betekent standaard "werk dat artikel bij". Vroeger werd
+    // hier net zo lang opgehoogd tot de slug vrij was, waardoor een automation
+    // die hetzelfde artikel opnieuw aanbood een "-2" aanmaakte in plaats van een
+    // update. Zie src/lib/publish-guard.ts voor de achtergrond.
+    const requestedSlug = slugify(slugRaw?.trim() || title);
+    const decision = await decideSlug(
+      requestedSlug,
+      async s => (await db.select({ slug: blogPosts.slug }).from(blogPosts).where(eq(blogPosts.slug, s))).length > 0,
+      Boolean(allowDuplicate),
+    );
+
+    if (decision.action === "reject") {
+      return NextResponse.json({ error: decision.reason }, { status: 409 });
+    }
+
+    const slug = decision.slug;
 
     // Agent OS-posted artikelen sturen (nog) geen coverImage mee → geef ze een
     // huisstijl-kleur (warm Bijeen-palet) zodat ze geen lege ✍️-placeholder
@@ -106,21 +105,42 @@ export async function POST(req: Request) {
       ? (publishedAtRaw ? new Date(publishedAtRaw) : new Date())
       : null;
 
-    const [post] = await db.insert(blogPosts).values({
-      slug, title: title.trim(), content, excerpt: excerpt ?? null,
-      coverImage: coverImageValue, status, metaTitle: metaTitle ?? null,
-      metaDescription: metaDescription ?? null, tags, internalLinks,
-      readingTime, publishedAt,
-    }).returning();
-
-    if (status === "published") {
-      const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
-      const fullUrl = `${siteUrl}/blog/${post.slug}`;
-      const { pingIndexNow, pingGoogleIndexingAPI } = await import("@/lib/indexing");
-      await Promise.allSettled([pingIndexNow([fullUrl]), pingGoogleIndexingAPI(fullUrl)]);
+    let post;
+    if (decision.action === "update") {
+      // Alleen meegestuurde velden overschrijven, zodat een gedeeltelijke
+      // herpublicatie geen handmatig geredigeerde meta-velden wist.
+      const patch: Record<string, unknown> = { title: title.trim(), content, readingTime, updatedAt: new Date() };
+      if (excerpt !== undefined)         patch.excerpt = excerpt;
+      if (coverImage !== undefined)      patch.coverImage = coverImageValue;
+      if (metaTitle !== undefined)       patch.metaTitle = metaTitle;
+      if (metaDescription !== undefined) patch.metaDescription = metaDescription;
+      if (body.tags !== undefined)          patch.tags = tags;
+      if (body.internalLinks !== undefined) patch.internalLinks = internalLinks;
+      if (body.status !== undefined) {
+        patch.status = status;
+        if (publishedAt) patch.publishedAt = publishedAt;
+      }
+      [post] = await db.update(blogPosts).set(patch).where(eq(blogPosts.slug, slug)).returning();
+    } else {
+      [post] = await db.insert(blogPosts).values({
+        slug, title: title.trim(), content, excerpt: excerpt ?? null,
+        coverImage: coverImageValue, status, metaTitle: metaTitle ?? null,
+        metaDescription: metaDescription ?? null, tags, internalLinks,
+        readingTime, publishedAt,
+      }).returning();
     }
 
-    return NextResponse.json({ post }, { status: 201 });
+    if (post.status === "published") {
+      const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+      const fullUrl = `${siteUrl}/blog/${post.slug}`;
+      const { pingIndexNow } = await import("@/lib/indexing");
+      await pingIndexNow([fullUrl]);
+    }
+
+    return NextResponse.json(
+      { post, action: decision.action },
+      { status: decision.action === "update" ? 200 : 201 },
+    );
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

@@ -1,4 +1,7 @@
-const { BLOG_CANONICAL_OVERRIDES } = require('./src/lib/blog-canonical-map.js');
+const {
+  BLOG_CANONICAL_OVERRIDES,
+  BLOG_TO_KENNISBANK_REDIRECTS,
+} = require('./src/lib/blog-canonical-map.js');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -39,6 +42,13 @@ const nextConfig = {
       ...Object.entries(BLOG_CANONICAL_OVERRIDES).map(([from, to]) => ({
         source: `/blog/${from}`,
         destination: `/blog/${to}`,
+        permanent: true,
+      })),
+
+      // Blogartikelen die zijn opgegaan in een kennisbank-artikel.
+      ...Object.entries(BLOG_TO_KENNISBANK_REDIRECTS).map(([from, to]) => ({
+        source: `/blog/${from}`,
+        destination: to,
         permanent: true,
       })),
     ];

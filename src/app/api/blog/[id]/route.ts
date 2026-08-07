@@ -81,8 +81,8 @@ export async function PATCH(
     if (status === "published" && !wasPublished) {
       const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
       const fullUrl = `${siteUrl}/blog/${updated.slug}`;
-      const { pingIndexNow, pingGoogleIndexingAPI } = await import("@/lib/indexing");
-      await Promise.allSettled([pingIndexNow([fullUrl]), pingGoogleIndexingAPI(fullUrl)]);
+      const { pingIndexNow } = await import("@/lib/indexing");
+      await pingIndexNow([fullUrl]);
     }
 
     return NextResponse.json({ post: updated });

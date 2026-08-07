@@ -35,10 +35,17 @@ export function truncateMetaDescription(description: string, maxLength = 155): s
  */
 export {
   BLOG_CANONICAL_OVERRIDES,
+  BLOG_TO_KENNISBANK_REDIRECTS,
   OFF_TOPIC_BLOG_SLUGS,
 } from "./blog-canonical-map.js";
 
-import { BLOG_CANONICAL_OVERRIDES as OVERRIDES } from "./blog-canonical-map.js";
+import {
+  BLOG_CANONICAL_OVERRIDES as OVERRIDES,
+  BLOG_TO_KENNISBANK_REDIRECTS as KB_REDIRECTS,
+} from "./blog-canonical-map.js";
 
 /** Slugs die naar een ander artikel wijzen; niet zelfstandig in sitemap/listing/RSS opnemen. */
-export const canonicalizedAwayBlogSlugs = new Set(Object.keys(OVERRIDES));
+export const canonicalizedAwayBlogSlugs = new Set([
+  ...Object.keys(OVERRIDES),
+  ...Object.keys(KB_REDIRECTS),
+]);

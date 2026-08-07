@@ -47,6 +47,22 @@ const BLOG_CANONICAL_OVERRIDES = {
 };
 
 /**
+ * Blogartikelen die zijn opgegaan in een kennisbank-artikel.
+ *
+ * De blog en de kennisbank behandelden hetzelfde onderwerp met bijna dezelfde
+ * indeling. Google liet consequent de kennisbank-versie zien, óók voor de query
+ * waar de blogpost specifiek op mikte — die haalde zelf nul impressies. De
+ * unieke stukken uit de blogpost zijn in het kennisbank-artikel opgenomen.
+ *
+ *   key   = blog-slug die verdwijnt
+ *   value = pad van het kennisbank-artikel dat blijft (zonder domein)
+ */
+const BLOG_TO_KENNISBANK_REDIRECTS = {
+  "invulvelden-aanmelden-bijeenkomst-zo-stel-je-het-aanmeldformulier-goed-in":
+    "/kennisbank/deelnemersbeheer/aanmeldformulier-evenement-maken",
+};
+
+/**
  * Slugs van artikelen die niet op bijeen.app thuishoren: de content-automation
  * publiceerde er content van andere opdrachtgevers doorheen. Deze pagina's
  * worden gearchiveerd (404) — een redirect zou de verkeerde signalen doorgeven,
@@ -61,4 +77,8 @@ const OFF_TOPIC_BLOG_SLUGS = [
   "plan-directe-antwoorden-toevoegen-aan-alle-28-paginas-bijeen",
 ];
 
-module.exports = { BLOG_CANONICAL_OVERRIDES, OFF_TOPIC_BLOG_SLUGS };
+module.exports = {
+  BLOG_CANONICAL_OVERRIDES,
+  BLOG_TO_KENNISBANK_REDIRECTS,
+  OFF_TOPIC_BLOG_SLUGS,
+};
