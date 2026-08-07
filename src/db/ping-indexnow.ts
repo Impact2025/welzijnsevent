@@ -29,12 +29,13 @@ async function sitemapUrls(): Promise<string[]> {
 }
 
 async function main() {
-  const { BLOG_CANONICAL_OVERRIDES, OFF_TOPIC_BLOG_SLUGS } =
+  const { BLOG_CANONICAL_OVERRIDES, BLOG_TO_KENNISBANK_REDIRECTS, OFF_TOPIC_BLOG_SLUGS } =
     await import("../lib/blog-canonical-map.js");
 
   const live = await sitemapUrls();
   const retired = [
     ...Object.keys(BLOG_CANONICAL_OVERRIDES),
+    ...Object.keys(BLOG_TO_KENNISBANK_REDIRECTS),
     ...OFF_TOPIC_BLOG_SLUGS,
   ].map(slug => `${BASE}/blog/${slug}`);
 
