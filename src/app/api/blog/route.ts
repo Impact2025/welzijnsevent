@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { db, blogPosts } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { slugify, decideSlug } from "@/lib/publish-guard";
+import { sanitizeBlogContent } from "@/lib/seo";
 
 // Machine-auth voor volautomatische publicatie (Agent OS → live), naast de
 // admin-sessie. Auth: Authorization: Bearer <BLOG_PUBLISH_API_KEY>.
@@ -67,12 +68,16 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, content = "", excerpt, coverImage, status = "draft",
+    const { title, content: contentRaw = "", excerpt, coverImage, status = "draft",
             metaTitle, metaDescription, tags = [], internalLinks = [],
             publishedAt: publishedAtRaw,
             slug: slugRaw, allowDuplicate = false } = body;
 
     if (!title?.trim()) return NextResponse.json({ error: "Titel is verplicht" }, { status: 422 });
+
+    // Strip gelekte <article>/<header>/<title>/<meta>/<h1>-wrappers die de
+    // content-automation soms meestuurt — zie sanitizeBlogContent().
+    const content = sanitizeBlogContent(contentRaw);
 
     // Een bestaande slug betekent standaard "werk dat artikel bij". Vroeger werd
     // hier net zo lang opgehoogd tot de slug vrij was, waardoor een automation

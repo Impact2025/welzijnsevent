@@ -49,3 +49,24 @@ export const canonicalizedAwayBlogSlugs = new Set([
   ...Object.keys(OVERRIDES),
   ...Object.keys(KB_REDIRECTS),
 ]);
+
+/**
+ * De content-automation levert af en toe een heel HTML-document af (met eigen
+ * <article>/<header>/<title>/<meta>/<h1>) in plaats van een kale body-fragment.
+ * De post-template rendert al zijn eigen <h1> (uit post.title) en zijn eigen
+ * <title>/<meta name="description"> (uit generateMetadata) — een gelekte kopie
+ * daarvan in de body geeft dubbele H1's en dubbele meta-tags op de live pagina.
+ * Ontsmet daarom bij het opslaan, niet pas achteraf met een cleanup-script.
+ */
+export function sanitizeBlogContent(html: string): string {
+  let out = html;
+  out = out.replace(/<div class="meta-information"[^>]*>[\s\S]*?<\/div>\s*/i, "");
+  out = out.replace(/<!--\s*Meta-(titel|description)[\s\S]*?-->\s*/gi, "");
+  out = out.replace(/<title[^>]*>[\s\S]*?<\/title>\s*/gi, "");
+  out = out.replace(/<meta[^>]*name=["'](title|description)["'][^>]*>\s*/gi, "");
+  out = out.replace(/<h1[^>]*>[\s\S]*?<\/h1>\s*/i, "");
+  out = out.replace(/<\/?article>\s*/gi, "");
+  out = out.replace(/<header>\s*/gi, "").replace(/<\/header>\s*/gi, "");
+  out = out.replace(/<\/?section>\s*/gi, "");
+  return out.trim();
+}

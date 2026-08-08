@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { db, blogPosts } from "@/db";
 import { eq } from "drizzle-orm";
+import { sanitizeBlogContent } from "@/lib/seo";
 
 function calcReadingTime(html: string): number {
   const text  = html.replace(/<[^>]+>/g, " ");
@@ -53,8 +54,8 @@ export async function PATCH(
     const patch: Record<string, unknown> = { updatedAt: new Date() };
     if (title           !== undefined) patch.title           = title;
     if (content         !== undefined) {
-      patch.content     = content;
-      patch.readingTime = calcReadingTime(content);
+      patch.content     = sanitizeBlogContent(content);
+      patch.readingTime = calcReadingTime(patch.content as string);
     }
     if (excerpt         !== undefined) patch.excerpt         = excerpt;
     if (coverImage      !== undefined) patch.coverImage      = coverImage;
