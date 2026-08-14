@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   // `absolute` omzeilt de title.template uit de root layout. Zonder dit werd de
   // homepage-title "Bijeen — Eventplatform voor welzijnsorganisaties — Bijeen":
   // de merknaam stond er twee keer in en Google kapte de zin af.
-  title: { absolute: "Bijeen — eventplatform voor de welzijnssector" },
-  description: "Regel aanmeldingen, check-in en WMO-rapportage van je bijeenkomst in één tool. Gebouwd voor welzijnsorganisaties, stichtingen en gemeenten. Eerste event gratis.",
+  title: { absolute: "Bijeen — eventplatform voor welzijnsorganisaties: aanmelding, check-in & WMO-rapportage" },
+  description: "Regel aanmeldingen, QR-check-in en WMO-rapportage van je bijeenkomst in één tool. Gebouwd voor welzijnsorganisaties, stichtingen en gemeenten. Eerste event gratis tot 50 deelnemers.",
   keywords: ["event management welzijnsorganisatie", "WMO rapportage evenement", "deelnemersbeheer nonprofit", "QR check-in evenement", "evenementenplatform stichting"],
   authors: [{ name: "Vincent van Munster", url: "https://weareimpact.nl" }],
   alternates: { canonical: siteUrl },
