@@ -24,26 +24,34 @@ const BLOG_CANONICAL_OVERRIDES = {
   "waarom-traditionele-eventsoftware-faalt-in-het-sociaal-domein-de-noodzaak-van-ee":
     "waarom-commerciele-ticketsystemen-falen-in-het-sociaal-domein",
 
-  // ── "Wat is Bijeen?" — 4x gepubliceerd, 2x bit-voor-bit identiek ─────────
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-":   "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--2": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
-  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--3": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4",
+  // ── "Wat is Bijeen?" — 4x gepubliceerd, consolideer op het ORIGINEEL ──────
+  // Het origineel (zonder suffix) heeft de oudste GSC-historie; -2/-3/-4 zijn
+  // latere automatische herpublicaties en worden gearchiveerd.
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--2": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-",
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--3": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-",
+  "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in--4": "wat-is-bijeen-het-slimme-platform-voor-evenementenbeheer-en-impactrapportage-in-",
 
-  // ── "Vrijwilligersdag organiseren" — 4x gepubliceerd ─────────────────────
-  // Consolidatie op "-2": die stond in GSC het hoogst (pos 12,8 vs 34,8-41,0).
-  "vrijwilligersdag-organiseren-complete-gids":                                       "vrijwilligersdag-organiseren-complete-gids-2",
-  "complete-gids-van-programmering-tot-nazorg-voor-een-vrijwilligersdag-die-mensen-": "vrijwilligersdag-organiseren-complete-gids-2",
-  "vrijwilligersdag-organiseren-complete-gids-van-programmering-tot-nazorg":          "vrijwilligersdag-organiseren-complete-gids-2",
+  // ── "Vrijwilligersdag organiseren" — consolideer op het ORIGINEEL ────────
+  // Eerdere keuze wees naar -2 (hoogste GSC-positie toen), maar het origineel
+  // is de stabielere canonical en -2 is nu gearchiveerd.
+  "vrijwilligersdag-organiseren-complete-gids-2":                  "vrijwilligersdag-organiseren-complete-gids",
+  "complete-gids-van-programmering-tot-nazorg-voor-een-vrijwilligersdag-die-mensen-": "vrijwilligersdag-organiseren-complete-gids",
+  "vrijwilligersdag-organiseren-complete-gids-van-programmering-tot-nazorg":          "vrijwilligersdag-organiseren-complete-gids",
 
   // ── Tweede duplicaat-golf (augustus 2026) ────────────────────────────────
-  // Dezelfde automation-bug sloeg opnieuw toe met "-2"-slugs. Hier consolideren
-  // we juist óp het origineel: dat heeft de GSC-historie.
+  // Dezelfde automation-bug sloeg opnieuw toe met "-2"-slugs. Consolideer op
+  // het origineel (heeft de GSC-historie). De organisatiebijdrage-slug is
+  // tevens ontdaan van de "amp" (ontkopte &) → schone "en"-slug.
   "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-amp-slimme-kpis-2":
-    "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-amp-slimme-kpis",
+    "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-en-slimme-kpis",
   "sroi-berekenen-per-evenement-een-praktisch-stappenplan-met-voorbeeldberekening-2":
     "sroi-berekenen-per-evenement-een-praktisch-stappenplan-met-voorbeeldberekening",
   "welzijnsevenement-organiseren-waarom-lege-gebaren-niet-werken-en-wat-wel-2":
     "welzijnsevenement-organiseren-waarom-lege-gebaren-niet-werken-en-wat-wel",
+
+  // ── Oude "amp"-slug → schone "en"-slug (na hernoemen in DB) ──────────────
+  "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-amp-slimme-kpis":
+    "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-en-slimme-kpis",
 };
 
 /**

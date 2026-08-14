@@ -5,6 +5,7 @@ import { db, blogPosts } from "@/db";
 import { eq, desc } from "drizzle-orm";
 import { slugify, decideSlug } from "@/lib/publish-guard";
 import { sanitizeBlogContent } from "@/lib/seo";
+import { validateBlogContent, sanitizeSlug } from "@/lib/quality-guard";
 
 // Machine-auth voor volautomatische publicatie (Agent OS → live), naast de
 // admin-sessie. Auth: Authorization: Bearer <BLOG_PUBLISH_API_KEY>.
@@ -79,11 +80,30 @@ export async function POST(req: Request) {
     // content-automation soms meestuurt — zie sanitizeBlogContent().
     const content = sanitizeBlogContent(contentRaw);
 
+    // ── Pre-publish kwaliteitsguard ──────────────────────────────────────
+    // Voorkomt dat taalcorruptie (LLM-tokenrot: "without"/"nichts"/CJK),
+    // niet-ingevulde plaatshouders ("[link naar toolkit]") of zichtbare
+    // "undefined"-tekst live komen. Bij een harde fout weigeren we de publish
+    // expliciet zodat de automation het kan herstellen in plaats van rotzooi
+    // te publiceren.
+    const quality = validateBlogContent(content);
+    const hardIssues = quality.issues.filter((i) => i.severity === "hard");
+    if (hardIssues.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Content niet gepubliceerd: kwaliteitscheck gefaald.",
+          issues: hardIssues.map((i) => i.message),
+          snippet: hardIssues.map((i) => i.snippet).filter(Boolean),
+        },
+        { status: 422 },
+      );
+    }
+
     // Een bestaande slug betekent standaard "werk dat artikel bij". Vroeger werd
     // hier net zo lang opgehoogd tot de slug vrij was, waardoor een automation
     // die hetzelfde artikel opnieuw aanbood een "-2" aanmaakte in plaats van een
     // update. Zie src/lib/publish-guard.ts voor de achtergrond.
-    const requestedSlug = slugify(slugRaw?.trim() || title);
+    const requestedSlug = sanitizeSlug(slugify(slugRaw?.trim() || title));
     const decision = await decideSlug(
       requestedSlug,
       async s => (await db.select({ slug: blogPosts.slug }).from(blogPosts).where(eq(blogPosts.slug, s))).length > 0,
