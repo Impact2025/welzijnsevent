@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Feedbackformulier - Bijeen</title>
+<style>
+  :root{--accent:#C2410C;--bg:#FBF7F0;--ink:#2A2A2A;}
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:32px;}
+  .card{max-width:640px;margin:0 auto;background:#fff;border:1px solid #E7DED2;border-radius:14px;padding:28px 32px;box-shadow:0 6px 24px rgba(0,0,0,.06);}
+  h1{color:var(--accent);font-size:22px;margin:0 0 4px}
+  p.sub{margin:0 0 20px;color:#6b6256;font-size:14px}
+  label{display:block;font-weight:600;margin:18px 0 6px}
+  input[type=text],textarea{width:100%;padding:10px 12px;border:1px solid #d8cfc0;border-radius:8px;font:inherit;}
+  textarea{min-height:80px;resize:vertical}
+  .scale{display:flex;gap:6px;flex-wrap:wrap}
+  .scale input{display:none}
+  .scale label{flex:1;min-width:34px;text-align:center;margin:0;padding:8px 0;border:1px solid #d8cfc0;border-radius:8px;cursor:pointer;background:#fff;font-weight:600}
+  .scale input:checked+label{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button{margin-top:24px;width:100%;background:var(--accent);color:#fff;border:0;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+  button:hover{opacity:.92}
+  .thanks{display:none;text-align:center;padding:24px 0}
+  .thanks h2{color:var(--accent)}
+</style></head>
+<body><div class="card">
+  <div id="form">
+    <h1>Feedbackformulier</h1>
+    <p class="sub">Bijeen — vul dit direct na je activiteit in. Vraag naar specifieke momenten, niet naar algemene tevredenheid.</p>
+    <form onsubmit="document.getElementById('form').style.display='none';document.getElementById('thanks').style.display='block';return false;">
+      <label>1. Waar was je voor gekomen?</label>
+      <textarea name="q1" required placeholder="Beschrijf kort het moment dat je zocht..."></textarea>
+      <label>2. Wat had beter gekund?</label>
+      <textarea name="q2" placeholder="Eén eerlijk verbeterpunt..."></textarea>
+      <label>3. Zou je dit weer meedoen? (1 = nee, 10 = zeker)</label>
+      <div class="scale">
+        <input type="radio" name="q3" id="s1" value="1" required><label for="s1">1</label><input type="radio" name="q3" id="s2" value="2" required><label for="s2">2</label><input type="radio" name="q3" id="s3" value="3" required><label for="s3">3</label><input type="radio" name="q3" id="s4" value="4" required><label for="s4">4</label><input type="radio" name="q3" id="s5" value="5" required><label for="s5">5</label><input type="radio" name="q3" id="s6" value="6" required><label for="s6">6</label><input type="radio" name="q3" id="s7" value="7" required><label for="s7">7</label><input type="radio" name="q3" id="s8" value="8" required><label for="s8">8</label><input type="radio" name="q3" id="s9" value="9" required><label for="s9">9</label><input type="radio" name="q3" id="s10" value="10" required><label for="s10">10</label>
+      </div>
+      <label>Waarom deze score?</label>
+      <textarea name="q3why" placeholder="Wat gaf de doorslag?"></textarea>
+      <button type="submit">Verstuur feedback</button>
+    </form>
+  </div>
+  <div id="thanks" class="thanks">
+    <h2>Dankjewel!</h2>
+    <p>Je feedback is waardevol. Bespreek de uitkomst kort in het team en vertaal één punt naar de volgende activiteit.</p>
+  </div>
+</div></body></html>

@@ -45,6 +45,14 @@ const nextConfig = {
         permanent: true,
       })),
 
+      // Slug-hygiene: oude "amp"-slug (ontkopte &) → schone "en"-slug.
+      // Voorkomt dode links vanuit gecachete IndexNow/bookmarks.
+      {
+        source: '/blog/toolkit-amp-checklist-je-organiseert-activiteiten-die-echt-aansluiten',
+        destination: '/blog/toolkit-en-checklist-je-organiseert-activiteiten-die-echt-aansluiten',
+        permanent: true,
+      },
+
       // Blogartikelen die zijn opgegaan in een kennisbank-artikel.
       ...Object.entries(BLOG_TO_KENNISBANK_REDIRECTS).map(([from, to]) => ({
         source: `/blog/${from}`,

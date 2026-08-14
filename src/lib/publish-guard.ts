@@ -20,6 +20,8 @@ import { BLOG_CANONICAL_OVERRIDES, OFF_TOPIC_BLOG_SLUGS } from "./blog-canonical
 
 export function slugify(str: string): string {
   return str
+    .replace(/&amp;/gi, " en ") // ontkoppelde HTML-entiteit eerst terug naar woord
+    .replace(/&/g, " en ")      // kale & → "en" (voorkomt "amp" in slug)
     .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
