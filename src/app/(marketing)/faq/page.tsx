@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Zap, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { breadcrumbSchema } from "@/lib/seo-kit";
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -220,6 +221,13 @@ export default function FaqPage() {
 
   return (
     <div className="bg-cream min-h-screen pt-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema([
+          { name: "Home", url: "https://bijeen.app/" },
+          { name: "FAQ", url: "https://bijeen.app/faq" },
+        ])) }}
+      />
 
       {/* ── HERO ───────────────────────────────────────────────── */}
       <section className="bg-[#12100E] pt-16 pb-20 sm:pt-20 sm:pb-24 relative overflow-hidden">
