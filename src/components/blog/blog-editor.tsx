@@ -9,11 +9,14 @@ import Image from "@tiptap/extension-image";
 import { TextStyle, Color } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import CharacterCount from "@tiptap/extension-character-count";
+import Youtube from "@tiptap/extension-youtube";
+import { PodcastEmbed } from "./podcast-embed-extension";
 import { useEffect, useCallback, useState, forwardRef, useImperativeHandle } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   Heading1, Heading2, Heading3, Minus, Link as LinkIcon, Image as ImageIcon,
   Quote, Code, Redo, Undo, Highlighter, Strikethrough, RemoveFormatting,
+  Youtube as YoutubeIcon, Mic,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +71,12 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
   const [showLink, setShowLink]     = useState(false);
   const [imageUrl, setImageUrl]     = useState("");
   const [showImage, setShowImage]   = useState(false);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [showYoutube, setShowYoutube] = useState(false);
+  const [podcastUrl, setPodcastUrl]         = useState("");
+  const [podcastTitle, setPodcastTitle]     = useState("");
+  const [podcastTranscript, setPodcastTranscript] = useState("");
+  const [showPodcast, setShowPodcast]       = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -88,6 +97,8 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
       CharacterCount,
       Link.configure({ openOnClick: false, autolink: true, linkOnPaste: true }),
       Image.configure({ allowBase64: false }),
+      Youtube.configure({ nocookie: true, width: 640, height: 360 }),
+      PodcastEmbed,
     ],
     content: value || "",
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
@@ -165,6 +176,26 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
     editor.chain().focus().setImage({ src: imageUrl }).run();
     setImageUrl("");
     setShowImage(false);
+  };
+
+  const insertYoutube = () => {
+    if (!editor || !youtubeUrl) return;
+    editor.commands.setYoutubeVideo({ src: youtubeUrl });
+    setYoutubeUrl("");
+    setShowYoutube(false);
+  };
+
+  const insertPodcast = () => {
+    if (!editor || !podcastUrl) return;
+    editor.chain().focus().setPodcastEmbed({
+      audioUrl: podcastUrl,
+      title: podcastTitle || undefined,
+      transcript: podcastTranscript || undefined,
+    }).run();
+    setPodcastUrl("");
+    setPodcastTitle("");
+    setPodcastTranscript("");
+    setShowPodcast(false);
   };
 
   const charCount = editor ? editor.storage.characterCount.characters() : 0;
@@ -251,14 +282,26 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
 
         {/* Link */}
         <Btn title="Link invoegen" active={editor.isActive("link") || showLink}
-          onClick={() => { setShowLink(v => !v); setShowImage(false); }}>
+          onClick={() => { setShowLink(v => !v); setShowImage(false); setShowYoutube(false); setShowPodcast(false); }}>
           <LinkIcon size={13} />
         </Btn>
 
         {/* Image */}
         <Btn title="Afbeelding invoegen" active={showImage}
-          onClick={() => { setShowImage(v => !v); setShowLink(false); }}>
+          onClick={() => { setShowImage(v => !v); setShowLink(false); setShowYoutube(false); setShowPodcast(false); }}>
           <ImageIcon size={13} />
+        </Btn>
+
+        {/* YouTube */}
+        <Btn title="YouTube-video invoegen" active={showYoutube}
+          onClick={() => { setShowYoutube(v => !v); setShowLink(false); setShowImage(false); setShowPodcast(false); }}>
+          <YoutubeIcon size={13} />
+        </Btn>
+
+        {/* Podcast + transcript */}
+        <Btn title="Podcast met transcript invoegen" active={showPodcast}
+          onClick={() => { setShowPodcast(v => !v); setShowLink(false); setShowImage(false); setShowYoutube(false); }}>
+          <Mic size={13} />
         </Btn>
 
         {/* Remove formatting */}
@@ -317,6 +360,63 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
             className="text-xs font-semibold text-amber-600 hover:text-amber-800 transition-colors px-2 py-0.5 rounded-md hover:bg-amber-100">
             Invoegen
           </button>
+        </div>
+      )}
+
+      {/* YouTube URL input */}
+      {showYoutube && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-[#E8E4DE] bg-red-50">
+          <YoutubeIcon size={14} className="text-red-500 shrink-0" />
+          <input
+            autoFocus
+            type="url"
+            value={youtubeUrl}
+            onChange={e => setYoutubeUrl(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); insertYoutube(); } if (e.key === "Escape") setShowYoutube(false); }}
+            placeholder="https://www.youtube.com/watch?v=..."
+            className="flex-1 text-sm bg-transparent border-none outline-none text-[#1C1814] placeholder:text-[#9E9890]"
+          />
+          <button type="button" onClick={insertYoutube}
+            className="text-xs font-semibold text-red-600 hover:text-red-800 transition-colors px-2 py-0.5 rounded-md hover:bg-red-100">
+            Invoegen
+          </button>
+        </div>
+      )}
+
+      {/* Podcast + transcript input */}
+      {showPodcast && (
+        <div className="flex flex-col gap-2 px-3 py-3 border-b border-[#E8E4DE] bg-violet-50">
+          <div className="flex items-center gap-2">
+            <Mic size={14} className="text-violet-500 shrink-0" />
+            <input
+              autoFocus
+              type="url"
+              value={podcastUrl}
+              onChange={e => setPodcastUrl(e.target.value)}
+              placeholder="https://... (directe audio-URL, bv. .mp3)"
+              className="flex-1 text-sm bg-white rounded-lg px-2 py-1.5 border border-violet-200 outline-none text-[#1C1814] placeholder:text-[#9E9890]"
+            />
+          </div>
+          <input
+            type="text"
+            value={podcastTitle}
+            onChange={e => setPodcastTitle(e.target.value)}
+            placeholder="Titel van de aflevering (optioneel)"
+            className="text-sm bg-white rounded-lg px-2 py-1.5 border border-violet-200 outline-none text-[#1C1814] placeholder:text-[#9E9890]"
+          />
+          <textarea
+            value={podcastTranscript}
+            onChange={e => setPodcastTranscript(e.target.value)}
+            placeholder="Plak hier het transcript (alinea's gescheiden door een lege regel)..."
+            rows={5}
+            className="text-sm bg-white rounded-lg px-2 py-1.5 border border-violet-200 outline-none text-[#1C1814] placeholder:text-[#9E9890] resize-y"
+          />
+          <div className="flex justify-end">
+            <button type="button" onClick={insertPodcast} disabled={!podcastUrl}
+              className="text-xs font-semibold text-violet-700 hover:text-violet-900 transition-colors px-3 py-1.5 rounded-md hover:bg-violet-100 disabled:opacity-40">
+              Invoegen
+            </button>
+          </div>
         </div>
       )}
 
