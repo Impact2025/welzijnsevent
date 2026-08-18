@@ -118,15 +118,22 @@ export function buildCoverSvg(opts: {
   const titleLines = wrapTitle(opts.title);
   const tags = (opts.tags ?? []).filter(Boolean).slice(0, 3);
 
-  // Diagonale band + grid-patroon voor diepte
+  // Vaste, niet-overlappende posities:
+  //  - chips:   altijd bovenaan (y=72, hoogte 40 → 72..112)
+  //  - titel:   start altijd ONDER de chips en groeit naar beneden (elke regel +62)
+  //  - merk:    altijd onderaan (H - 96)
+  // Zo kan een 4-regelige titel nooit de chips of het merk raken.
+  const CHIP_Y = 72;
+  const TITLE_START = 300;
+  const LINE_H = 62;
   const lines = titleLines
     .map((ln, i) => {
-      const y = 350 - (titleLines.length - 1 - i) * 64 + (titleLines.length > 1 ? 20 : 0);
+      const y = TITLE_START + i * LINE_H;
       return `<text x="80" y="${y}" font-family="Inter, system-ui, sans-serif" font-size="58" font-weight="800" fill="${t.ink}" letter-spacing="-1">${escapeXml(ln)}</text>`;
     })
     .join("");
 
-  const chipY = 250;
+  const chipY = CHIP_Y;
   const chips = tags
     .map((tag, i) => {
       const label = `#${tag}`;
