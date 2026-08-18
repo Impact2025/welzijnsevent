@@ -34,6 +34,7 @@ const PUBLIC_PREFIXES = [
   "/api/survey",
   "/api/custom-fields",
   "/api/public",
+  "/api/og",
   "/api/ai/assistant",
   "/api/attendees",
   "/api/waitlist",
