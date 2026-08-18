@@ -52,6 +52,13 @@ const BLOG_CANONICAL_OVERRIDES = {
   // ── Oude "amp"-slug → schone "en"-slug (na hernoemen in DB) ──────────────
   "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-amp-slimme-kpis":
     "organisatiebijdrage-meten-zo-doe-je-dat-met-data-seo-en-slimme-kpis",
+
+  // ── "Sociale cohesie versterken" — consolideer op de FAQ-rijke versie ───
+  // Beide gepubliceerd 13-14 aug met identieke titel. De -met-een-evenement-
+  // variant heeft de rijkere body (13 headings + FAQ-sectie) en wordt canoniek;
+  // de kortere -evenement- variant wordt gearchiveerd en hierheen geredirect.
+  "sociale-cohesie-versterken-evenement-6-aanpakken":
+    "sociale-cohesie-versterken-met-een-evenement-6-aanpakken-die-werken",
 };
 
 /**
