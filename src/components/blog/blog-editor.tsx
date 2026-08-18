@@ -11,12 +11,12 @@ import Highlight from "@tiptap/extension-highlight";
 import CharacterCount from "@tiptap/extension-character-count";
 import Youtube from "@tiptap/extension-youtube";
 import { PodcastEmbed } from "./podcast-embed-extension";
-import { useEffect, useCallback, useState, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useCallback, useState, useRef, forwardRef, useImperativeHandle } from "react";
 import {
   Bold, Italic, Underline as UnderlineIcon, List, ListOrdered,
   Heading1, Heading2, Heading3, Minus, Link as LinkIcon, Image as ImageIcon,
   Quote, Code, Redo, Undo, Highlighter, Strikethrough, RemoveFormatting,
-  Youtube as YoutubeIcon, Mic,
+  Youtube as YoutubeIcon, Mic, Upload, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +77,9 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
   const [podcastTitle, setPodcastTitle]     = useState("");
   const [podcastTranscript, setPodcastTranscript] = useState("");
   const [showPodcast, setShowPodcast]       = useState(false);
+  const [podcastUploading, setPodcastUploading] = useState(false);
+  const [podcastUploadError, setPodcastUploadError] = useState("");
+  const podcastFileRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -197,6 +200,29 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
     setPodcastTranscript("");
     setShowPodcast(false);
   };
+
+  async function uploadPodcastFile(file: File) {
+    setPodcastUploading(true);
+    setPodcastUploadError("");
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const res  = await fetch("/api/upload/audio", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) { setPodcastUploadError(data.error ?? "Upload mislukt"); return; }
+      setPodcastUrl(data.url);
+    } catch {
+      setPodcastUploadError("Upload mislukt");
+    } finally {
+      setPodcastUploading(false);
+    }
+  }
+
+  function handlePodcastFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) uploadPodcastFile(file);
+    e.target.value = "";
+  }
 
   const charCount = editor ? editor.storage.characterCount.characters() : 0;
   const wordCount = editor ? editor.getText().trim().split(/\s+/).filter(Boolean).length : 0;
@@ -396,7 +422,16 @@ export const BlogEditor = forwardRef<BlogEditorHandle, Props>(function BlogEdito
               placeholder="https://... (directe audio-URL, bv. .mp3)"
               className="flex-1 text-sm bg-white rounded-lg px-2 py-1.5 border border-violet-200 outline-none text-[#1C1814] placeholder:text-[#9E9890]"
             />
+            <input ref={podcastFileRef} type="file" accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/mp4,audio/x-m4a,audio/aac"
+              onChange={handlePodcastFile} className="hidden" />
+            <button type="button" onClick={() => podcastFileRef.current?.click()} disabled={podcastUploading}
+              title="Audiobestand uploaden"
+              className="flex items-center gap-1.5 shrink-0 text-xs font-semibold text-violet-700 hover:text-violet-900 bg-white border border-violet-200 hover:bg-violet-100 px-2.5 py-1.5 rounded-lg transition-colors disabled:opacity-50">
+              {podcastUploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+              Uploaden
+            </button>
           </div>
+          {podcastUploadError && <p className="text-xs text-red-500 -mt-1">{podcastUploadError}</p>}
           <input
             type="text"
             value={podcastTitle}
