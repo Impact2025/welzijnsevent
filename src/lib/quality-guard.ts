@@ -61,6 +61,44 @@ const CORRUPTION_TOKENS = new Set([
   "の", "は", "を", "に", "が", "と", "です", "ます", "例えば",
 ]);
 
+// ── 1b. Woorden die in het Nederlands (of als leenwoord) wél geldig zijn ──
+// Deze mogen NOOIT als "tokenrot" worden flagt, ook niet als ze toevallig in
+// CORRUPTION_TOKENS staan. Zonder deze set falen normale NL-zinnen
+// ("er is", "in de", "die man", "het was", "alles half open", "was in die per
+// er start waren half") ten onrechte — en blokkeert de publish met een 422
+// terwijl de tekst perfect Nederlands is. Gespiegeld aan de Python
+// quality_guard.DUTCH_SAFE (Agent OS backend), die wel een safe-list had en
+// daardoor geen false-positives gaf. 18 aug 2026: de site-guard miste deze
+// set en wees gezonde Bijeen-artikelen af op woorden als "die", "in", "er",
+// "was", "per", "via", "half", "help", "start", "alles", "last".
+const DUTCH_SAFE = new Set([
+  // Nederlandse functiewoorden / lidwoorden / voornaamwoorden / voorzetsels
+  "de", "het", "een", "en", "van", "in", "op", "aan", "met", "voor", "naar",
+  "bij", "door", "over", "onder", "tussen", "zonder", "om", "tot", "als",
+  "dat", "dit", "deze", "ons", "jij", "hij", "zij", "ze", "wij", "ik", "mij",
+  "je", "jou", "u", "uw", "zijn", "haar", "hen", "hun", "waar", "wanneer",
+  "hoe", "waarom", "welke", "elke", "alle", "veel", "weinig", "sommige",
+  "andere", "zelfde", "zelf", "echt", "zeker", "makkelijk", "moeilijk",
+  "snel", "langzaam", "vroeg", "laat", "groot", "klein", "hoog", "laag",
+  "lang", "kort", "levend", "dood", "gratis", "vol", "beide", "enige",
+  "eigen",
+  // de specifieke false-positives uit de productie-logs van 18-08
+  "er", "was", "waren", "alles", "per", "half", "open", "start", "let",
+  "via", "see", "get", "set", "end", "out", "use", "used", "using", "make",
+  "made", "find", "found", "need", "needs", "one", "two", "you", "your",
+  "are", "have", "has", "been", "they", "their", "there", "here", "what",
+  "when", "where", "which", "while", "about", "into", "also", "can",
+  "should", "would", "could", "may", "might", "each", "other", "than",
+  "then", "them", "these", "those", "some", "such", "only", "just", "like",
+  "more", "most", "very", "first", "last", "next", "new", "old", "good",
+  "best", "well", "how", "why", "who", "whom", "whose", "our", "from",
+  "this", "that", "with", "for", "and", "the", "a", "an", "to", "of", "at",
+  "is", "it", "as", "be", "do", "we", "he", "she", "my", "me", "not", "no",
+  "so", "up", "by", "or", "if", "his", "were", "will", "die", "last",
+  "help", "verder", "snel", "laat", "werk", "speel", "toon", "draai",
+  "verplaats", "levens", "vrij", "volle", "beide", "allemaal", "paar",
+]);
+
 // ── 2. Plaatshouders die nooit live mogen ─────────────────────────────────
 const PLACEHOLDER_PATTERNS: Array<[RegExp, string]> = [
   [/\[link\b[^\]]*\]/i, "lege download-/link-plaatshouder '[link …]'"],
@@ -117,12 +155,18 @@ export function validateBlogContent(html: string): QualityReport {
   const text = toText(html);
   const toks = tokens(text);
 
-  // (a) Exacte corruptie-tokens
+  // (a) Exacte corruptie-tokens — maar ALLEEN als het woord niet in het
+  // Nederlands voorkomt (DUTCH_SAFE). Zonder die uitsluiting flagt elke
+  // gewone NL-zin ("er was in die per …") ten onrechte als tokenrot.
   const hits = new Set<string>();
   for (const t of toks) {
-    if (CORRUPTION_TOKENS.has(t)) hits.add(t);
+    if (CORRUPTION_TOKENS.has(t) && !DUTCH_SAFE.has(t)) hits.add(t);
   }
-  if (hits.size > 0) {
+  // Drempel: één los Engels zinnetje in een NL-artikel (ratio < drempel) mag de
+  // publish niet killen; structurele rot (>= 2 écht vreemde tokens) wel.
+  // DUTCH_SAFE voorkomt false-positives op woorden die in het Nederlands geldig
+  // zijn ("er", "in", "die", "was" …). Gespiegeld aan de Python-backend-guard.
+  if (hits.size >= 2) {
     const hitList = Array.from(hits);
     issues.push({
       severity: "hard",
