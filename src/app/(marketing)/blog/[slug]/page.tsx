@@ -8,6 +8,7 @@ import { nl } from "date-fns/locale";
 import { Clock, Tag, ArrowLeft, ArrowRight, ExternalLink, Linkedin, MessageCircle, Zap } from "lucide-react";
 import type { Metadata } from "next";
 import { truncateMetaTitle, truncateMetaDescription, BLOG_CANONICAL_OVERRIDES } from "@/lib/seo";
+import { getCoverUrl } from "@/lib/blog-cover";
 
 export const revalidate = 60;
 
@@ -26,7 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title       = truncateMetaTitle(post.metaTitle || post.title);
   const description = truncateMetaDescription(post.metaDescription || post.excerpt || "");
   const siteUrl     = process.env.NEXT_PUBLIC_APP_URL ?? "https://bijeen.app";
-  const ogImage     = post.coverImage && !post.coverImage.startsWith("color:") ? post.coverImage : undefined;
+  // Gebruik de branded OG-afbeelding voor elke post (ook auto-covers) zodat
+  // delen op LinkedIn/FB altijd een scherpe, gebrand-merkte card oplevert.
+  const ogImage     = `${siteUrl}/api/og/blog/${params.slug}`;
 
   // Kannibalisatie: laat een zwakker duplicaat naar het canonieke artikel wijzen.
   const canonicalSlug = BLOG_CANONICAL_OVERRIDES[params.slug] ?? params.slug;
@@ -133,7 +136,7 @@ export default async function BlogPostPage({ params }: Props) {
         description: post.metaDescription || post.excerpt,
         datePublished: post.publishedAt?.toISOString(),
         dateModified: post.updatedAt?.toISOString(),
-        image: post.coverImage && !post.coverImage.startsWith("color:") ? post.coverImage : undefined,
+        image: `${siteUrl}/api/og/blog/${post.slug}`,
         url: `${siteUrl}/blog/${post.slug}`,
         author: {
           "@type": "Person",
@@ -172,15 +175,21 @@ export default async function BlogPostPage({ params }: Props) {
       )}
 
       {/* Cover image of kleur-header */}
-      {post.coverImage && (
-        post.coverImage.startsWith("color:") ? (
-          <div className="w-full h-52 md:h-72" style={{ backgroundColor: post.coverImage.slice(6) }} />
-        ) : (
+      {(() => {
+        const cover = getCoverUrl(post);
+        if (cover.isAuto) {
+          return (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={cover.url} alt={post.title}
+              className="w-full h-[280px] md:h-[420px] object-cover" />
+          );
+        }
+        return (
           <div className="relative w-full h-[280px] md:h-[420px] overflow-hidden">
-            <Image src={post.coverImage} alt={post.title} fill priority sizes="100vw" className="object-cover" />
+            <Image src={post.coverImage!} alt={post.title} fill priority sizes="100vw" className="object-cover" />
           </div>
-        )
-      )}
+        );
+      })()}
 
       {/* Article header */}
       <div className="max-w-3xl mx-auto px-6 pt-12 pb-2">

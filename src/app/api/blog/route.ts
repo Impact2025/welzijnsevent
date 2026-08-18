@@ -117,13 +117,12 @@ export async function POST(req: Request) {
     const slug = decision.slug;
 
     // Agent OS-posted artikelen sturen (nog) geen coverImage mee → geef ze een
-    // huisstijl-kleur (warm Bijeen-palet) zodat ze geen lege ✍️-placeholder
-    // tonen maar een gekleurd blok, net als handmatig aangemaakte kleur-posts.
-    // Blijft deterministisch per slug zodat dezelfde post altijd dezelfde kleur houdt.
-    const COVER_COLORS = ["#C8522A", "#E08A3C", "#B5651D", "#A23E48", "#C2410C"];
+    // gebrand-merkte, automatische cover (svg data-uri in de UI, PNG-achtige
+    // look via /api/og/blog/[slug] voor social). Blijft deterministisch per
+    // slug zodat dezelfde post altijd dezelfde kleur/look houdt.
     const coverImageValue = (coverImage && String(coverImage).trim())
       ? coverImage
-      : `color:${COVER_COLORS[slug.length % COVER_COLORS.length]}`;
+      : "autocover:auto";
 
     const readingTime = calcReadingTime(content);
     const publishedAt = status === "published"

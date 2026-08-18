@@ -7,6 +7,7 @@ import { nl } from "date-fns/locale";
 import { Clock, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import { canonicalizedAwayBlogSlugs } from "@/lib/seo";
+import { getCoverUrl } from "@/lib/blog-cover";
 
 export const revalidate = 60;
 
@@ -118,22 +119,20 @@ export default async function BlogPage() {
         )}
 
         {/* ── Featured post ─────────────────────────────────────── */}
-        {featured && (
+        {featured && (() => {
+          const cover = getCoverUrl(featured);
+          return (
           <Link href={`/blog/${featured.slug}`}
             className="group block bg-white rounded-3xl border border-[#E8E4DE] overflow-hidden hover:border-[#C8522A]/50 hover:shadow-xl transition-all duration-300 mb-12">
             <div className="flex flex-col md:flex-row">
-              {featured.coverImage ? (
-                <div className="relative md:w-2/5 shrink-0 h-64 md:h-auto">
-                  {featured.coverImage.startsWith("color:") ? (
-                    <div className="w-full h-64 md:h-full" style={{ backgroundColor: featured.coverImage.slice(6) }} />
-                  ) : (
-                    <Image src={featured.coverImage} alt={featured.title} fill priority
-                      sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
-                  )}
-                </div>
+              {cover.isAuto ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={cover.url} alt={featured.title}
+                  className="md:w-2/5 shrink-0 h-64 md:h-auto w-full object-cover" />
               ) : (
-                <div className="md:w-2/5 shrink-0 bg-gradient-to-br from-[#C8522A]/15 via-[#C8522A]/5 to-[#1C1814]/10 flex items-center justify-center h-64 md:h-auto">
-                  <span className="text-7xl opacity-20">✍️</span>
+                <div className="relative md:w-2/5 shrink-0 h-64 md:h-auto">
+                  <Image src={featured.coverImage!} alt={featured.title} fill priority
+                    sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
                 </div>
               )}
               <div className="flex-1 p-8 md:p-10 flex flex-col justify-center">
@@ -168,7 +167,8 @@ export default async function BlogPage() {
               </div>
             </div>
           </Link>
-        )}
+          );
+        })()}
 
         {/* ── Grid ──────────────────────────────────────────────── */}
         {rest.length > 0 && (
@@ -178,22 +178,20 @@ export default async function BlogPage() {
               <div className="flex-1 h-px bg-[#E8E4DE]" />
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rest.map(post => (
+              {rest.map(post => {
+                const cover = getCoverUrl(post);
+                return (
                 <Link key={post.id} href={`/blog/${post.slug}`}
                   className="group bg-white rounded-2xl border border-[#E8E4DE] overflow-hidden hover:border-[#C8522A]/50 hover:shadow-lg transition-all duration-300 flex flex-col">
-                  {post.coverImage ? (
-                    post.coverImage.startsWith("color:") ? (
-                      <div className="w-full h-44" style={{ backgroundColor: post.coverImage.slice(6) }} />
-                    ) : (
-                      <div className="relative w-full h-44">
-                        <Image src={post.coverImage} alt={post.title} fill
-                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                          className="object-cover" />
-                      </div>
-                    )
+                  {cover.isAuto ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={cover.url} alt={post.title}
+                      className="w-full h-44 object-cover" />
                   ) : (
-                    <div className="h-44 bg-gradient-to-br from-[#F5F2EE] to-[#EDE8E2] flex items-center justify-center">
-                      <span className="text-4xl opacity-25">✍️</span>
+                    <div className="relative w-full h-44">
+                      <Image src={post.coverImage!} alt={post.title} fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover" />
                     </div>
                   )}
                   <div className="flex-1 p-5 flex flex-col">
@@ -225,7 +223,8 @@ export default async function BlogPage() {
                     </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </>
         )}
